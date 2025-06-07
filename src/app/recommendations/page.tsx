@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
+import { getAIRecommendations, resolveWithTMDB } from "@/lib/api/ai";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
 
@@ -54,21 +55,40 @@ export default function Recommendations() {
         .filter(item => selectedLikedMediaIds.includes(item.id))
         .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
 
-      // Fetch concurrently
-      const [moviesAndTv, anime] = await Promise.all([
-        fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, activeProfile?.includeAdult || false),
-        mediaType === "all" || mediaType === "anime" ? fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds, activeProfile?.includeAdult || false) : Promise.resolve([])
-      ]);
+      let finalResults: MediaCardProps[] = [];
 
-      // Combine and shuffle
-      const combined = [...moviesAndTv, ...anime].sort(() => Math.random() - 0.5);
-      
-      // Deduplicate locally just in case
-      const uniqueMap = new Map();
-      combined.forEach(item => {
-        if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
-      });
-      const finalResults = Array.from(uniqueMap.values());
+      try {
+        const aiRecs = await getAIRecommendations({
+          moods: selectedMoods,
+          availableTime,
+          mediaType,
+          watchHistory: watchHistory.map(w => ({ title: w.title, type: w.type, rating: w.userRating || w.rating })),
+          likedTitles: watchHistory.filter(item => selectedLikedMediaIds.includes(item.id)).map(item => item.title),
+          includeAdult: activeProfile?.includeAdult || false
+        });
+
+        if (aiRecs && aiRecs.length > 0) {
+          finalResults = await resolveWithTMDB(aiRecs, activeProfile?.includeAdult || false);
+        }
+      } catch (error) {
+        console.error("Error with AI recommendations:", error);
+      }
+
+      // Fallback to TMDB/AniList if AI fails or returns empty
+      if (finalResults.length === 0) {
+        const [moviesAndTv, anime] = await Promise.all([
+          fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, activeProfile?.includeAdult || false),
+          mediaType === "all" || mediaType === "anime" ? fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds, activeProfile?.includeAdult || false) : Promise.resolve([])
+        ]);
+
+        const combined = [...moviesAndTv, ...anime].sort(() => Math.random() - 0.5);
+        
+        const uniqueMap = new Map();
+        combined.forEach(item => {
+          if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
+        });
+        finalResults = Array.from(uniqueMap.values());
+      }
 
       setResults(finalResults);
       setCachedRecommendations(finalResults);

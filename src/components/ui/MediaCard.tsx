@@ -16,6 +16,7 @@ export interface MediaCardProps {
   href?: string;
   onClick?: (e?: any) => void;
   isBasedOnLikes?: boolean;
+  reason?: string;
 }
 
 export function MediaCard({
@@ -28,6 +29,7 @@ export function MediaCard({
   href,
   onClick,
   isBasedOnLikes,
+  reason,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
@@ -109,7 +111,7 @@ export function MediaCard({
       </div>
       
       {/* Small Text Section Below the Image (Shows the ambient blur behind it) */}
-      <div className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10">
+      <div className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10 group-hover:bg-black/40 transition-colors">
         <h3 
           style={{ viewTransitionName: `card-title-${type}-${id}` }}
           className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md w-fit"
@@ -118,6 +120,11 @@ export function MediaCard({
         </h3>
         {runtime && (
           <span className="text-[11px] font-medium text-white/70 mt-0.5">{runtime}m</span>
+        )}
+        {reason && (
+          <p className="text-[11px] text-white/80 mt-2 line-clamp-3 leading-snug opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="font-bold text-yellow-400">Why: </span>{reason}
+          </p>
         )}
       </div>
     </Wrapper>
