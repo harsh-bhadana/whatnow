@@ -40,6 +40,7 @@ $env:GIT_AUTHOR_DATE = $commitDate.ToString("yyyy-MM-ddTHH:mm:ss")
 $env:GIT_COMMITTER_DATE = $commitDate.ToString("yyyy-MM-ddTHH:mm:ss")
 
 # Execute git commit
+git add .
 git commit -m $Message
 
 Write-Host "Committed as $($commitDate.ToString('yyyy-MM-dd HH:mm:ss')) (Commit $($state.CommitsToday) of $($state.TargetToday) for today)"
