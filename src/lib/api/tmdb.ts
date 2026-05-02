@@ -4,6 +4,20 @@ const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
+// Mood to TMDB Genre IDs mapping
+const MOOD_TO_TMDB_GENRE: Record<string, number[]> = {
+  "Cozy": [10751, 10749, 35], // Family, Romance, Comedy
+  "Adrenaline": [28, 53, 12], // Action, Thriller, Adventure
+  "Laughs": [35], // Comedy
+  "Tears": [18], // Drama
+  "Thought-provoking": [878, 9648], // Sci-Fi, Mystery
+  "Spooky": [27, 53], // Horror, Thriller
+  "Heartwarming": [10751, 10749], // Family, Romance
+  "Epic": [12, 14, 36], // Adventure, Fantasy, History
+  "Mind-bending": [878, 9648], // Sci-Fi, Mystery
+  "Nostalgic": [10751, 35] // Family, Comedy
+};
+
 // Mock data fallback if API key is not present
 const MOCK_DATA: MediaCardProps[] = [
   {
@@ -35,34 +49,48 @@ const MOCK_DATA: MediaCardProps[] = [
   }
 ];
 
-export async function fetchRecommendations(timeLimit: number, moods: string[]): Promise<MediaCardProps[]> {
+export async function fetchRecommendations(
+  timeLimit: number, 
+  moods: string[], 
+  watchedHistoryIds: number[] = []
+): Promise<MediaCardProps[]> {
+  
   if (!TMDB_API_KEY) {
     console.warn("TMDB API key is missing. Returning mock data.");
-    // Filter mock data by time limit just to show logic
-    return MOCK_DATA.filter(item => (item.runtime || 0) <= timeLimit);
+    return MOCK_DATA.filter(item => 
+      (item.runtime || 0) <= timeLimit && !watchedHistoryIds.includes(item.id)
+    );
   }
 
   try {
-    // Basic example fetching popular movies
-    // In a real scenario, we would map `moods` to TMDB genre IDs
-    // and use the /discover/movie endpoint filtering by with_genres and with_runtime.lte
+    // Collect all unique genre IDs based on selected moods
+    const genreIds = new Set<number>();
+    moods.forEach(mood => {
+      if (MOOD_TO_TMDB_GENRE[mood]) {
+        MOOD_TO_TMDB_GENRE[mood].forEach(id => genreIds.add(id));
+      }
+    });
+    
+    const genreParam = Array.from(genreIds).join('|'); // OR logic for genres
+
     const res = await fetch(
-      `${BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_runtime.lte=${timeLimit}&sort_by=popularity.desc`
+      `${BASE_URL}/discover/movie?api_key=${TMDB_API_KEY}&with_runtime.lte=${timeLimit}&with_genres=${genreParam}&sort_by=popularity.desc`
     );
     const data = await res.json();
 
     if (!data.results) return [];
 
-    return data.results.map((item: any): MediaCardProps => ({
-      id: item.id,
-      title: item.title || item.name,
-      imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
-      rating: item.vote_average,
-      type: "movie",
-      shape: Math.random() > 0.6 ? "asymmetric" : (Math.random() > 0.5 ? "pill" : "default"), // Randomize shapes for M3 look
-      // TMDB discover doesn't return exact runtime in the list, would need a separate call per movie for exact runtime
-      // but we filtered by it, so we can just omit it or fetch details later.
-    }));
+    return data.results
+      .filter((item: any) => !watchedHistoryIds.includes(item.id)) // Exclude watched
+      .slice(0, 10) // Limit to top 10 from TMDB
+      .map((item: any): MediaCardProps => ({
+        id: item.id,
+        title: item.title || item.name,
+        imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
+        rating: item.vote_average,
+        type: "movie",
+        shape: Math.random() > 0.6 ? "asymmetric" : (Math.random() > 0.5 ? "pill" : "default"),
+      }));
   } catch (error) {
     console.error("Failed to fetch TMDB recommendations", error);
     return [];

@@ -2,6 +2,20 @@ import { MediaCardProps } from "@/components/ui/MediaCard";
 
 const ANILIST_URL = "https://graphql.anilist.co";
 
+// Mood to AniList Genre/Tag mapping
+const MOOD_TO_ANILIST: Record<string, string[]> = {
+  "Cozy": ["Slice of Life", "Iyashikei", "Comedy"],
+  "Adrenaline": ["Action", "Thriller", "Mecha"],
+  "Laughs": ["Comedy"],
+  "Tears": ["Drama", "Tragedy"],
+  "Thought-provoking": ["Psychological", "Sci-Fi", "Mystery"],
+  "Spooky": ["Horror", "Thriller"],
+  "Heartwarming": ["Romance", "Slice of Life"],
+  "Epic": ["Fantasy", "Adventure"],
+  "Mind-bending": ["Psychological", "Sci-Fi"],
+  "Nostalgic": ["Slice of Life", "Comedy"]
+};
+
 const MOCK_ANIME_DATA: MediaCardProps[] = [
   {
     id: 101,
@@ -23,13 +37,27 @@ const MOCK_ANIME_DATA: MediaCardProps[] = [
   },
 ];
 
-export async function fetchAnimeRecommendations(timeLimit: number, moods: string[]): Promise<MediaCardProps[]> {
+export async function fetchAnimeRecommendations(
+  timeLimit: number, 
+  moods: string[], 
+  watchedHistoryIds: number[] = []
+): Promise<MediaCardProps[]> {
+  
   try {
-    // Basic query for popular anime
+    // Collect unique genres based on moods
+    const genres = new Set<string>();
+    moods.forEach(mood => {
+      if (MOOD_TO_ANILIST[mood]) {
+        MOOD_TO_ANILIST[mood].forEach(g => genres.add(g));
+      }
+    });
+
+    const genreFilter = genres.size > 0 ? `genre_in: [${Array.from(genres).map(g => `"${g}"`).join(',')}]` : "";
+
     const query = `
       query ($perPage: Int) {
         Page (page: 1, perPage: $perPage) {
-          media (type: ANIME, sort: POPULARITY_DESC) {
+          media (type: ANIME, sort: POPULARITY_DESC, ${genreFilter}) {
             id
             title {
               romaji
@@ -45,9 +73,7 @@ export async function fetchAnimeRecommendations(timeLimit: number, moods: string
       }
     `;
 
-    const variables = {
-      perPage: 10
-    };
+    const variables = { perPage: 20 };
 
     const res = await fetch(ANILIST_URL, {
       method: "POST",
@@ -55,25 +81,25 @@ export async function fetchAnimeRecommendations(timeLimit: number, moods: string
         "Content-Type": "application/json",
         "Accept": "application/json",
       },
-      body: JSON.stringify({
-        query,
-        variables
-      })
+      body: JSON.stringify({ query, variables })
     });
 
     const data = await res.json();
     
     if (!data?.data?.Page?.media) {
-      return MOCK_ANIME_DATA.filter(item => (item.runtime || 0) <= timeLimit);
+      return MOCK_ANIME_DATA.filter(item => 
+        (item.runtime || 0) <= timeLimit && !watchedHistoryIds.includes(item.id)
+      );
     }
 
     return data.data.Page.media
-      .filter((anime: any) => anime.duration <= timeLimit)
+      .filter((anime: any) => anime.duration <= timeLimit && !watchedHistoryIds.includes(anime.id))
+      .slice(0, 10)
       .map((anime: any): MediaCardProps => ({
         id: anime.id,
         title: anime.title.english || anime.title.romaji,
         imageUrl: anime.coverImage.large,
-        rating: (anime.averageScore || 0) / 10, // Normalize to 10
+        rating: (anime.averageScore || 0) / 10,
         type: "anime",
         runtime: anime.duration,
         shape: Math.random() > 0.6 ? "pill" : "default",
@@ -81,6 +107,8 @@ export async function fetchAnimeRecommendations(timeLimit: number, moods: string
 
   } catch (error) {
     console.error("Failed to fetch AniList recommendations", error);
-    return MOCK_ANIME_DATA.filter(item => (item.runtime || 0) <= timeLimit);
+    return MOCK_ANIME_DATA.filter(item => 
+      (item.runtime || 0) <= timeLimit && !watchedHistoryIds.includes(item.id)
+    );
   }
 }

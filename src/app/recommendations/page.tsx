@@ -11,7 +11,7 @@ import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 
 export default function Recommendations() {
   const router = useRouter();
-  const { availableTime, selectedMoods, addToHistory } = useAppStore();
+  const { availableTime, selectedMoods, addToHistory, watchHistory } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -23,10 +23,12 @@ export default function Recommendations() {
 
     async function loadData() {
       setLoading(true);
+      const watchedIds = watchHistory.map(item => item.id);
+
       // Fetch concurrently
       const [moviesAndTv, anime] = await Promise.all([
-        fetchRecommendations(availableTime, selectedMoods),
-        fetchAnimeRecommendations(availableTime, selectedMoods)
+        fetchRecommendations(availableTime, selectedMoods, watchedIds),
+        fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds)
       ]);
 
       // Combine and shuffle
@@ -36,7 +38,7 @@ export default function Recommendations() {
     }
 
     loadData();
-  }, [availableTime, selectedMoods, router]);
+  }, [availableTime, selectedMoods, router, watchHistory]);
 
   const handleCardClick = (item: MediaCardProps) => {
     // In a real app, maybe open a modal with details
