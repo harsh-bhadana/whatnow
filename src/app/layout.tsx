@@ -15,7 +15,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Media Recommender",
+  title: "WhatNow?",
   description: "Find your next favorite movie, show, or anime.",
 };
 
@@ -33,7 +33,7 @@ export default function RootLayout({
         <header className="sticky top-0 z-50 w-full bg-[var(--color-m3-surface)]/80 backdrop-blur-md border-b border-[var(--color-m3-outline)]/20 shadow-sm">
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <a href="/" className="font-heading font-bold text-xl text-[var(--color-m3-primary)]">
-              Recommender
+              WhatNow?
             </a>
             <nav className="flex gap-4">
               <a 
