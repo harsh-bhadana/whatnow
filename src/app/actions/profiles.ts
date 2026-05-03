@@ -3,12 +3,13 @@
 import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { MediaCardProps } from "@/components/ui/MediaCard";
+import { WatchHistoryItem } from "@/lib/store/useAppStore";
 
 export interface Profile {
   _id?: string;
   name: string;
   color: string;
-  watchHistory: MediaCardProps[];
+  watchHistory: WatchHistoryItem[];
 }
 
 export async function getProfiles(): Promise<Profile[]> {
@@ -80,7 +81,7 @@ export async function addWatchedMedia(profileId: string, media: MediaCardProps):
   }
 }
 
-export async function getProfileHistory(profileId: string): Promise<MediaCardProps[]> {
+export async function getProfileHistory(profileId: string): Promise<WatchHistoryItem[]> {
   if (!profileId) return [];
   
   try {
