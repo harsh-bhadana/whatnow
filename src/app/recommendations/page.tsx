@@ -8,12 +8,14 @@ import { useAppStore, WatchHistoryItem } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
+import { MediaDetailModal } from "@/components/ui/MediaDetailModal";
 
 export default function Recommendations() {
   const router = useRouter();
   const { availableTime, selectedMoods, addToHistory, watchHistory } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMedia, setSelectedMedia] = useState<MediaCardProps | null>(null);
 
   useEffect(() => {
     if (selectedMoods.length === 0) {
@@ -41,14 +43,16 @@ export default function Recommendations() {
   }, [availableTime, selectedMoods, router, watchHistory]);
 
   const handleCardClick = (item: MediaCardProps) => {
-    // In a real app, maybe open a modal with details
-    // For this portfolio app, we immediately add it to history as "watched" for demonstration
-    const historyItem: WatchHistoryItem = {
+    setSelectedMedia(item);
+  };
+
+  const handleMarkAsWatched = (item: MediaCardProps) => {
+    addToHistory({
       ...item,
       watchedAt: Date.now(),
-      userRating: 0, // Unrated initially
-    };
-    addToHistory(historyItem);
+      userRating: 0,
+    });
+    setSelectedMedia(null);
     router.push("/history");
   };
 
@@ -117,6 +121,13 @@ export default function Recommendations() {
           </button>
         </div>
       )}
+
+      <MediaDetailModal 
+        media={selectedMedia}
+        isOpen={selectedMedia !== null}
+        onClose={() => setSelectedMedia(null)}
+        onMarkAsWatched={handleMarkAsWatched}
+      />
     </main>
   );
 }
