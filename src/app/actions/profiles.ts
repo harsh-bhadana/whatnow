@@ -62,6 +62,7 @@ export async function addWatchedMedia(profileId: string, media: MediaCardProps):
     await db.collection("profiles").updateOne(
       { _id: new ObjectId(profileId) },
       { 
+        // @ts-ignore
         $push: { 
           // @ts-ignore
           watchHistory: {
