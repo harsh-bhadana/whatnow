@@ -96,3 +96,15 @@ export async function fetchRecommendations(
     return [];
   }
 }
+
+export async function fetchMediaDetails(id: number, type: "movie" | "tv" = "movie"): Promise<any> {
+  if (!TMDB_API_KEY) return null;
+  try {
+    const res = await fetch(`${BASE_URL}/${type}/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos`);
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    console.error("Failed to fetch TMDB details", e);
+    return null;
+  }
+}

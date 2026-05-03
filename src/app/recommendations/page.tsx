@@ -9,17 +9,23 @@ import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaDetailModal } from "@/components/ui/MediaDetailModal";
+import { addWatchedMedia } from "@/app/actions/profiles";
 
 export default function Recommendations() {
   const router = useRouter();
-  const { availableTime, selectedMoods, addToHistory, watchHistory } = useAppStore();
+  const { availableTime, selectedMoods, addToHistory, watchHistory, activeProfileId } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMedia, setSelectedMedia] = useState<MediaCardProps | null>(null);
 
   useEffect(() => {
-    if (selectedMoods.length === 0) {
+    if (!activeProfileId) {
       router.push("/");
+      return;
+    }
+    
+    if (selectedMoods.length === 0) {
+      router.push("/discover");
       return;
     }
 
@@ -34,24 +40,33 @@ export default function Recommendations() {
       ]);
 
       // Combine and shuffle
-      const combined = [...moviesAndTv, ...anime].sort(() => 0.5 - Math.random());
+      const combined = [...moviesAndTv, ...anime].sort(() => Math.random() - 0.5);
       setResults(combined);
       setLoading(false);
     }
 
     loadData();
-  }, [availableTime, selectedMoods, router, watchHistory]);
+  }, [availableTime, selectedMoods, router, watchHistory, activeProfileId]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
   };
 
-  const handleMarkAsWatched = (item: MediaCardProps) => {
-    addToHistory({
+  const handleMarkAsWatched = async (item: MediaCardProps) => {
+    const historyItem = {
       ...item,
       watchedAt: Date.now(),
       userRating: 0,
-    });
+    };
+    
+    // Update local state for fast UI response
+    addToHistory(historyItem);
+    
+    // Sync with MongoDB backend
+    if (activeProfileId) {
+      await addWatchedMedia(activeProfileId, item);
+    }
+    
     setSelectedMedia(null);
     router.push("/history");
   };

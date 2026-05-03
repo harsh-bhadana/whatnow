@@ -3,7 +3,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Star, Clock, Info } from "lucide-react";
 import { MediaCardProps } from "./MediaCard";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { fetchMediaDetails } from "@/lib/api/tmdb";
 
 interface MediaDetailModalProps {
   media: MediaCardProps | null;
@@ -13,15 +14,30 @@ interface MediaDetailModalProps {
 }
 
 export function MediaDetailModal({ media, isOpen, onClose, onMarkAsWatched }: MediaDetailModalProps) {
+  const [details, setDetails] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   // Prevent scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
+      setDetails(null); // Reset on close
     }
     return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
+
+  useEffect(() => {
+    async function load() {
+      if (media && isOpen && media.type !== "anime") { // Only TMDB for now
+        setLoading(true);
+        const data = await fetchMediaDetails(media.id, media.type as any);
+        setDetails(data);
+        setLoading(false);
+      }
+    }
+    load();
+  }, [media, isOpen]);
 
   return (
     <AnimatePresence>
@@ -85,12 +101,27 @@ export function MediaDetailModal({ media, isOpen, onClose, onMarkAsWatched }: Me
                   )}
                 </div>
 
-                <div className="mt-6 flex-1 text-[var(--color-m3-on-surface-variant)] text-sm leading-relaxed">
-                  <p>
-                    <Info className="w-4 h-4 inline mr-2 align-text-bottom" />
-                    Detailed synopsis and cast information would be loaded here from a secondary API fetch using the item's ID. 
-                    For this phase, we are previewing the modal structure.
-                  </p>
+                <div className="mt-6 flex-1 text-[var(--color-m3-on-surface-variant)] text-sm leading-relaxed overflow-y-auto pr-2 custom-scrollbar">
+                  {loading ? (
+                    <div className="animate-pulse flex flex-col gap-2">
+                      <div className="h-4 bg-[var(--color-m3-surface-variant)] rounded w-full"></div>
+                      <div className="h-4 bg-[var(--color-m3-surface-variant)] rounded w-5/6"></div>
+                      <div className="h-4 bg-[var(--color-m3-surface-variant)] rounded w-4/6"></div>
+                    </div>
+                  ) : details?.overview ? (
+                    <p>{details.overview}</p>
+                  ) : media.type === "anime" ? (
+                    <p>Details for anime are not fetched yet, but it&apos;s a great choice!</p>
+                  ) : (
+                    <p>No description available.</p>
+                  )}
+                  
+                  {details?.credits?.cast && (
+                    <div className="mt-4">
+                      <strong className="text-[var(--color-m3-on-surface)]">Cast: </strong>
+                      {details.credits.cast.slice(0, 5).map((c: any) => c.name).join(", ")}
+                    </div>
+                  )}
                 </div>
 
                 <div className="mt-8 pt-4 border-t border-[var(--color-m3-outline)]/20 flex gap-4">

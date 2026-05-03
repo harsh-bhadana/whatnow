@@ -1,79 +1,141 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { MoodSelector } from "@/components/ui/MoodSelector";
-import { TimeSlider } from "@/components/ui/TimeSlider";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus } from "lucide-react";
+import { getProfiles, createProfile, Profile } from "@/app/actions/profiles";
 import { useAppStore } from "@/lib/store/useAppStore";
-import { cn } from "@/lib/utils";
 
-const MOODS = [
-  "Cozy", "Adrenaline", "Laughs", "Tears", "Thought-provoking",
-  "Spooky", "Heartwarming", "Epic", "Mind-bending", "Nostalgic"
+const COLORS = [
+  "bg-blue-500", "bg-red-500", "bg-green-500", 
+  "bg-yellow-500", "bg-purple-500", "bg-pink-500"
 ];
 
-export default function Home() {
+export default function ProfileSelector() {
   const router = useRouter();
-  const { availableTime, setAvailableTime, selectedMoods, toggleMood } = useAppStore();
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newName, setNewName] = useState("");
+  
+  const { setActiveProfileId, setWatchHistory } = useAppStore();
 
-  const handleDiscover = () => {
-    // Navigate to recommendations page with query params or rely on store
-    router.push("/recommendations");
+  useEffect(() => {
+    async function fetchProfiles() {
+      const data = await getProfiles();
+      setProfiles(data);
+      setLoading(false);
+    }
+    fetchProfiles();
+  }, []);
+
+  const handleSelectProfile = (profile: Profile) => {
+    setActiveProfileId(profile._id!);
+    setWatchHistory(profile.watchHistory || []);
+    router.push("/discover");
+  };
+
+  const handleAddProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newName.trim()) return;
+    
+    const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const newProfile = await createProfile(newName, randomColor);
+    
+    if (newProfile) {
+      setProfiles([...profiles, newProfile]);
+      setShowAdd(false);
+      setNewName("");
+    }
   };
 
   return (
-    <main className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 max-w-3xl mx-auto w-full">
+    <div className="min-h-screen bg-[var(--color-m3-background)] flex flex-col items-center justify-center p-6">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full flex flex-col gap-12"
+        className="text-center mb-12"
       >
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight text-[var(--color-m3-primary)]">
-            What are you in the mood for?
-          </h1>
-          <p className="text-lg text-[var(--color-m3-outline)] max-w-xl mx-auto">
-            Tell us how much time you have and what you want to feel. We'll find the perfect movie, show, or anime for you.
-          </p>
-        </div>
-
-        <div className="bg-[var(--color-m3-surface-container)] p-8 rounded-m3-xl shadow-[var(--shadow-m3-elevation-1)] space-y-8">
-          <section className="space-y-4">
-            <h2 className="text-xl font-heading font-semibold text-[var(--color-m3-on-surface)]">
-              I have...
-            </h2>
-            <TimeSlider 
-              value={availableTime} 
-              onChange={setAvailableTime} 
-            />
-          </section>
-
-          <section className="space-y-4">
-            <h2 className="text-xl font-heading font-semibold text-[var(--color-m3-on-surface)]">
-              I want something...
-            </h2>
-            <MoodSelector 
-              moods={MOODS} 
-              selectedMoods={selectedMoods} 
-              onSelect={toggleMood} 
-            />
-          </section>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.02, boxShadow: "var(--shadow-m3-elevation-2)" }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleDiscover}
-          className={cn(
-            "w-full py-4 rounded-m3-full text-lg font-bold transition-all",
-            "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] shadow-[var(--shadow-m3-elevation-1)]",
-            selectedMoods.length === 0 && "opacity-80 grayscale-[30%]"
-          )}
-        >
-          {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
-        </motion.button>
+        <h1 className="text-4xl md:text-5xl font-heading font-bold text-[var(--color-m3-on-background)] mb-4">
+          Who&apos;s Watching?
+        </h1>
+        <p className="text-[var(--color-m3-on-surface-variant)] text-lg">
+          Select your profile to continue
+        </p>
       </motion.div>
-    </main>
+
+      {loading ? (
+        <div className="flex space-x-2">
+          <div className="w-4 h-4 bg-[var(--color-m3-primary)] rounded-full animate-bounce" />
+          <div className="w-4 h-4 bg-[var(--color-m3-primary)] rounded-full animate-bounce delay-100" />
+          <div className="w-4 h-4 bg-[var(--color-m3-primary)] rounded-full animate-bounce delay-200" />
+        </div>
+      ) : (
+        <div className="flex flex-wrap justify-center gap-8 max-w-4xl">
+          <AnimatePresence>
+            {profiles.map((profile, i) => (
+              <motion.button
+                key={profile._id}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleSelectProfile(profile)}
+                className="flex flex-col items-center group"
+              >
+                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-m3-xl ${profile.color} shadow-lg flex items-center justify-center mb-4 transition-transform group-hover:ring-4 ring-[var(--color-m3-primary)] ring-offset-4 ring-offset-[var(--color-m3-background)]`}>
+                  <span className="text-white text-5xl font-heading font-bold uppercase">
+                    {profile.name.charAt(0)}
+                  </span>
+                </div>
+                <span className="text-xl font-medium text-[var(--color-m3-on-background)] group-hover:text-[var(--color-m3-primary)] transition-colors">
+                  {profile.name}
+                </span>
+              </motion.button>
+            ))}
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+            >
+              {!showAdd ? (
+                <button
+                  onClick={() => setShowAdd(true)}
+                  className="flex flex-col items-center group"
+                >
+                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-m3-xl border-4 border-dashed border-[var(--color-m3-outline)] flex items-center justify-center mb-4 group-hover:border-[var(--color-m3-primary)] transition-colors">
+                    <Plus className="w-12 h-12 text-[var(--color-m3-outline)] group-hover:text-[var(--color-m3-primary)] transition-colors" />
+                  </div>
+                  <span className="text-xl font-medium text-[var(--color-m3-on-background)] group-hover:text-[var(--color-m3-primary)] transition-colors">
+                    Add Profile
+                  </span>
+                </button>
+              ) : (
+                <form 
+                  onSubmit={handleAddProfile}
+                  className="w-32 md:w-40 flex flex-col items-center"
+                >
+                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-m3-xl bg-[var(--color-m3-surface-variant)] flex items-center justify-center mb-4 p-4">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      placeholder="Name"
+                      className="w-full bg-transparent text-center text-xl font-medium text-[var(--color-m3-on-surface)] outline-none border-b-2 border-[var(--color-m3-primary)] pb-1"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => setShowAdd(false)} className="text-sm text-[var(--color-m3-outline)]">Cancel</button>
+                    <button type="submit" className="text-sm text-[var(--color-m3-primary)] font-bold">Save</button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
   );
 }

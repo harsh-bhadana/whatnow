@@ -15,7 +15,11 @@ interface AppState {
   toggleMood: (mood: string) => void;
   
   // Persistent Data
+  activeProfileId: string | null;
+  setActiveProfileId: (id: string | null) => void;
+  
   watchHistory: WatchHistoryItem[];
+  setWatchHistory: (history: WatchHistoryItem[]) => void;
   addToHistory: (item: WatchHistoryItem) => void;
   removeFromHistory: (id: number) => void;
   
@@ -37,14 +41,20 @@ export const useAppStore = create<AppState>()(
             : [...state.selectedMoods, mood],
         })),
         
+      activeProfileId: null,
+      setActiveProfileId: (id) => set({ activeProfileId: id }),
       watchHistory: [],
+      setWatchHistory: (history) => set({ watchHistory: history }),
       addToHistory: (item) =>
-        set((state) => ({
-          watchHistory: [item, ...state.watchHistory.filter((i) => i.id !== item.id)],
-        })),
+        set((state) => {
+          // Check if it already exists
+          const exists = state.watchHistory.find((h) => h.id === item.id);
+          if (exists) return state;
+          return { watchHistory: [item, ...state.watchHistory] };
+        }),
       removeFromHistory: (id) =>
         set((state) => ({
-          watchHistory: state.watchHistory.filter((i) => i.id !== id),
+          watchHistory: state.watchHistory.filter((item) => item.id !== id),
         })),
         
       preferredGenres: [],
