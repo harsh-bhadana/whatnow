@@ -9,7 +9,6 @@ import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaDetailModal } from "@/components/ui/MediaDetailModal";
-import { addWatchedMedia } from "@/app/actions/profiles";
 
 export default function Recommendations() {
   const router = useRouter();
@@ -59,13 +58,8 @@ export default function Recommendations() {
       userRating: 0,
     };
     
-    // Update local state for fast UI response
+    // Update local state and profile seamlessly via Zustand
     addToHistory(historyItem);
-    
-    // Sync with MongoDB backend
-    if (activeProfileId) {
-      await addWatchedMedia(activeProfileId, item);
-    }
     
     setSelectedMedia(null);
     router.push("/history");

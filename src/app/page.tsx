@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
-import { getProfiles, createProfile, Profile } from "@/app/actions/profiles";
-import { useAppStore } from "@/lib/store/useAppStore";
+import { useAppStore, LocalProfile } from "@/lib/store/useAppStore";
 
 const COLORS = [
   "bg-blue-500", "bg-red-500", "bg-green-500", 
@@ -14,40 +13,37 @@ const COLORS = [
 
 export default function ProfileSelector() {
   const router = useRouter();
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState("");
   
-  const { setActiveProfileId, setWatchHistory } = useAppStore();
+  const { profiles, addProfile, setActiveProfileId, setWatchHistory } = useAppStore();
 
   useEffect(() => {
-    async function fetchProfiles() {
-      const data = await getProfiles();
-      setProfiles(data);
-      setLoading(false);
-    }
-    fetchProfiles();
+    setIsMounted(true);
   }, []);
 
-  const handleSelectProfile = (profile: Profile) => {
-    setActiveProfileId(profile._id!);
+  const handleSelectProfile = (profile: LocalProfile) => {
+    setActiveProfileId(profile.id);
     setWatchHistory(profile.watchHistory || []);
     router.push("/discover");
   };
 
-  const handleAddProfile = async (e: React.FormEvent) => {
+  const handleAddProfile = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
     
     const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-    const newProfile = await createProfile(newName, randomColor);
+    const newProfile: LocalProfile = {
+      id: Date.now().toString(),
+      name: newName,
+      color: randomColor,
+      watchHistory: []
+    };
     
-    if (newProfile) {
-      setProfiles([...profiles, newProfile]);
-      setShowAdd(false);
-      setNewName("");
-    }
+    addProfile(newProfile);
+    setShowAdd(false);
+    setNewName("");
   };
 
   return (
@@ -65,7 +61,7 @@ export default function ProfileSelector() {
         </p>
       </motion.div>
 
-      {loading ? (
+      {!isMounted ? (
         <div className="flex space-x-2">
           <div className="w-4 h-4 bg-[var(--color-m3-primary)] rounded-full animate-bounce" />
           <div className="w-4 h-4 bg-[var(--color-m3-primary)] rounded-full animate-bounce delay-100" />
@@ -76,7 +72,7 @@ export default function ProfileSelector() {
           <AnimatePresence>
             {profiles.map((profile, i) => (
               <motion.button
-                key={profile._id}
+                key={profile.id}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 whileHover={{ scale: 1.05 }}
