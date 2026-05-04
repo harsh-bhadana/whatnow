@@ -15,7 +15,7 @@ export interface Profile {
 export async function getProfiles(): Promise<Profile[]> {
   try {
     const client = await clientPromise;
-    const db = client.db("whatnow");
+    const db = client.db("whatNow");
     const profiles = await db.collection<Profile>("profiles").find({}).toArray();
     
     return profiles.map(p => ({
@@ -31,7 +31,7 @@ export async function getProfiles(): Promise<Profile[]> {
 export async function createProfile(name: string, color: string): Promise<Profile | null> {
   try {
     const client = await clientPromise;
-    const db = client.db("whatnow");
+    const db = client.db("whatNow");
     
     const newProfile = {
       name,
@@ -56,7 +56,7 @@ export async function addWatchedMedia(profileId: string, media: MediaCardProps):
   
   try {
     const client = await clientPromise;
-    const db = client.db("whatnow");
+    const db = client.db("whatNow");
     
     // Add to watch history, ensuring uniqueness isn't strictly necessary here if we just push,
     // but better to use $addToSet to avoid duplicates
@@ -86,7 +86,7 @@ export async function getProfileHistory(profileId: string): Promise<WatchHistory
   
   try {
     const client = await clientPromise;
-    const db = client.db("whatnow");
+    const db = client.db("whatNow");
     
     const profile = await db.collection("profiles").findOne({ _id: new ObjectId(profileId) });
     return profile?.watchHistory || [];

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.24.0",
     "mongodb": "^7.5.0",
