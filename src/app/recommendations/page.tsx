@@ -18,11 +18,19 @@ export default function Recommendations() {
   const [loading, setLoading] = useState(true);
   const [selectedMedia, setSelectedMedia] = useState<MediaCardProps | null>(null);
 
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
-    if (!activeProfileId) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !activeProfileId) {
       router.push("/");
       return;
     }
+    
+    if (!isMounted) return;
     
     if (selectedMoods.length === 0) {
       router.push("/discover");

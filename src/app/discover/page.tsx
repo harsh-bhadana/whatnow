@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { MoodSelector } from "@/components/ui/MoodSelector";
@@ -17,11 +17,19 @@ export default function Discover() {
   const router = useRouter();
   const { availableTime, setAvailableTime, selectedMoods, toggleMood, activeProfileId } = useAppStore();
 
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
-    if (!activeProfileId) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !activeProfileId) {
       router.push("/");
     }
-  }, [activeProfileId, router]);
+  }, [isMounted, activeProfileId, router]);
+
+  if (!isMounted) return null;
 
   const handleDiscover = () => {
     // Navigate to recommendations page with query params or rely on store

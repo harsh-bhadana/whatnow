@@ -11,17 +11,18 @@ export default function History() {
   const router = useRouter();
   const { watchHistory, removeFromHistory, activeProfileId } = useAppStore();
 
-  useEffect(() => {
-    if (!activeProfileId) {
-      router.push("/");
-    }
-  }, [activeProfileId, router]);
   const [isMounted, setIsMounted] = useState(false);
 
   // Hydration fix for Zustand persist
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (isMounted && !activeProfileId) {
+      router.push("/");
+    }
+  }, [isMounted, activeProfileId, router]);
 
   if (!isMounted) return null;
 
