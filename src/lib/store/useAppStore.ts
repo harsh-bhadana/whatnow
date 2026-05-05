@@ -70,7 +70,8 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         watchHistory: state.watchHistory,
         preferredGenres: state.preferredGenres,
-      }), // only persist history and preferences
+        activeProfileId: state.activeProfileId,
+      }), // persist history, preferences, and active profile
     }
   )
 );

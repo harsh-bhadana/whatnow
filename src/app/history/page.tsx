@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { MediaCard } from "@/components/ui/MediaCard";
+import { removeWatchedMedia } from "@/app/actions/profiles";
 
 export default function History() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function History() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
           {watchHistory.map((item, index) => (
             <motion.div
               key={item.id}
@@ -69,9 +70,12 @@ export default function History() {
             >
               <MediaCard {...item} shape="default" />
               <button 
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
                   removeFromHistory(item.id);
+                  if (activeProfileId) {
+                    await removeWatchedMedia(activeProfileId, item.id);
+                  }
                 }}
                 className="absolute top-2 right-2 p-2 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
               >

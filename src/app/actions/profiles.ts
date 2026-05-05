@@ -81,6 +81,30 @@ export async function addWatchedMedia(profileId: string, media: MediaCardProps):
   }
 }
 
+export async function removeWatchedMedia(profileId: string, mediaId: number): Promise<boolean> {
+  if (!profileId) return false;
+  
+  try {
+    const client = await clientPromise;
+    const db = client.db("whatNow");
+    
+    await db.collection("profiles").updateOne(
+      { _id: new ObjectId(profileId) },
+      { 
+        // @ts-ignore
+        $pull: { 
+          watchHistory: { id: mediaId } 
+        } 
+      }
+    );
+    
+    return true;
+  } catch (e) {
+    console.error("Failed to remove watched media", e);
+    return false;
+  }
+}
+
 export async function getProfileHistory(profileId: string): Promise<WatchHistoryItem[]> {
   if (!profileId) return [];
   

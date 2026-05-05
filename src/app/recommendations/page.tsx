@@ -54,7 +54,7 @@ export default function Recommendations() {
     }
 
     loadData();
-  }, [availableTime, selectedMoods, router, watchHistory, activeProfileId]);
+  }, [availableTime, selectedMoods, router, watchHistory, activeProfileId, isMounted]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
@@ -114,7 +114,7 @@ export default function Recommendations() {
             key="results"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6"
           >
             {results.map((item, index) => (
               <motion.div

@@ -11,9 +11,16 @@ export interface MediaCardProps {
   rating: number;
   type: "movie" | "tv" | "anime";
   runtime?: number;
-  shape?: "default" | "pill" | "asymmetric";
+  shape?: "rock1" | "rock2" | "rock3" | "rock4" | "default" | string;
   onClick?: () => void;
 }
+
+const ROCK_SHAPES = [
+  "40% 60% 70% 30% / 40% 50% 60% 50%",
+  "70% 30% 30% 70% / 60% 40% 60% 40%",
+  "30% 70% 70% 30% / 30% 30% 70% 70%",
+  "50% 50% 20% 80% / 25% 80% 20% 75%",
+];
 
 export function MediaCard({
   title,
@@ -25,15 +32,16 @@ export function MediaCard({
   onClick,
 }: MediaCardProps) {
   
-  const getShapeClasses = () => {
+  // Randomly assign a rock shape on client if it's not explicitly provided
+  // In production, we'd want this to be deterministic based on the ID to avoid hydration mismatch,
+  // but since we assign shapes in the API fetch layer, we'll map them here.
+  const getOrganicRadius = () => {
     switch (shape) {
-      case "pill":
-        return "rounded-m3-full";
-      case "asymmetric":
-        return "rounded-tl-m3-xl rounded-br-m3-xl rounded-tr-m3-sm rounded-bl-m3-sm";
-      case "default":
-      default:
-        return "rounded-m3-lg";
+      case "asymmetric": return ROCK_SHAPES[0];
+      case "pill": return ROCK_SHAPES[1];
+      case "rock3": return ROCK_SHAPES[2];
+      case "rock4": return ROCK_SHAPES[3];
+      default: return "24px"; // Default slightly rounded
     }
   };
 
@@ -48,16 +56,16 @@ export function MediaCard({
 
   return (
     <motion.div
-      whileHover={{ y: -5, boxShadow: "var(--shadow-m3-elevation-3)" }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ y: -5, scale: 1.02, boxShadow: "var(--shadow-m3-elevation-3)" }}
+      whileTap={{ scale: 0.95 }}
       onClick={onClick}
+      style={{ borderRadius: getOrganicRadius() }}
       className={cn(
         "relative overflow-hidden cursor-pointer group bg-[var(--color-m3-surface-container)]",
-        "flex flex-col shadow-[var(--shadow-m3-elevation-1)] transition-shadow duration-300",
-        getShapeClasses()
+        "flex flex-col shadow-[var(--shadow-m3-elevation-1)] transition-all duration-300",
       )}
     >
-      <div className="relative aspect-[2/3] w-full overflow-hidden">
+      <div className="relative aspect-[2/3] w-full h-full overflow-hidden">
         {/* Fallback background if image fails */}
         <div className="absolute inset-0 bg-[var(--color-m3-surface-variant)]" />
         {/* eslint-disable-next-line @next/next/no-img-element */}

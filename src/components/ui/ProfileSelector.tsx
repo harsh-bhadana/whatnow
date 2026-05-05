@@ -72,7 +72,7 @@ export default function ProfileSelector() {
           <div className="w-4 h-4 bg-[var(--color-m3-primary)] rounded-full animate-bounce delay-200" />
         </div>
       ) : (
-        <div className="flex flex-wrap justify-center gap-8 max-w-4xl">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 md:gap-8 max-w-4xl px-4 w-full">
           <AnimatePresence>
             {profiles.map((profile, i) => (
               <motion.button
@@ -82,14 +82,14 @@ export default function ProfileSelector() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleSelectProfile(profile)}
-                className="flex flex-col items-center group"
+                className="flex flex-col items-center group w-full"
               >
-                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-m3-xl ${profile.color} shadow-lg flex items-center justify-center mb-4 transition-transform group-hover:ring-4 ring-[var(--color-m3-primary)] ring-offset-4 ring-offset-[var(--color-m3-background)]`}>
-                  <span className="text-white text-5xl font-heading font-bold uppercase">
+                <div className={`w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-m3-xl ${profile.color} shadow-lg flex items-center justify-center mb-4 transition-transform group-hover:ring-4 ring-[var(--color-m3-primary)] ring-offset-4 ring-offset-[var(--color-m3-background)]`}>
+                  <span className="text-white text-4xl md:text-5xl font-heading font-bold uppercase">
                     {profile.name.charAt(0)}
                   </span>
                 </div>
-                <span className="text-xl font-medium text-[var(--color-m3-on-background)] group-hover:text-[var(--color-m3-primary)] transition-colors">
+                <span className="text-lg md:text-xl font-medium text-[var(--color-m3-on-background)] group-hover:text-[var(--color-m3-primary)] transition-colors truncate w-full text-center">
                   {profile.name}
                 </span>
               </motion.button>
@@ -98,32 +98,33 @@ export default function ProfileSelector() {
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
+              className="flex justify-center w-full"
             >
               {!showAdd ? (
                 <button
                   onClick={() => setShowAdd(true)}
-                  className="flex flex-col items-center group"
+                  className="flex flex-col items-center group w-full"
                 >
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-m3-xl border-4 border-dashed border-[var(--color-m3-outline)] flex items-center justify-center mb-4 group-hover:border-[var(--color-m3-primary)] transition-colors">
-                    <Plus className="w-12 h-12 text-[var(--color-m3-outline)] group-hover:text-[var(--color-m3-primary)] transition-colors" />
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-m3-xl border-4 border-dashed border-[var(--color-m3-outline)] flex items-center justify-center mb-4 group-hover:border-[var(--color-m3-primary)] transition-colors">
+                    <Plus className="w-10 h-10 md:w-12 md:h-12 text-[var(--color-m3-outline)] group-hover:text-[var(--color-m3-primary)] transition-colors" />
                   </div>
-                  <span className="text-xl font-medium text-[var(--color-m3-on-background)] group-hover:text-[var(--color-m3-primary)] transition-colors">
+                  <span className="text-lg md:text-xl font-medium text-[var(--color-m3-on-background)] group-hover:text-[var(--color-m3-primary)] transition-colors truncate w-full text-center">
                     Add Profile
                   </span>
                 </button>
               ) : (
                 <form 
                   onSubmit={handleAddProfile}
-                  className="w-32 md:w-40 flex flex-col items-center"
+                  className="w-full flex flex-col items-center"
                 >
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-m3-xl bg-[var(--color-m3-surface-variant)] flex items-center justify-center mb-4 p-4">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-m3-xl bg-[var(--color-m3-surface-variant)] flex items-center justify-center mb-4 p-4">
                     <input
                       autoFocus
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
                       placeholder="Name"
-                      className="w-full bg-transparent text-center text-xl font-medium text-[var(--color-m3-on-surface)] outline-none border-b-2 border-[var(--color-m3-primary)] pb-1"
+                      className="w-full bg-transparent text-center text-lg md:text-xl font-medium text-[var(--color-m3-on-surface)] outline-none border-b-2 border-[var(--color-m3-primary)] pb-1"
                     />
                   </div>
                   <div className="flex gap-2">
