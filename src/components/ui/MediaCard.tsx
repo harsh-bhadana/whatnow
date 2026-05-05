@@ -16,10 +16,10 @@ export interface MediaCardProps {
 }
 
 const ROCK_SHAPES = [
-  "40% 60% 70% 30% / 40% 50% 60% 50%",
-  "70% 30% 30% 70% / 60% 40% 60% 40%",
-  "30% 70% 70% 30% / 30% 30% 70% 70%",
-  "50% 50% 20% 80% / 25% 80% 20% 75%",
+  "polygon(2% 1%, 98% 0%, 100% 97%, 1% 100%)",
+  "polygon(0% 2%, 99% 1%, 98% 99%, 1% 98%)",
+  "polygon(1% 0%, 100% 2%, 99% 100%, 0% 98%)",
+  "polygon(0% 0%, 98% 1%, 100% 100%, 2% 99%)",
 ];
 
 export function MediaCard({
@@ -32,16 +32,13 @@ export function MediaCard({
   onClick,
 }: MediaCardProps) {
   
-  // Randomly assign a rock shape on client if it's not explicitly provided
-  // In production, we'd want this to be deterministic based on the ID to avoid hydration mismatch,
-  // but since we assign shapes in the API fetch layer, we'll map them here.
-  const getOrganicRadius = () => {
+  const getOrganicClipPath = () => {
     switch (shape) {
       case "asymmetric": return ROCK_SHAPES[0];
       case "pill": return ROCK_SHAPES[1];
       case "rock3": return ROCK_SHAPES[2];
       case "rock4": return ROCK_SHAPES[3];
-      default: return "24px"; // Default slightly rounded
+      default: return "polygon(0 0, 100% 0, 100% 100%, 0 100%)";
     }
   };
 
@@ -56,16 +53,18 @@ export function MediaCard({
 
   return (
     <motion.div
-      whileHover={{ y: -5, scale: 1.02, boxShadow: "var(--shadow-m3-elevation-3)" }}
+      whileHover={{ y: -5, scale: 1.02, filter: "drop-shadow(6px 6px 0px var(--color-m3-primary))" }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      style={{ borderRadius: getOrganicRadius() }}
+      style={{ filter: "drop-shadow(4px 4px 0px rgba(0,0,0,0.5))" }}
       className={cn(
-        "relative overflow-hidden cursor-pointer group bg-[var(--color-m3-surface-container)]",
-        "flex flex-col shadow-[var(--shadow-m3-elevation-1)] transition-all duration-300",
+        "cursor-pointer group relative transition-all duration-300",
       )}
     >
-      <div className="relative aspect-[2/3] w-full h-full overflow-hidden">
+      <div 
+        className="relative aspect-[2/3] w-full h-full overflow-hidden bg-[var(--color-m3-surface-container)] rounded-m3-md"
+        style={{ clipPath: getOrganicClipPath() }}
+      >
         {/* Fallback background if image fails */}
         <div className="absolute inset-0 bg-[var(--color-m3-surface-variant)]" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
