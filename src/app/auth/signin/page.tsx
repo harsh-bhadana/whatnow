@@ -44,38 +44,6 @@ export default async function SignInPage() {
             </button>
           </form>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-[var(--color-m3-surface-variant)]"></span>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[var(--color-m3-surface-container)] px-2 text-[var(--color-m3-on-surface-variant)]">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          <form
-            action={async (formData) => {
-              "use server";
-              await signIn("nodemailer", formData);
-            }}
-            className="space-y-4"
-          >
-            <input
-              name="email"
-              type="email"
-              placeholder="name@example.com"
-              required
-              className="w-full px-4 py-4 rounded-full bg-[var(--color-m3-surface)] border border-[var(--color-m3-outline)] text-[var(--color-m3-on-surface)] placeholder-[var(--color-m3-on-surface-variant)] focus:outline-none focus:ring-2 focus:ring-[var(--color-m3-primary)]"
-            />
-            <button
-              type="submit"
-              className="w-full bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] py-4 rounded-full font-medium hover:opacity-90 transition-opacity"
-            >
-              Send Magic Link
-            </button>
-          </form>
         </div>
       </div>
     </div>
