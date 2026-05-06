@@ -43,7 +43,7 @@ export function MediaCard({
       <img
         src={imageUrl}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-50 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-150"
+        className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
         aria-hidden="true"
       />
 
@@ -75,7 +75,7 @@ export function MediaCard({
       </div>
       
       {/* Small Text Section Below the Image (Shows the ambient blur behind it) */}
-      <div className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-xl border-t border-white/10">
+      <div className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10">
         <h3 className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
           {title}
         </h3>
