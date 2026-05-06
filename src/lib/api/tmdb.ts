@@ -103,7 +103,7 @@ export async function fetchMediaDetails(id: number, type: "movie" | "tv" = "movi
   }
   
   try {
-    const res = await fetch(`${BASE_URL}/${type}/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos`);
+    const res = await fetch(`${BASE_URL}/${type}/${id}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos,watch/providers`);
     const data = await res.json();
     return data;
   } catch (e) {

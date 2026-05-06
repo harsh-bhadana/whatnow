@@ -122,6 +122,41 @@ export function MediaDetailModal({ media, isOpen, onClose, onMarkAsWatched }: Me
                       {details.credits.cast.slice(0, 5).map((c: any) => c.name).join(", ")}
                     </div>
                   )}
+
+                  {(() => {
+                    const usProviders = details?.["watch/providers"]?.results?.US;
+                    if (!usProviders) return null;
+                    
+                    const allProviders = [
+                      ...(usProviders.flatrate || []),
+                      ...(usProviders.rent || []),
+                      ...(usProviders.buy || [])
+                    ];
+                    
+                    // Remove duplicates by provider_id
+                    const uniqueProviders = Array.from(new Map(allProviders.map(item => [item.provider_id, item])).values());
+                    
+                    if (uniqueProviders.length === 0) return null;
+
+                    return (
+                      <div className="mt-4">
+                        <strong className="text-[var(--color-m3-on-surface)] block mb-2">Available on:</strong>
+                        <div className="flex flex-wrap gap-2">
+                          {uniqueProviders.map((provider: any) => (
+                            <div key={provider.provider_id} className="flex items-center gap-2 bg-[var(--color-m3-surface-variant)] px-3 py-1.5 rounded-full text-xs font-medium text-[var(--color-m3-on-surface)]">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img 
+                                src={`https://image.tmdb.org/t/p/w200${provider.logo_path}`} 
+                                alt={provider.provider_name}
+                                className="w-4 h-4 rounded-full"
+                              />
+                              {provider.provider_name}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="mt-8 pt-4 border-t border-[var(--color-m3-outline)]/20 flex gap-4">
