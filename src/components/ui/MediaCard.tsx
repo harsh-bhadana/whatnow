@@ -46,7 +46,7 @@ export function MediaCard({
         layoutId={`card-ambient-${id}`}
         src={imageUrl}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
+        className="absolute inset-0 w-full h-full object-cover opacity-30 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
         aria-hidden="true"
       />
 
@@ -81,7 +81,7 @@ export function MediaCard({
       {/* Small Text Section Below the Image (Shows the ambient blur behind it) */}
       <motion.div 
         layoutId={`card-text-container-${id}`}
-        className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10"
+        className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-zinc-900/90 border-t border-white/10"
       >
         <motion.h3 
           layoutId={`card-title-${id}`}
