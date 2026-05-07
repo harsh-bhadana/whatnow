@@ -16,6 +16,7 @@ export interface MediaCardProps {
 }
 
 export function MediaCard({
+  id,
   title,
   imageUrl,
   rating,
@@ -34,13 +35,15 @@ export function MediaCard({
   };
 
   return (
-    <div 
+    <motion.div 
+      layoutId={`card-container-${id}`}
       className="group cursor-pointer relative w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col bg-zinc-900"
       onClick={onClick}
     >
       {/* Ambient Blurred Background for the entire card */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <motion.img
+        layoutId={`card-ambient-${id}`}
         src={imageUrl}
         alt=""
         className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
@@ -50,7 +53,8 @@ export function MediaCard({
       {/* The fully visible poster image on top */}
       <div className="relative z-10 w-full aspect-[2/3] overflow-hidden bg-black/20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <motion.img
+          layoutId={`card-image-${id}`}
           src={imageUrl}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -75,14 +79,20 @@ export function MediaCard({
       </div>
       
       {/* Small Text Section Below the Image (Shows the ambient blur behind it) */}
-      <div className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10">
-        <h3 className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
+      <motion.div 
+        layoutId={`card-text-container-${id}`}
+        className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10"
+      >
+        <motion.h3 
+          layoutId={`card-title-${id}`}
+          className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md"
+        >
           {title}
-        </h3>
+        </motion.h3>
         {runtime && (
           <span className="text-[11px] font-medium text-white/70 mt-0.5">{runtime}m</span>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

@@ -61,16 +61,15 @@ export function MediaDetailModal({ media, isOpen, onClose, onMarkAsWatched }: Me
           {/* Modal Content */}
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="w-full max-w-2xl bg-[var(--color-m3-surface-container-high)] rounded-m3-xl shadow-[var(--shadow-m3-elevation-3)] overflow-hidden pointer-events-auto flex flex-col md:flex-row"
+              layoutId={`card-container-${media.id}`}
+              className="w-full max-w-2xl bg-zinc-900 rounded-m3-xl shadow-[var(--shadow-m3-elevation-3)] overflow-hidden pointer-events-auto flex flex-col md:flex-row"
             >
               {/* Image Section */}
               <div className="relative w-full md:w-2/5 aspect-[2/3] md:aspect-auto">
                 <div className="absolute inset-0 bg-[var(--color-m3-surface-variant)]" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <motion.img
+                  layoutId={`card-image-${media.id}`}
                   src={media.imageUrl}
                   alt={media.title}
                   className="absolute inset-0 w-full h-full object-cover"
@@ -78,11 +77,11 @@ export function MediaDetailModal({ media, isOpen, onClose, onMarkAsWatched }: Me
               </div>
               
               {/* Info Section */}
-              <div className="flex-1 p-6 flex flex-col">
+              <motion.div layoutId={`card-text-container-${media.id}`} className="flex-1 p-6 flex flex-col relative z-10 bg-zinc-900/90 md:bg-transparent">
                 <div className="flex justify-between items-start gap-4">
-                  <h2 className="text-2xl font-heading font-bold text-[var(--color-m3-on-surface)] leading-tight">
+                  <motion.h2 layoutId={`card-title-${media.id}`} className="text-2xl font-heading font-bold text-white leading-tight">
                     {media.title}
-                  </h2>
+                  </motion.h2>
                   <button 
                     onClick={onClose}
                     className="p-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] transition-colors"
@@ -173,7 +172,7 @@ export function MediaDetailModal({ media, isOpen, onClose, onMarkAsWatched }: Me
                     Mark as Watched
                   </button>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         </>
