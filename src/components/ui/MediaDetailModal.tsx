@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Star, Clock, Info } from "lucide-react";
 import { MediaCardProps } from "./MediaCard";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
 
 interface MediaDetailModalProps {
@@ -16,13 +16,17 @@ interface MediaDetailModalProps {
 export function MediaDetailModal({ media, isOpen, onClose, onMarkAsWatched }: MediaDetailModalProps) {
   const [details, setDetails] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
   // Prevent scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
-      setDetails(null); // Reset on close
+      startTransition(() => {
+        setDetails(null); // Reset on close
+      });
     }
     return () => { document.body.style.overflow = "unset"; };
   }, [isOpen]);
@@ -32,8 +36,10 @@ export function MediaDetailModal({ media, isOpen, onClose, onMarkAsWatched }: Me
       if (media && isOpen && media.type !== "anime") { // Only TMDB for now
         setLoading(true);
         const data = await fetchMediaDetails(media.id, media.type as any);
-        setDetails(data);
-        setLoading(false);
+        startTransition(() => {
+          setDetails(data);
+          setLoading(false);
+        });
       }
     }
     load();
