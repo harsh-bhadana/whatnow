@@ -12,7 +12,7 @@ async function SignInInner() {
   }
   
   return (
-    <div className="bg-[var(--color-m3-surface-container)]/80 backdrop-blur-xl p-8 rounded-[28px] w-full shadow-2xl border border-white/10 text-center">
+    <div className="bg-[var(--color-m3-surface-container)]/80 backdrop-blur-3xl p-8 rounded-[28px] w-full shadow-2xl border border-white/10 text-center">
       <div className="w-16 h-16 bg-[var(--color-m3-primary-container)] text-[var(--color-m3-on-primary-container)] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
         <LogIn size={32} />
       </div>
@@ -56,7 +56,7 @@ export default function SignInPage() {
         <img 
           src="/hero-collage.png" 
           alt="Entertainment Collage"
-          className="w-full h-full object-cover scale-105 blur-[2px]"
+          className="w-full h-full object-cover scale-105 blur-[6px]"
         />
         {/* 25% dark overlay filter */}
         <div className="absolute inset-0 bg-black/25" />
