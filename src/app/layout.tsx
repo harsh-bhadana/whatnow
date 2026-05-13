@@ -21,31 +21,51 @@ export const metadata: Metadata = {
 
 import { ViewTransitions } from 'next-view-transitions';
 import { Link } from 'next-view-transitions';
+import { auth, signOut } from "@/auth";
+import { LogOut } from "lucide-react";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
+
   return (
     <ViewTransitions>
       <html
         lang="en"
         className={`${roboto.variable} ${outfit.variable} h-full antialiased`}
       >
-        <body className="min-h-full flex flex-col font-sans">
-          <header className="sticky top-0 z-50 w-full bg-[var(--color-m3-surface)]/80 backdrop-blur-md border-b border-[var(--color-m3-outline)]/20 shadow-sm">
+        <body className="h-full flex flex-col font-sans">
+          <header className="sticky top-0 z-50 w-full bg-[var(--color-m3-surface)]/80 backdrop-blur-md border-b border-[var(--color-m3-outline)]/20 shadow-sm shrink-0">
             <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
               <Link href="/" className="font-heading font-bold text-xl text-[var(--color-m3-primary)]">
                 WhatNow?
               </Link>
-              <nav className="flex gap-4">
+              <nav className="flex gap-4 items-center">
                 <Link 
                   href="/history" 
                   className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-m3-full hover:bg-[var(--color-m3-surface-variant)]"
                 >
                   Watch History
                 </Link>
+                {session && (
+                  <form
+                    action={async () => {
+                      "use server";
+                      await signOut({ redirectTo: "/auth/signin" });
+                    }}
+                  >
+                    <button
+                      type="submit"
+                      className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-full bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-surface-container-highest)] transition-colors"
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </button>
+                  </form>
+                )}
               </nav>
             </div>
           </header>

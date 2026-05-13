@@ -51,7 +51,7 @@ export default function ProfileSelector() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-m3-background)] flex flex-col items-center justify-center p-6">
+    <div className="flex-1 bg-[var(--color-m3-background)] flex flex-col items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
