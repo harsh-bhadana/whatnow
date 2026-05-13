@@ -49,35 +49,39 @@ async function SignInInner() {
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen relative flex flex-col items-center justify-center p-6 overflow-hidden">
-      {/* Cinematic Background Image */}
-      <div className="absolute inset-0 z-0">
+    <div className="flex-1 relative flex items-center justify-center p-6 md:p-12 overflow-hidden">
+      {/* Cinematic Background Image - More Visible */}
+      <div className="absolute inset-0 z-0 bg-zinc-950">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src="/hero-collage.png" 
           alt="Entertainment Collage"
-          className="w-full h-full object-cover opacity-30 blur-[2px] scale-105"
+          className="w-full h-full object-cover opacity-60 blur-sm scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/90 via-zinc-950/70 to-zinc-950" />
+        {/* Gradient fades from dark on the left (text) to clear on the right (image) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/70 to-zinc-950/30" />
       </div>
 
-      <div className="relative z-10 w-full max-w-sm flex flex-col items-center">
-        {/* Slogan */}
-        <div className="text-center mb-10 drop-shadow-xl">
-          <h1 className="text-5xl md:text-6xl font-heading font-extrabold text-white tracking-tight mb-4">
+      <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-24">
+        {/* Slogan - Middle Left */}
+        <div className="flex-1 text-left drop-shadow-2xl">
+          <h1 className="text-5xl md:text-7xl font-heading font-extrabold text-[var(--color-m3-primary)] tracking-tight mb-8">
             WhatNow?
           </h1>
-          <p className="text-2xl font-bold text-white/90 leading-tight">
+          <p className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
             Stop scrolling. <br /> Start watching.
           </p>
-          <p className="text-sm font-medium text-white/60 mt-4">
+          <p className="text-lg md:text-xl font-medium text-zinc-300 max-w-md">
             Find the perfect movie, show, or anime for any mood.
           </p>
         </div>
 
-        <Suspense fallback={<div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin" />}>
-          <SignInInner />
-        </Suspense>
+        {/* Login Card - Right */}
+        <div className="w-full max-w-md shrink-0">
+          <Suspense fallback={<div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin mx-auto" />}>
+            <SignInInner />
+          </Suspense>
+        </div>
       </div>
     </div>
   );
