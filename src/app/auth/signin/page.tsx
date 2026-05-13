@@ -58,8 +58,8 @@ export default function SignInPage() {
           alt="Entertainment Collage"
           className="w-full h-full object-cover scale-105 blur-[2px]"
         />
-        {/* 20% dark overlay filter */}
-        <div className="absolute inset-0 bg-black/20" />
+        {/* 25% dark overlay filter */}
+        <div className="absolute inset-0 bg-black/25" />
       </div>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-24">
