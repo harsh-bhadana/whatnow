@@ -12,15 +12,12 @@ async function SignInInner() {
   }
   
   return (
-    <div className="bg-[var(--color-m3-surface-container)] p-8 rounded-[28px] max-w-sm w-full shadow-lg border border-[var(--color-m3-surface-variant)]/20 text-center">
-      <div className="w-16 h-16 bg-[var(--color-m3-primary-container)] text-[var(--color-m3-on-primary-container)] rounded-2xl flex items-center justify-center mx-auto mb-6">
+    <div className="bg-[var(--color-m3-surface-container)]/80 backdrop-blur-xl p-8 rounded-[28px] w-full shadow-2xl border border-white/10 text-center">
+      <div className="w-16 h-16 bg-[var(--color-m3-primary-container)] text-[var(--color-m3-on-primary-container)] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
         <LogIn size={32} />
       </div>
       
-      <h1 className="text-3xl font-heading font-bold text-[var(--color-m3-on-surface)] mb-2">
-        Welcome to WhatNow?
-      </h1>
-      <p className="text-[var(--color-m3-on-surface-variant)] mb-8">
+      <p className="text-[var(--color-m3-on-surface)] font-medium mb-8">
         Sign in to save your watch history across all your devices.
       </p>
       
@@ -33,7 +30,7 @@ async function SignInInner() {
         >
           <button
             type="submit"
-            className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 hover:bg-gray-50 py-4 px-6 rounded-full font-medium transition-colors shadow-sm"
+            className="w-full flex items-center justify-center gap-3 bg-white text-gray-800 hover:bg-gray-50 py-4 px-6 rounded-full font-bold transition-colors shadow-sm hover:shadow-md hover:-translate-y-0.5 duration-200"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -52,10 +49,36 @@ async function SignInInner() {
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen bg-[var(--color-m3-background)] flex flex-col items-center justify-center p-6">
-      <Suspense fallback={<div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin" />}>
-        <SignInInner />
-      </Suspense>
+    <div className="min-h-screen relative flex flex-col items-center justify-center p-6 overflow-hidden">
+      {/* Cinematic Background Image */}
+      <div className="absolute inset-0 z-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img 
+          src="/hero-collage.png" 
+          alt="Entertainment Collage"
+          className="w-full h-full object-cover opacity-30 blur-[2px] scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/90 via-zinc-950/70 to-zinc-950" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-sm flex flex-col items-center">
+        {/* Slogan */}
+        <div className="text-center mb-10 drop-shadow-xl">
+          <h1 className="text-5xl md:text-6xl font-heading font-extrabold text-white tracking-tight mb-4">
+            WhatNow?
+          </h1>
+          <p className="text-2xl font-bold text-white/90 leading-tight">
+            Stop scrolling. <br /> Start watching.
+          </p>
+          <p className="text-sm font-medium text-white/60 mt-4">
+            Find the perfect movie, show, or anime for any mood.
+          </p>
+        </div>
+
+        <Suspense fallback={<div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin" />}>
+          <SignInInner />
+        </Suspense>
+      </div>
     </div>
   );
 }
