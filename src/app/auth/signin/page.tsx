@@ -50,16 +50,16 @@ async function SignInInner() {
 export default function SignInPage() {
   return (
     <div className="flex-1 relative flex items-center justify-center p-6 md:p-12 overflow-hidden">
-      {/* Cinematic Background Image - More Visible */}
-      <div className="absolute inset-0 z-0 bg-zinc-950">
+      {/* Cinematic Background Image */}
+      <div className="absolute inset-0 z-0 bg-black">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src="/hero-collage.png" 
           alt="Entertainment Collage"
-          className="w-full h-full object-cover opacity-60 blur-sm scale-105"
+          className="w-full h-full object-cover scale-105"
         />
-        {/* Gradient fades from dark on the left (text) to clear on the right (image) */}
-        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/70 to-zinc-950/30" />
+        {/* 20% dark overlay filter */}
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-24">
