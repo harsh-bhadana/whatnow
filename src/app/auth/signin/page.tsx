@@ -56,7 +56,7 @@ export default function SignInPage() {
         <img 
           src="/hero-collage.png" 
           alt="Entertainment Collage"
-          className="w-full h-full object-cover scale-105"
+          className="w-full h-full object-cover scale-105 blur-[2px]"
         />
         {/* 20% dark overlay filter */}
         <div className="absolute inset-0 bg-black/20" />
