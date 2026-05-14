@@ -12,12 +12,12 @@ async function SignInInner() {
   }
   
   return (
-    <div className="bg-[var(--color-m3-surface-container)]/80 backdrop-blur-3xl p-8 rounded-[28px] w-full shadow-2xl border border-white/10 text-center">
+    <div className="bg-zinc-900/40 backdrop-blur-[32px] p-8 rounded-[28px] w-full shadow-2xl border border-white/10 text-center">
       <div className="w-16 h-16 bg-[var(--color-m3-primary-container)] text-[var(--color-m3-on-primary-container)] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
         <LogIn size={32} />
       </div>
       
-      <p className="text-[var(--color-m3-on-surface)] font-medium mb-8">
+      <p className="text-white/90 font-medium mb-8">
         Sign in to save your watch history across all your devices.
       </p>
       
