@@ -82,14 +82,14 @@ export default function ProfileSelector() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleSelectProfile(profile)}
-                className="flex flex-col items-center group w-full"
+                className="flex flex-col items-center group w-full outline-none"
               >
-                <div className={`w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-m3-xl ${profile.color} shadow-lg flex items-center justify-center mb-4 transition-transform group-hover:ring-4 ring-[var(--color-m3-primary)] ring-offset-4 ring-offset-[var(--color-m3-background)]`}>
-                  <span className="text-white text-4xl md:text-5xl font-heading font-bold uppercase">
+                <div className={`w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full ${profile.color} shadow-sm group-hover:shadow-xl flex items-center justify-center mb-6 transition-all duration-300 group-focus-visible:ring-4 ring-[var(--color-m3-primary)] ring-offset-4 ring-offset-[var(--color-m3-background)]`}>
+                  <span className="text-white text-4xl md:text-5xl font-heading font-medium uppercase tracking-wider">
                     {profile.name.charAt(0)}
                   </span>
                 </div>
-                <span className="text-lg md:text-xl font-medium text-[var(--color-m3-on-background)] group-hover:text-[var(--color-m3-primary)] transition-colors truncate w-full text-center">
+                <span className="text-xl font-medium text-[var(--color-m3-on-surface)] group-hover:text-[var(--color-m3-primary)] transition-colors truncate w-full text-center">
                   {profile.name}
                 </span>
               </motion.button>
@@ -103,12 +103,12 @@ export default function ProfileSelector() {
               {!showAdd ? (
                 <button
                   onClick={() => setShowAdd(true)}
-                  className="flex flex-col items-center group w-full"
+                  className="flex flex-col items-center group w-full outline-none"
                 >
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-m3-xl border-4 border-dashed border-[var(--color-m3-outline)] flex items-center justify-center mb-4 group-hover:border-[var(--color-m3-primary)] transition-colors">
-                    <Plus className="w-10 h-10 md:w-12 md:h-12 text-[var(--color-m3-outline)] group-hover:text-[var(--color-m3-primary)] transition-colors" />
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-[var(--color-m3-surface-container-high)] text-[var(--color-m3-on-surface-variant)] shadow-sm group-hover:shadow-md flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-[var(--color-m3-surface-container-highest)] group-focus-visible:ring-4 ring-[var(--color-m3-primary)] ring-offset-4 ring-offset-[var(--color-m3-background)]">
+                    <Plus className="w-10 h-10 md:w-12 md:h-12" />
                   </div>
-                  <span className="text-lg md:text-xl font-medium text-[var(--color-m3-on-background)] group-hover:text-[var(--color-m3-primary)] transition-colors truncate w-full text-center">
+                  <span className="text-xl font-medium text-[var(--color-m3-on-surface-variant)] group-hover:text-[var(--color-m3-on-surface)] transition-colors truncate w-full text-center">
                     Add Profile
                   </span>
                 </button>
@@ -117,19 +117,20 @@ export default function ProfileSelector() {
                   onSubmit={handleAddProfile}
                   className="w-full flex flex-col items-center"
                 >
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-m3-xl bg-[var(--color-m3-surface-variant)] flex items-center justify-center mb-4 p-4">
+                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-[var(--color-m3-surface-container-high)] flex items-center justify-center mb-6 p-4 shadow-inner relative overflow-hidden group">
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--color-m3-primary)] transform origin-left scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300" />
                     <input
                       autoFocus
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
                       placeholder="Name"
-                      className="w-full bg-transparent text-center text-lg md:text-xl font-medium text-[var(--color-m3-on-surface)] outline-none border-b-2 border-[var(--color-m3-primary)] pb-1"
+                      className="w-full bg-transparent text-center text-xl font-medium text-[var(--color-m3-on-surface)] outline-none placeholder:text-[var(--color-m3-on-surface-variant)]/50"
                     />
                   </div>
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => setShowAdd(false)} className="text-sm text-[var(--color-m3-outline)]">Cancel</button>
-                    <button type="submit" className="text-sm text-[var(--color-m3-primary)] font-bold">Save</button>
+                  <div className="flex gap-4">
+                    <button type="button" onClick={() => setShowAdd(false)} className="px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] text-sm font-medium text-[var(--color-m3-on-surface-variant)] transition-colors">Cancel</button>
+                    <button type="submit" className="px-4 py-2 rounded-full bg-[var(--color-m3-primary)] hover:bg-[var(--color-m3-primary)]/90 text-sm font-medium text-[var(--color-m3-on-primary)] transition-colors shadow-sm">Save</button>
                   </div>
                 </form>
               )}
