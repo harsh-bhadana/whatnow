@@ -38,19 +38,19 @@ export default async function RootLayout({
         className={`${roboto.variable} ${outfit.variable} h-full antialiased`}
       >
         <body className="h-full flex flex-col font-sans">
-          <header className="sticky top-0 z-50 w-full bg-[var(--color-m3-surface)]/80 backdrop-blur-md border-b border-[var(--color-m3-outline)]/20 shadow-sm shrink-0">
-            <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-              <Link href="/" className="font-heading font-bold text-xl text-[var(--color-m3-primary)]">
-                WhatNow?
-              </Link>
-              <nav className="flex gap-4 items-center">
-                <Link 
-                  href="/history" 
-                  className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-m3-full hover:bg-[var(--color-m3-surface-variant)]"
-                >
-                  Watch History
+          {session && (
+            <header className="sticky top-0 z-50 w-full bg-[var(--color-m3-surface)]/80 backdrop-blur-md border-b border-[var(--color-m3-outline)]/20 shadow-sm shrink-0">
+              <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+                <Link href="/" className="font-heading font-bold text-xl text-[var(--color-m3-primary)]">
+                  WhatNow?
                 </Link>
-                {session && (
+                <nav className="flex gap-4 items-center">
+                  <Link 
+                    href="/history" 
+                    className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-m3-full hover:bg-[var(--color-m3-surface-variant)]"
+                  >
+                    Watch History
+                  </Link>
                   <form
                     action={async () => {
                       "use server";
@@ -65,10 +65,10 @@ export default async function RootLayout({
                       Sign Out
                     </button>
                   </form>
-                )}
-              </nav>
-            </div>
-          </header>
+                </nav>
+              </div>
+            </header>
+          )}
           {children}
         </body>
       </html>

@@ -65,7 +65,7 @@ export default function SignInPage() {
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-24">
         {/* Slogan - Middle Left */}
         <div className="flex-1 text-left drop-shadow-2xl">
-          <h1 className="text-5xl md:text-7xl font-heading font-extrabold text-[var(--color-m3-primary)] tracking-tight mb-8">
+          <h1 className="text-5xl md:text-7xl font-heading font-extrabold text-white tracking-tight mb-8">
             WhatNow?
           </h1>
           <p className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
