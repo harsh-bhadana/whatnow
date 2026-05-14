@@ -105,8 +105,11 @@ export default function ProfileSelector() {
                   onClick={() => setShowAdd(true)}
                   className="flex flex-col items-center group w-full outline-none"
                 >
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-[var(--color-m3-surface-container-high)] text-[var(--color-m3-on-surface-variant)] shadow-sm group-hover:shadow-md flex items-center justify-center mb-6 transition-all duration-300 group-hover:bg-[var(--color-m3-surface-container-highest)] group-focus-visible:ring-4 ring-[var(--color-m3-primary)] ring-offset-4 ring-offset-[var(--color-m3-background)]">
-                    <Plus className="w-10 h-10 md:w-12 md:h-12" />
+                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-focus-visible:scale-105">
+                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-[var(--color-m3-surface-container-high)] group-hover:text-[var(--color-m3-surface-container-highest)] fill-current drop-shadow-sm group-hover:drop-shadow-md transition-colors duration-300">
+                      <path d="M50.00,0.00 L60.35,11.36 L75.00,6.70 L78.28,21.72 L93.30,25.00 L88.64,39.65 L100.00,50.00 L88.64,60.35 L93.30,75.00 L78.28,78.28 L75.00,93.30 L60.35,88.64 L50.00,100.00 L39.65,88.64 L25.00,93.30 L21.72,78.28 L6.70,75.00 L11.36,60.35 L0.00,50.00 L11.36,39.65 L6.70,25.00 L21.72,21.72 L25.00,6.70 L39.65,11.36 Z" />
+                    </svg>
+                    <Plus className="relative z-10 w-10 h-10 md:w-12 md:h-12 text-[var(--color-m3-on-surface-variant)] group-hover:text-[var(--color-m3-on-surface)] transition-colors duration-300" />
                   </div>
                   <span className="text-xl font-medium text-[var(--color-m3-on-surface-variant)] group-hover:text-[var(--color-m3-on-surface)] transition-colors truncate w-full text-center">
                     Add Profile
