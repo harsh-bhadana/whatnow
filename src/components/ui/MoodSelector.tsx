@@ -19,10 +19,10 @@ export function MoodChip({ label, selected, onClick }: MoodChipProps) {
       onClick={onClick}
       layout
       className={cn(
-        "flex items-center gap-2 px-4 py-2 rounded-m3-full text-sm font-medium transition-all duration-300 border outline-none overflow-hidden relative",
+        "flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-colors duration-300 outline-none overflow-hidden relative",
         selected
-          ? "bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)] border-transparent shadow-[var(--shadow-m3-elevation-1)]"
-          : "bg-[var(--color-m3-surface)] text-[var(--color-m3-on-surface)] border-[var(--color-m3-outline)] hover:bg-[var(--color-m3-surface-variant)]"
+          ? "bg-[var(--color-m3-primary-container)] text-[var(--color-m3-on-primary-container)] shadow-sm"
+          : "bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-surface-container-highest)] border border-transparent"
       )}
     >
       {/* State layer overlay */}
@@ -36,7 +36,7 @@ export function MoodChip({ label, selected, onClick }: MoodChipProps) {
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
           className="flex-shrink-0"
         >
-          <Check className="w-4 h-4" />
+          <Check className="w-4 h-4" strokeWidth={3} />
         </motion.div>
       )}
       <span>{label}</span>

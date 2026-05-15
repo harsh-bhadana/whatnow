@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 interface TimeSliderProps {
@@ -21,62 +20,65 @@ export function TimeSlider({ value, onChange, min = 15, max = 240, step = 15 }: 
   };
 
   const percentage = ((value - min) / (max - min)) * 100;
+  const [isDragging, setIsDragging] = React.useState(false);
 
   return (
     <div className="w-full flex flex-col gap-4">
-      <div className="flex justify-between items-center text-[var(--color-m3-on-surface)]">
-        <span className="text-sm font-medium">Available Time</span>
-        <span className="text-xl font-heading font-bold text-[var(--color-m3-primary)]">{formatTime(value)}</span>
+      <div className="flex justify-between items-end text-[var(--color-m3-on-surface)] px-2">
+        <span className="text-sm font-bold uppercase tracking-wider text-[var(--color-m3-outline)]">Available Time</span>
+        <motion.span 
+          key={value}
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="text-3xl font-heading font-black text-[var(--color-m3-primary)]"
+        >
+          {formatTime(value)}
+        </motion.span>
       </div>
       
-      <div className="relative h-12 flex items-center group cursor-pointer" 
+      <div className="relative h-16 flex items-center group cursor-pointer touch-none" 
            onPointerDown={(e) => {
+             setIsDragging(true);
              const rect = e.currentTarget.getBoundingClientRect();
              const p = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
              const newValue = Math.round((p * (max - min) + min) / step) * step;
              onChange(newValue);
            }}
            onPointerMove={(e) => {
-             if (e.buttons === 1) {
+             if (isDragging || e.buttons === 1) {
                const rect = e.currentTarget.getBoundingClientRect();
                const p = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
                const newValue = Math.round((p * (max - min) + min) / step) * step;
                onChange(newValue);
              }
            }}
+           onPointerUp={() => setIsDragging(false)}
+           onPointerLeave={() => setIsDragging(false)}
       >
-        {/* Background Track (Straight line) */}
-        <div className="absolute left-0 right-0 h-1 bg-[var(--color-m3-surface-variant)] rounded-full overflow-hidden" />
+        {/* Thick Background Track */}
+        <div className="absolute left-0 right-0 h-8 bg-[var(--color-m3-surface-container-highest)] rounded-full overflow-hidden" />
         
-        {/* Filled Squiggly Track */}
+        {/* Thick Filled Track */}
         <div 
-          className="absolute left-0 h-6 overflow-hidden pointer-events-none transition-all duration-75 ease-out"
+          className="absolute left-0 h-8 bg-[var(--color-m3-primary)] rounded-full pointer-events-none transition-all duration-100 ease-out"
           style={{ width: `${percentage}%` }}
-        >
-          <div className="absolute inset-0 w-[1000px] text-[var(--color-m3-primary)] opacity-100">
-            <svg 
-              width="100%" 
-              height="100%" 
-              preserveAspectRatio="none" 
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <pattern id="squiggle" width="24" height="24" patternUnits="userSpaceOnUse">
-                  <path d="M 0,12 Q 6,6 12,12 T 24,12" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#squiggle)" />
-            </svg>
-          </div>
-        </div>
-
-        {/* Thumb */}
-        <motion.div 
-          className="absolute h-5 w-5 rounded-m3-full bg-[var(--color-m3-primary)] shadow-md pointer-events-none z-10 top-1/2 -mt-2.5"
-          style={{ left: `calc(${percentage}% - 10px)` }}
-          whileHover={{ scale: 1.2 }}
-          animate={{ scale: 1 }}
         />
+
+        {/* Chunky Thumb */}
+        <motion.div 
+          className="absolute h-10 w-10 rounded-full bg-[var(--color-m3-on-primary)] shadow-md pointer-events-none z-10 top-1/2 -mt-5 flex items-center justify-center"
+          style={{ left: `calc(${percentage}% - 20px)` }}
+          animate={{ 
+            scale: isDragging ? 1.3 : 1,
+            boxShadow: isDragging 
+              ? "0px 8px 16px rgba(103, 80, 164, 0.3)" 
+              : "0px 4px 8px rgba(0, 0, 0, 0.1)"
+          }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        >
+          {/* Inner decorative dot */}
+          <div className="w-3 h-3 rounded-full bg-[var(--color-m3-primary)]" />
+        </motion.div>
         
         {/* Invisible native input for accessibility / focus */}
         <input
@@ -90,7 +92,7 @@ export function TimeSlider({ value, onChange, min = 15, max = 240, step = 15 }: 
         />
       </div>
 
-      <div className="flex justify-between text-xs text-[var(--color-m3-outline)] font-medium">
+      <div className="flex justify-between text-sm text-[var(--color-m3-outline)] font-medium px-2">
         <span>{formatTime(min)}</span>
         <span>{formatTime(max)}+</span>
       </div>

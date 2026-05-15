@@ -38,23 +38,54 @@ export default function Discover() {
   };
 
   return (
-    <main className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 max-w-3xl mx-auto w-full">
+    <main className="relative flex-1 flex flex-col items-center justify-center p-6 sm:p-12 w-full overflow-hidden">
+      {/* Organic Background Blobs (Pixel UI Aesthetic) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <motion.div 
+          animate={{ 
+            x: [0, 50, -20, 0], 
+            y: [0, -30, 40, 0],
+            scale: [1, 1.1, 0.9, 1]
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[10%] left-[10%] w-64 md:w-96 h-64 md:h-96 bg-[var(--color-m3-primary-container)] rounded-full mix-blend-multiply opacity-60 blur-[80px]"
+        />
+        <motion.div 
+          animate={{ 
+            x: [0, -40, 30, 0], 
+            y: [0, 50, -20, 0],
+            scale: [1, 0.9, 1.1, 1]
+          }}
+          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-[10%] right-[10%] w-72 md:w-[28rem] h-72 md:h-[28rem] bg-[var(--color-m3-secondary-container)] rounded-full mix-blend-multiply opacity-60 blur-[80px]"
+        />
+        <motion.div 
+          animate={{ 
+            x: [0, 30, -50, 0], 
+            y: [0, -40, 20, 0],
+            scale: [1, 1.2, 0.8, 1]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[40%] left-[40%] w-56 md:w-80 h-56 md:h-80 bg-[var(--color-m3-tertiary-container)] rounded-full mix-blend-multiply opacity-50 blur-[80px]"
+        />
+      </div>
+
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full flex flex-col gap-12"
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.2, 0, 0, 1] }}
+        className="relative z-10 w-full max-w-2xl flex flex-col gap-10"
       >
         <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-6xl font-heading font-bold tracking-tight text-[var(--color-m3-primary)]">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold tracking-tight text-[var(--color-m3-on-background)] leading-tight">
             What are you in the mood for?
           </h1>
-          <p className="text-lg text-[var(--color-m3-outline)] max-w-xl mx-auto">
+          <p className="text-lg text-[var(--color-m3-on-surface-variant)] max-w-xl mx-auto font-medium">
             Tell us how much time you have and what you want to feel. We&apos;ll find the perfect movie, show, or anime for you.
           </p>
         </div>
 
-        <div className="bg-[var(--color-m3-surface-container)] p-8 rounded-m3-xl shadow-[var(--shadow-m3-elevation-1)] space-y-8">
+        <div className="bg-[var(--color-m3-surface-container)] p-6 md:p-10 rounded-[40px] shadow-sm border border-[var(--color-m3-outline)]/5 space-y-10">
           <section className="space-y-4">
             <h2 className="text-xl font-heading font-semibold text-[var(--color-m3-on-surface)]">
               I have...
@@ -78,13 +109,13 @@ export default function Discover() {
         </div>
 
         <motion.button
-          whileHover={{ scale: 1.02, boxShadow: "var(--shadow-m3-elevation-2)" }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleDiscover}
           className={cn(
-            "w-full py-4 rounded-m3-full text-lg font-bold transition-all",
-            "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] shadow-[var(--shadow-m3-elevation-1)]",
-            selectedMoods.length === 0 && "opacity-80 grayscale-[30%]"
+            "w-full py-5 rounded-[32px] text-xl font-bold transition-all shadow-[var(--shadow-m3-elevation-1)]",
+            "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
+            selectedMoods.length === 0 && "opacity-90 grayscale-[20%]"
           )}
         >
           {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}

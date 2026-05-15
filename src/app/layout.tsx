@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Roboto, Outfit } from "next/font/google";
+import { Roboto, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 const roboto = Roboto({
   variable: "--font-roboto",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700"],
+  weight: ["400", "500", "700"],
 });
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -36,7 +36,7 @@ export default async function RootLayout({
     <ViewTransitions>
       <html
         lang="en"
-        className={`${roboto.variable} ${outfit.variable} h-full antialiased`}
+        className={`${roboto.variable} ${plusJakarta.variable} h-full antialiased`}
       >
         <body className="h-full flex flex-col font-sans">
           {session && (
