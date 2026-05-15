@@ -14,7 +14,7 @@ export default function Recommendations() {
   const { availableTime, selectedMoods, watchHistory, activeProfileId, cachedRecommendations, setCachedRecommendations, setSelectedMedia } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
-  const isInitialLoad = useRef(cachedRecommendations.length === 0);
+  const [isInitialLoad] = useState(cachedRecommendations.length === 0);
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -71,7 +71,7 @@ export default function Recommendations() {
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
       <div className="flex items-center gap-4 mb-8">
         <button 
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/discover")}
           className="p-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] transition-colors"
         >
           <ArrowLeft className="w-6 h-6 text-[var(--color-m3-on-surface)]" />
@@ -100,16 +100,16 @@ export default function Recommendations() {
         ) : (
           <motion.div 
             key="results"
-            initial={isInitialLoad.current ? { opacity: 0, y: 20 } : false}
+            initial={isInitialLoad ? { opacity: 0, y: 20 } : false}
             animate={{ opacity: 1, y: 0 }}
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6"
           >
             {results.map((item, index) => (
               <motion.div
                 key={item.id}
-                initial={isInitialLoad.current ? { opacity: 0, scale: 0.9 } : false}
+                initial={isInitialLoad ? { opacity: 0, scale: 0.9 } : false}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: isInitialLoad.current ? index * 0.05 : 0 }}
+                transition={{ delay: isInitialLoad ? index * 0.05 : 0 }}
               >
                 <MediaCard 
                   {...item}
@@ -126,7 +126,7 @@ export default function Recommendations() {
         <div className="flex-1 flex flex-col items-center justify-center text-[var(--color-m3-outline)] space-y-4">
           <p className="text-lg">No matches found for your exact criteria.</p>
           <button 
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/discover")}
             className="text-[var(--color-m3-primary)] font-bold hover:underline"
           >
             Try different moods or more time

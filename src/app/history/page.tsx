@@ -43,7 +43,7 @@ export default function History() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/discover")}
             className="p-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] transition-colors"
           >
             <ArrowLeft className="w-6 h-6 text-[var(--color-m3-on-surface)]" />
@@ -63,7 +63,7 @@ export default function History() {
         <div className="flex-1 flex flex-col items-center justify-center text-[var(--color-m3-outline)] space-y-4">
           <p className="text-lg">Your history is empty.</p>
           <button 
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/discover")}
             className="text-[var(--color-m3-primary)] font-bold hover:underline"
           >
             Go discover something new!

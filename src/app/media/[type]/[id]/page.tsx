@@ -93,12 +93,12 @@ export default function MediaDetailPage({ params }: PageProps) {
       <div className="relative z-10 flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
         {/* Navigation */}
         <div className="flex items-center gap-4 mb-8 sm:mb-16">
-          <Link 
-            href="/recommendations"
+          <button 
+            onClick={() => router.back()}
             className="p-3 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md transition-colors text-white border border-white/10"
           >
             <ArrowLeft className="w-6 h-6" />
-          </Link>
+          </button>
         </div>
 
         {/* Hero Section */}
