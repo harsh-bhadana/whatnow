@@ -74,52 +74,47 @@ export default function Discover() {
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.2, 0, 0, 1] }}
-        className="relative z-10 w-full max-w-2xl flex flex-col gap-4 sm:gap-6"
+        className="relative z-10 w-full max-w-2xl flex flex-col justify-center max-h-full"
       >
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold tracking-tight text-[var(--color-m3-on-background)] leading-tight">
+        <div className="text-center mb-4 sm:mb-6 shrink-0">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold tracking-tight text-[var(--color-m3-on-background)] leading-tight">
             What are you in the mood for?
           </h1>
-          <p className="text-base md:text-lg text-[var(--color-m3-on-surface-variant)] max-w-xl mx-auto font-medium">
-            Tell us how much time you have and what you want to feel. We&apos;ll find the perfect movie, show, or anime for you.
+          <p className="text-sm sm:text-base text-[var(--color-m3-on-surface-variant)] max-w-xl mx-auto font-medium mt-1">
+            Tell us how much time you have and what you want to feel. We&apos;ll find the perfect match.
           </p>
         </div>
 
-        <div className="bg-[var(--color-m3-surface-container)] p-5 md:p-6 rounded-[32px] md:rounded-[40px] shadow-sm border border-[var(--color-m3-outline)]/5 space-y-6">
-          <section className="space-y-4">
-            <h2 className="text-xl font-heading font-semibold text-[var(--color-m3-on-surface)]">
-              I have...
-            </h2>
-            <TimeSlider 
-              value={availableTime} 
-              onChange={setAvailableTime} 
-            />
-          </section>
+        <div className="bg-[var(--color-m3-surface-container)] p-4 sm:p-6 rounded-[28px] sm:rounded-[40px] shadow-sm border border-[var(--color-m3-outline)]/5 flex flex-col gap-4 sm:gap-6 shrink">
+          <TimeSlider 
+            value={availableTime} 
+            onChange={setAvailableTime} 
+          />
 
-          <section className="space-y-4">
-            <h2 className="text-xl font-heading font-semibold text-[var(--color-m3-on-surface)]">
+          <div className="flex flex-col gap-2">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--color-m3-outline)] px-2">
               I want something...
-            </h2>
+            </span>
             <MoodSelector 
               moods={MOODS} 
               selectedMoods={selectedMoods} 
               onSelect={toggleMood} 
             />
-          </section>
-        </div>
+          </div>
 
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleDiscover}
-          className={cn(
-            "w-full py-4 rounded-[32px] text-lg font-bold transition-all shadow-[var(--shadow-m3-elevation-1)]",
-            "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
-            selectedMoods.length === 0 && "opacity-90 grayscale-[20%]"
-          )}
-        >
-          {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
-        </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleDiscover}
+            className={cn(
+              "w-full py-3 sm:py-4 mt-1 sm:mt-2 rounded-[24px] sm:rounded-[32px] text-base sm:text-lg font-bold transition-all shadow-[var(--shadow-m3-elevation-1)] shrink-0",
+              "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
+              selectedMoods.length === 0 && "opacity-90 grayscale-[20%]"
+            )}
+          >
+            {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
+          </motion.button>
+        </div>
       </motion.div>
     </main>
   );
