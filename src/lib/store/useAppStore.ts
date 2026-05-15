@@ -16,7 +16,8 @@ interface AppState {
   
   // Persistent Data
   activeProfileId: string | null;
-  setActiveProfileId: (id: string | null) => void;
+  activeProfile: { name: string; color: string } | null;
+  setActiveProfile: (id: string | null, profile?: { name: string; color: string }) => void;
   
   watchHistory: WatchHistoryItem[];
   setWatchHistory: (history: WatchHistoryItem[]) => void;
@@ -49,7 +50,8 @@ export const useAppStore = create<AppState>()(
         })),
         
       activeProfileId: null,
-      setActiveProfileId: (id) => set({ activeProfileId: id }),
+      activeProfile: null,
+      setActiveProfile: (id, profile) => set({ activeProfileId: id, activeProfile: profile || null }),
       watchHistory: [],
       setWatchHistory: (history) => set({ watchHistory: history }),
       addToHistory: (item) =>
@@ -83,6 +85,7 @@ export const useAppStore = create<AppState>()(
         watchHistory: state.watchHistory,
         preferredGenres: state.preferredGenres,
         activeProfileId: state.activeProfileId,
+        activeProfile: state.activeProfile,
       }), // persist history, preferences, and active profile
     }
   )
