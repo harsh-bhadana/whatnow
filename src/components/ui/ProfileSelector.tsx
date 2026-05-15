@@ -51,7 +51,8 @@ export default function ProfileSelector() {
   };
 
   return (
-    <div className="flex-1 bg-[var(--color-m3-background)] flex flex-col items-center justify-center p-6">
+    <>
+      <div className="flex-1 bg-[var(--color-m3-background)] flex flex-col items-center justify-center p-6">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -140,25 +141,28 @@ export default function ProfileSelector() {
               
               <form 
                 onSubmit={handleAddProfile}
-                className="w-full flex flex-col items-center"
+                className="w-full flex flex-col gap-8 mt-4"
               >
-                <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-[var(--color-m3-surface-variant)] flex items-center justify-center mb-8 p-4 shadow-inner relative overflow-hidden group">
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--color-m3-primary)] transform origin-left scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300" />
+                <div className="relative w-full bg-[var(--color-m3-surface-variant)] rounded-t-lg border-b-[1px] border-[var(--color-m3-on-surface-variant)] group focus-within:bg-[var(--color-m3-surface-variant-hover)] transition-colors px-4 pt-6 pb-2">
+                  <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--color-m3-primary)] transform origin-center scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300" />
+                  <label className="absolute top-2 left-4 text-xs font-medium text-[var(--color-m3-primary)]">
+                    Profile Name
+                  </label>
                   <input
                     autoFocus
                     type="text"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="Enter Name"
-                    className="w-full bg-transparent text-center text-2xl font-medium text-[var(--color-m3-on-surface)] outline-none placeholder:text-[var(--color-m3-on-surface-variant)]/50"
+                    className="w-full bg-transparent text-lg text-[var(--color-m3-on-surface)] outline-none placeholder:text-transparent group-focus-within:placeholder:text-[var(--color-m3-on-surface-variant)]/50"
                   />
                 </div>
                 
-                <div className="flex gap-4 w-full justify-center mt-4">
-                  <button type="button" onClick={() => setShowAdd(false)} className="px-8 py-3 rounded-full hover:bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] font-medium transition-colors">
+                <div className="flex gap-4 w-full justify-end mt-4">
+                  <button type="button" onClick={() => setShowAdd(false)} className="px-6 py-2.5 rounded-full hover:bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] font-medium transition-colors">
                     Cancel
                   </button>
-                  <button type="submit" disabled={!newName.trim()} className="px-8 py-3 rounded-full bg-[var(--color-m3-primary)] hover:bg-[var(--color-m3-primary)]/90 text-[var(--color-m3-on-primary)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button type="submit" disabled={!newName.trim()} className="px-6 py-2.5 rounded-full bg-[var(--color-m3-primary)] hover:bg-[var(--color-m3-primary)]/90 text-[var(--color-m3-on-primary)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                     Save Profile
                   </button>
                 </div>
@@ -167,6 +171,6 @@ export default function ProfileSelector() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }
