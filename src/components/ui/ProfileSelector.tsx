@@ -100,47 +100,73 @@ export default function ProfileSelector() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex justify-center w-full"
             >
-              {!showAdd ? (
-                <button
-                  onClick={() => setShowAdd(true)}
-                  className="flex flex-col items-center group w-full outline-none"
-                >
-                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-focus-visible:scale-105">
-                    <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-[var(--color-m3-surface-container-high)] group-hover:text-[var(--color-m3-surface-container-highest)] fill-current drop-shadow-sm group-hover:drop-shadow-md transition-colors duration-300">
-                      <path d="M50.00,0.00 L60.35,11.36 L75.00,6.70 L78.28,21.72 L93.30,25.00 L88.64,39.65 L100.00,50.00 L88.64,60.35 L93.30,75.00 L78.28,78.28 L75.00,93.30 L60.35,88.64 L50.00,100.00 L39.65,88.64 L25.00,93.30 L21.72,78.28 L6.70,75.00 L11.36,60.35 L0.00,50.00 L11.36,39.65 L6.70,25.00 L21.72,21.72 L25.00,6.70 L39.65,11.36 Z" />
-                    </svg>
-                    <Plus className="relative z-10 w-10 h-10 md:w-12 md:h-12 text-[var(--color-m3-on-surface-variant)] group-hover:text-[var(--color-m3-on-surface)] transition-colors duration-300" />
-                  </div>
-                  <span className="text-xl font-medium text-[var(--color-m3-on-surface-variant)] group-hover:text-[var(--color-m3-on-surface)] transition-colors truncate w-full text-center">
-                    Add Profile
-                  </span>
-                </button>
-              ) : (
-                <form 
-                  onSubmit={handleAddProfile}
-                  className="w-full flex flex-col items-center"
-                >
-                  <div className="w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full bg-[var(--color-m3-surface-container-high)] flex items-center justify-center mb-6 p-4 shadow-inner relative overflow-hidden group">
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--color-m3-primary)] transform origin-left scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300" />
-                    <input
-                      autoFocus
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                      placeholder="Name"
-                      className="w-full bg-transparent text-center text-xl font-medium text-[var(--color-m3-on-surface)] outline-none placeholder:text-[var(--color-m3-on-surface-variant)]/50"
-                    />
-                  </div>
-                  <div className="flex gap-4">
-                    <button type="button" onClick={() => setShowAdd(false)} className="px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] text-sm font-medium text-[var(--color-m3-on-surface-variant)] transition-colors">Cancel</button>
-                    <button type="submit" className="px-4 py-2 rounded-full bg-[var(--color-m3-primary)] hover:bg-[var(--color-m3-primary)]/90 text-sm font-medium text-[var(--color-m3-on-primary)] transition-colors shadow-sm">Save</button>
-                  </div>
-                </form>
-              )}
+              <button
+                onClick={() => setShowAdd(true)}
+                className="flex flex-col items-center group w-full outline-none"
+              >
+                <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-40 md:h-40 flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-105 group-focus-visible:scale-105">
+                  <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full text-[var(--color-m3-surface-container-high)] group-hover:text-[var(--color-m3-surface-container-highest)] fill-current drop-shadow-sm group-hover:drop-shadow-md transition-colors duration-300">
+                    <path d="M50.00,0.00 L60.35,11.36 L75.00,6.70 L78.28,21.72 L93.30,25.00 L88.64,39.65 L100.00,50.00 L88.64,60.35 L93.30,75.00 L78.28,78.28 L75.00,93.30 L60.35,88.64 L50.00,100.00 L39.65,88.64 L25.00,93.30 L21.72,78.28 L6.70,75.00 L11.36,60.35 L0.00,50.00 L11.36,39.65 L6.70,25.00 L21.72,21.72 L25.00,6.70 L39.65,11.36 Z" />
+                  </svg>
+                  <Plus className="relative z-10 w-10 h-10 md:w-12 md:h-12 text-[var(--color-m3-on-surface-variant)] group-hover:text-[var(--color-m3-on-surface)] transition-colors duration-300" />
+                </div>
+                <span className="text-xl font-medium text-[var(--color-m3-on-surface-variant)] group-hover:text-[var(--color-m3-on-surface)] transition-colors truncate w-full text-center">
+                  Add Profile
+                </span>
+              </button>
             </motion.div>
           </AnimatePresence>
         </div>
       )}
+    </div>
+      
+      <AnimatePresence>
+        {showAdd && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-[var(--color-m3-surface-container-high)] p-8 md:p-12 rounded-[32px] shadow-2xl max-w-md w-full flex flex-col items-center relative overflow-hidden"
+            >
+              <h2 className="text-3xl font-heading font-bold text-[var(--color-m3-on-surface)] mb-8">
+                New Profile
+              </h2>
+              
+              <form 
+                onSubmit={handleAddProfile}
+                className="w-full flex flex-col items-center"
+              >
+                <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-[var(--color-m3-surface-variant)] flex items-center justify-center mb-8 p-4 shadow-inner relative overflow-hidden group">
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--color-m3-primary)] transform origin-left scale-x-0 group-focus-within:scale-x-100 transition-transform duration-300" />
+                  <input
+                    autoFocus
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    placeholder="Enter Name"
+                    className="w-full bg-transparent text-center text-2xl font-medium text-[var(--color-m3-on-surface)] outline-none placeholder:text-[var(--color-m3-on-surface-variant)]/50"
+                  />
+                </div>
+                
+                <div className="flex gap-4 w-full justify-center mt-4">
+                  <button type="button" onClick={() => setShowAdd(false)} className="px-8 py-3 rounded-full hover:bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] font-medium transition-colors">
+                    Cancel
+                  </button>
+                  <button type="submit" disabled={!newName.trim()} className="px-8 py-3 rounded-full bg-[var(--color-m3-primary)] hover:bg-[var(--color-m3-primary)]/90 text-[var(--color-m3-on-primary)] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                    Save Profile
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
