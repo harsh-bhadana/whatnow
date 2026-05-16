@@ -212,6 +212,25 @@ export default function MediaDetailPage({ params }: PageProps) {
             )}
 
             {(() => {
+              if (mediaContext.type === "anime") {
+                return (
+                  <div className="mt-10 border-t border-white/10 pt-8">
+                    <h3 className="text-xl font-heading font-semibold text-white mb-6">Where to Watch</h3>
+                    <div className="flex flex-wrap gap-4">
+                      <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 rounded-xl text-sm font-medium text-white hover:bg-white/10 transition-colors">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src="https://image.tmdb.org/t/p/w200/mXeC4TrcgdU6ltE9bCBCEORwSQR.jpg" 
+                          alt="Crunchyroll"
+                          className="w-8 h-8 rounded-full shadow-sm"
+                        />
+                        Crunchyroll
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               const usProviders = (details as any)?.["watch/providers"]?.results?.US;
               if (!usProviders) return null;
               
