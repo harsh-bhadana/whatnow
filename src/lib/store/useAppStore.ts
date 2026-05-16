@@ -32,6 +32,12 @@ interface AppState {
   setSelectedMedia: (media: MediaCardProps | null) => void;
   cachedRecommendations: MediaCardProps[];
   setCachedRecommendations: (recommendations: MediaCardProps[]) => void;
+  
+  // Advanced Filters
+  mediaType: "all" | "movie" | "tv" | "anime";
+  setMediaType: (type: "all" | "movie" | "tv" | "anime") => void;
+  selectedLikedMediaIds: number[];
+  toggleLikedMedia: (id: number) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -78,6 +84,17 @@ export const useAppStore = create<AppState>()(
       setSelectedMedia: (media) => set({ selectedMedia: media }),
       cachedRecommendations: [],
       setCachedRecommendations: (recommendations) => set({ cachedRecommendations: recommendations }),
+      
+      mediaType: "all",
+      setMediaType: (type) => set({ mediaType: type, cachedRecommendations: [] }),
+      selectedLikedMediaIds: [],
+      toggleLikedMedia: (id) =>
+        set((state) => ({
+          cachedRecommendations: [],
+          selectedLikedMediaIds: state.selectedLikedMediaIds.includes(id)
+            ? state.selectedLikedMediaIds.filter((mid) => mid !== id)
+            : [...state.selectedLikedMediaIds, id],
+        })),
     }),
     {
       name: "media-recommender-storage",

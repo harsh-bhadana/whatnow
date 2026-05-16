@@ -15,7 +15,14 @@ const MOODS = [
 
 export default function Discover() {
   const router = useRouter();
-  const { availableTime, setAvailableTime, selectedMoods, toggleMood, activeProfileId } = useAppStore();
+  const { 
+    availableTime, setAvailableTime, 
+    selectedMoods, toggleMood, 
+    activeProfileId, 
+    watchHistory,
+    mediaType, setMediaType,
+    selectedLikedMediaIds, toggleLikedMedia
+  } = useAppStore();
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -93,6 +100,28 @@ export default function Discover() {
 
           <div className="flex flex-col gap-2">
             <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--color-m3-outline)] px-2">
+              Media Type
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {["all", "movie", "tv", "anime"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setMediaType(type as "all" | "movie" | "tv" | "anime")}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-bold transition-all border",
+                    mediaType === type
+                      ? "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] border-transparent"
+                      : "bg-transparent text-[var(--color-m3-on-surface-variant)] border-[var(--color-m3-outline)] hover:bg-[var(--color-m3-surface-variant)]"
+                  )}
+                >
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--color-m3-outline)] px-2">
               I want something...
             </span>
             <MoodSelector 
@@ -102,6 +131,33 @@ export default function Discover() {
             />
           </div>
 
+          {watchHistory.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--color-m3-outline)] px-2">
+                Based on what I liked...
+              </span>
+              <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+                {watchHistory.map((item) => {
+                  const isSelected = selectedLikedMediaIds.includes(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => toggleLikedMedia(item.id)}
+                      className={cn(
+                        "whitespace-nowrap px-4 py-2 rounded-[16px] text-sm font-medium transition-all shrink-0",
+                        isSelected
+                          ? "bg-[var(--color-m3-tertiary)] text-[var(--color-m3-on-tertiary)] shadow-md scale-105"
+                          : "bg-[var(--color-m3-surface-container-highest)] text-[var(--color-m3-on-surface)] opacity-70 hover:opacity-100"
+                      )}
+                    >
+                      {item.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.95 }}
@@ -109,10 +165,10 @@ export default function Discover() {
             className={cn(
               "w-full py-3 sm:py-4 mt-1 sm:mt-2 rounded-[24px] sm:rounded-[32px] text-base sm:text-lg font-bold transition-all shadow-[var(--shadow-m3-elevation-1)] shrink-0",
               "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
-              selectedMoods.length === 0 && "opacity-90 grayscale-[20%]"
+              (selectedMoods.length === 0 && selectedLikedMediaIds.length === 0) && "opacity-90 grayscale-[20%]"
             )}
           >
-            {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
+            {(selectedMoods.length === 0 && selectedLikedMediaIds.length === 0) ? "Surprise Me" : "Discover"}
           </motion.button>
         </div>
       </motion.div>

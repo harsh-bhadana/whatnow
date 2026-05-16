@@ -11,7 +11,11 @@ import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 
 export default function Recommendations() {
   const router = useRouter();
-  const { availableTime, selectedMoods, watchHistory, activeProfileId, cachedRecommendations, setCachedRecommendations, setSelectedMedia } = useAppStore();
+  const { 
+    availableTime, selectedMoods, watchHistory, activeProfileId, 
+    cachedRecommendations, setCachedRecommendations, setSelectedMedia,
+    mediaType, selectedLikedMediaIds
+  } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
   const [isInitialLoad] = useState(cachedRecommendations.length === 0);
@@ -31,7 +35,7 @@ export default function Recommendations() {
     
     if (!isMounted) return;
     
-    if (selectedMoods.length === 0) {
+    if (selectedMoods.length === 0 && selectedLikedMediaIds.length === 0) {
       router.push("/discover");
       return;
     }
@@ -45,23 +49,34 @@ export default function Recommendations() {
 
       setLoading(true);
       const watchedIds = watchHistory.map(item => item.id);
+      const likedMediaData = watchHistory
+        .filter(item => selectedLikedMediaIds.includes(item.id))
+        .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
 
       // Fetch concurrently
       const [moviesAndTv, anime] = await Promise.all([
-        fetchRecommendations(availableTime, selectedMoods, watchedIds),
-        fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds)
+        fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData),
+        mediaType === "all" || mediaType === "anime" ? fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds) : Promise.resolve([])
       ]);
 
       // Combine and shuffle
       const combined = [...moviesAndTv, ...anime].sort(() => Math.random() - 0.5);
-      setResults(combined);
-      setCachedRecommendations(combined);
+      
+      // Deduplicate locally just in case
+      const uniqueMap = new Map();
+      combined.forEach(item => {
+        if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
+      });
+      const finalResults = Array.from(uniqueMap.values());
+
+      setResults(finalResults);
+      setCachedRecommendations(finalResults);
       setLoading(false);
     }
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTime, selectedMoods, router, watchHistory, activeProfileId, isMounted]);
+  }, [availableTime, selectedMoods, router, watchHistory, activeProfileId, isMounted, mediaType, selectedLikedMediaIds]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
