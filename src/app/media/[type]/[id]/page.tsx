@@ -49,6 +49,9 @@ export default function MediaDetailPage({ params }: PageProps) {
           console.error(e);
           setLoading(false);
         }
+      } else {
+        // If it's anime, we don't fetch TMDB details yet, so immediately stop loading
+        setLoading(false);
       }
     }
     load();
