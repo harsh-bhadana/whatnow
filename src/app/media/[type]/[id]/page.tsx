@@ -82,7 +82,7 @@ export default function MediaDetailPage({ params }: PageProps) {
     <main className="h-screen max-h-screen overflow-hidden relative flex flex-col md:flex-row bg-zinc-950">
       
       {/* LEFT SIDE: Bleed Poster Image */}
-      <div className="relative w-full md:w-1/2 lg:w-[45%] h-[40vh] md:h-full shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)]">
+      <div className="relative w-full h-[40vh] md:h-full md:w-auto md:aspect-[2/3] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900">
         <button 
           onClick={() => router.back()}
           className="absolute top-6 left-6 z-30 p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-xl transition-colors text-white border border-white/20"
@@ -94,15 +94,13 @@ export default function MediaDetailPage({ params }: PageProps) {
           style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
           className="w-full h-full relative overflow-hidden"
         >
-          {mediaContext.imageUrl ? (
+          {mediaContext.imageUrl && (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={mediaContext.imageUrl}
               alt={mediaContext.title}
-              className="w-full h-full object-contain p-4 md:p-12 lg:p-16"
+              className="w-full h-full object-cover"
             />
-          ) : (
-            <div className="w-full h-full bg-zinc-900 animate-pulse" />
           )}
         </div>
       </div>
