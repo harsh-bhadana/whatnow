@@ -97,7 +97,7 @@ export default function MediaDetailPage({ params }: PageProps) {
           {mediaContext.imageUrl && (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
-              src={mediaContext.imageUrl}
+              src={mediaContext.imageUrl.replace('/w500/', '/original/')}
               alt={mediaContext.title}
               className="w-full h-full object-cover"
             />
