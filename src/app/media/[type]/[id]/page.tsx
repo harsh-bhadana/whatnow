@@ -99,13 +99,11 @@ export default function MediaDetailPage({ params }: PageProps) {
             <img
               src={mediaContext.imageUrl}
               alt={mediaContext.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain p-4 md:p-12 lg:p-16"
             />
           ) : (
             <div className="w-full h-full bg-zinc-900 animate-pulse" />
           )}
-          {/* Gradient overlay to blend into the dark theme */}
-          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-zinc-950 via-zinc-950/10 to-transparent pointer-events-none" />
         </div>
       </div>
 
