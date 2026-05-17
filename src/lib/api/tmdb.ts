@@ -54,6 +54,12 @@ export async function fetchRecommendations(
       const fetchPromises = likedMediaIds.map(async (media) => {
         const res = await fetch(`${BASE_URL}/${media.type}/${media.id}/recommendations?api_key=${TMDB_API_KEY}&language=en-US&page=1`);
         const data = await res.json();
+        if (data.success === false) {
+           console.error(`TMDB API Error (Liked Media ${media.id}):`, data.status_message);
+           return MOCK_DATA
+             .filter(item => !watchedHistoryIds.includes(item.id))
+             .map(item => ({ ...item, media_type: item.type }));
+        }
         return (data.results || []).map((item: any) => ({ ...item, media_type: media.type }));
       });
       
@@ -73,16 +79,35 @@ export async function fetchRecommendations(
 
       const queries = [];
       
+      const handleFetch = async (url: string, type: string) => {
+        try {
+          const res = await fetch(url);
+          const data = await res.json();
+          if (data.success === false) {
+            console.error(`TMDB API Error (${type}):`, data.status_message);
+            // Fallback to mock data if API key is invalid or request fails
+            return MOCK_DATA
+              .filter(item => item.type === type || type === "all")
+              .filter(item => !watchedHistoryIds.includes(item.id))
+              .map(item => ({ ...item, media_type: item.type }));
+          }
+          return (data.results || []).map((item: any) => ({ ...item, media_type: type }));
+        } catch (e) {
+          console.error(`TMDB Fetch Error (${type}):`, e);
+          return [];
+        }
+      };
+      
       if (mediaType === "movie" || mediaType === "all") {
-        queries.push(fetch(`${BASE_URL}/discover/movie?with_runtime.lte=${timeLimit}${commonParams}`).then(res => res.json()).then(data => (data.results || []).map((item: any) => ({ ...item, media_type: "movie" }))));
+        queries.push(handleFetch(`${BASE_URL}/discover/movie?with_runtime.lte=${timeLimit}${commonParams}`, "movie"));
       }
       
       if (mediaType === "tv" || mediaType === "all") {
-        queries.push(fetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}${commonParams}`).then(res => res.json()).then(data => (data.results || []).map((item: any) => ({ ...item, media_type: "tv" }))));
+        queries.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}${commonParams}`, "tv"));
       }
       
       if (mediaType === "anime") {
-        queries.push(fetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}&api_key=${TMDB_API_KEY}&include_adult=false&vote_average.gte=6.5&vote_count.gte=50&with_genres=16&with_original_language=ja&sort_by=popularity.desc`).then(res => res.json()).then(data => (data.results || []).map((item: any) => ({ ...item, media_type: "tv" }))));
+        queries.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}&api_key=${TMDB_API_KEY}&include_adult=false&vote_average.gte=6.5&vote_count.gte=50&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "tv"));
       }
 
       const nestedResults = await Promise.all(queries);
