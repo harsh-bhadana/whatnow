@@ -129,11 +129,11 @@ export default function MediaDetailPage({ params }: PageProps) {
           </div>
           
           {/* Info Section */}
-          <div className="flex-1 flex flex-col pt-2 min-h-0">
+          <div className="flex-1 flex flex-col pt-2 min-h-0 overflow-y-auto pr-2 pb-16 scrollbar-hide">
             <div className="shrink-0">
               <h1 
                 style={{ viewTransitionName: `card-title-${mediaContext.type}-${mediaContext.id}` }}
-                className="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg w-fit line-clamp-2"
+                className="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg w-fit"
               >
                 {mediaContext.title || (details as any)?.title || (details as any)?.name}
               </h1>
@@ -168,11 +168,11 @@ export default function MediaDetailPage({ params }: PageProps) {
                   <div className="h-4 bg-white/10 rounded-full w-4/6"></div>
                 </div>
               ) : (details as any)?.overview ? (
-                <p className="text-[var(--color-m3-outline)] leading-relaxed line-clamp-3 lg:line-clamp-4">{(details as { overview?: string })?.overview}</p>
+                <p className="text-[var(--color-m3-outline)] leading-relaxed">{(details as { overview?: string })?.overview}</p>
               ) : mediaContext.type === "anime" ? (
-                <p className="text-[var(--color-m3-outline)] line-clamp-3 lg:line-clamp-4">Details for anime are not fetched yet, but it&apos;s a great choice!</p>
+                <p className="text-[var(--color-m3-outline)]">Details for anime are not fetched yet, but it&apos;s a great choice!</p>
               ) : (
-                <p className="text-[var(--color-m3-outline)] line-clamp-3">No description available.</p>
+                <p className="text-[var(--color-m3-outline)]">No description available.</p>
               )}
             </div>
             
