@@ -165,10 +165,10 @@ export default function Discover() {
             className={cn(
               "w-full py-3 sm:py-4 mt-1 sm:mt-2 rounded-[24px] sm:rounded-[32px] text-base sm:text-lg font-bold transition-all shadow-[var(--shadow-m3-elevation-1)] shrink-0",
               "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
-              (selectedMoods.length === 0 && selectedLikedMediaIds.length === 0) && "opacity-90 grayscale-[20%]"
+              (selectedMoods.length === 0) && "opacity-90 grayscale-[20%]"
             )}
           >
-            {(selectedMoods.length === 0 && selectedLikedMediaIds.length === 0) ? "Surprise Me" : "Discover"}
+            {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
           </motion.button>
         </div>
       </motion.div>
