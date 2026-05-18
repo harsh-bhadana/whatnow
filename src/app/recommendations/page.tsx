@@ -85,20 +85,35 @@ export default function Recommendations() {
 
   return (
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
-      <div className="flex items-center gap-4 mb-8">
-        <button 
-          onClick={() => router.push("/discover")}
-          className="p-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] transition-colors"
-        >
-          <ArrowLeft className="w-6 h-6 text-[var(--color-m3-on-surface)]" />
-        </button>
-        <div>
-          <h1 className="text-3xl font-heading font-bold text-[var(--color-m3-primary)]">
-            Your Recommendations
+      {/* Header inside the flow for masonry stagger on mobile */}
+      <div 
+        className="break-inside-avoid mb-4 sm:mb-8" 
+        style={{ columnSpan: 'all' }} // We will override this for mobile via a class or just keep it none on mobile
+      >
+        {/* Mobile Header (staggers the left column) */}
+        <div className="sm:hidden flex flex-col justify-end pt-2 pb-2">
+          <h1 className="text-2xl font-heading font-bold text-[var(--color-m3-primary)] leading-tight mb-2">
+            Your Recommendation
           </h1>
-          <p className="text-[var(--color-m3-outline)] text-sm">
-            Based on {availableTime}m and {selectedMoods.join(", ")}
-          </p>
+          <button 
+            onClick={() => router.push("/discover")}
+            className="text-sm font-bold text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors w-fit flex items-center gap-1 bg-[var(--color-m3-surface-variant)]/50 px-3 py-1.5 rounded-full"
+          >
+            <ArrowLeft className="w-4 h-4" /> Mood change
+          </button>
+        </div>
+
+        {/* Desktop Header (spans full width) */}
+        <div className="hidden sm:flex items-center justify-between">
+          <h1 className="text-3xl font-heading font-bold text-[var(--color-m3-primary)]">
+            Your Recommendation
+          </h1>
+          <button 
+            onClick={() => router.push("/discover")}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-primary)] transition-colors font-bold text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" /> Mood change
+          </button>
         </div>
       </div>
 
@@ -109,10 +124,12 @@ export default function Recommendations() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 w-full"
+              className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 sm:gap-6 space-y-4 sm:space-y-6 w-full"
             >
               {Array.from({ length: 12 }).map((_, i) => (
-                <MediaCardSkeleton key={i} />
+                <div key={i} className="break-inside-avoid">
+                  <MediaCardSkeleton />
+                </div>
               ))}
             </motion.div>
         ) : (
@@ -120,7 +137,7 @@ export default function Recommendations() {
             key="results"
             initial={isInitialLoad ? { opacity: 0, y: 20 } : false}
             animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6"
+            className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 sm:gap-6 space-y-4 sm:space-y-6"
           >
             {results.map((item, index) => (
               <motion.div
@@ -128,6 +145,7 @@ export default function Recommendations() {
                 initial={isInitialLoad ? { opacity: 0, scale: 0.9 } : false}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: isInitialLoad ? index * 0.05 : 0 }}
+                className="break-inside-avoid"
               >
                 <MediaCard 
                   {...item}
