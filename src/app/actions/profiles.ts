@@ -63,9 +63,9 @@ export async function addWatchedMedia(profileId: string, media: MediaCardProps):
     await db.collection("profiles").updateOne(
       { _id: new ObjectId(profileId) },
       { 
-        // @ts-ignore
+        // @ts-expect-error
         $push: { 
-          // @ts-ignore
+          // @ts-expect-error
           watchHistory: {
             ...media,
             watchedAt: Date.now()
@@ -91,7 +91,7 @@ export async function removeWatchedMedia(profileId: string, mediaId: number): Pr
     await db.collection("profiles").updateOne(
       { _id: new ObjectId(profileId) },
       { 
-        // @ts-ignore
+        // @ts-expect-error
         $pull: { 
           watchHistory: { id: mediaId } 
         } 

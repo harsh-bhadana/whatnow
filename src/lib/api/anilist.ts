@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { MediaCardProps } from "@/components/ui/MediaCard";
 
 const ANILIST_URL = "https://graphql.anilist.co";
