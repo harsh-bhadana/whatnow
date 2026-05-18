@@ -4,7 +4,6 @@ import { MediaCardProps } from "@/components/ui/MediaCard";
 
 export interface WatchHistoryItem extends MediaCardProps {
   watchedAt: number;
-  userRating: number;
 }
 
 interface AppState {
@@ -24,8 +23,7 @@ interface AppState {
   addToHistory: (item: WatchHistoryItem) => void;
   removeFromHistory: (id: number) => void;
   
-  preferredGenres: string[];
-  addPreferredGenre: (genre: string) => void;
+
   
   // Transition State
   selectedMedia: MediaCardProps | null;
@@ -72,13 +70,7 @@ export const useAppStore = create<AppState>()(
           watchHistory: state.watchHistory.filter((item) => item.id !== id),
         })),
         
-      preferredGenres: [],
-      addPreferredGenre: (genre) =>
-        set((state) => ({
-          preferredGenres: state.preferredGenres.includes(genre)
-            ? state.preferredGenres
-            : [...state.preferredGenres, genre],
-        })),
+
         
       selectedMedia: null,
       setSelectedMedia: (media) => set({ selectedMedia: media }),
@@ -100,10 +92,9 @@ export const useAppStore = create<AppState>()(
       name: "media-recommender-storage",
       partialize: (state) => ({
         watchHistory: state.watchHistory,
-        preferredGenres: state.preferredGenres,
         activeProfileId: state.activeProfileId,
         activeProfile: state.activeProfile,
-      }), // persist history, preferences, and active profile
+      }),
     }
   )
 );
