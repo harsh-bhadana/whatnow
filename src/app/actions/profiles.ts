@@ -4,9 +4,11 @@ import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { MediaCardProps } from "@/components/ui/MediaCard";
 import { WatchHistoryItem } from "@/lib/store/useAppStore";
+import { auth } from "@/auth";
 
 export interface Profile {
   _id?: string;
+  userId: string;
   name: string;
   color: string;
   watchHistory: WatchHistoryItem[];
@@ -14,9 +16,12 @@ export interface Profile {
 
 export async function getProfiles(): Promise<Profile[]> {
   try {
+    const session = await auth();
+    if (!session?.user?.id) return [];
+
     const client = await clientPromise;
     const db = client.db("whatNow");
-    const profiles = await db.collection<Profile>("profiles").find({}).toArray();
+    const profiles = await db.collection<Profile>("profiles").find({ userId: session.user.id }).toArray();
     
     return profiles.map(p => ({
       ...p,
@@ -30,10 +35,14 @@ export async function getProfiles(): Promise<Profile[]> {
 
 export async function createProfile(name: string, color: string): Promise<Profile | null> {
   try {
+    const session = await auth();
+    if (!session?.user?.id) return null;
+
     const client = await clientPromise;
     const db = client.db("whatNow");
     
     const newProfile = {
+      userId: session.user.id,
       name,
       color,
       watchHistory: [],
