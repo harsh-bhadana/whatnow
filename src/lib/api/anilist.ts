@@ -41,7 +41,8 @@ const MOCK_ANIME_DATA: MediaCardProps[] = [
 export async function fetchAnimeRecommendations(
   timeLimit: number, 
   moods: string[], 
-  watchedHistoryIds: number[] = []
+  watchedHistoryIds: number[] = [],
+  includeAdult: boolean = false
 ): Promise<MediaCardProps[]> {
   
   try {
@@ -55,10 +56,11 @@ export async function fetchAnimeRecommendations(
 
     const genreFilter = genres.size > 0 ? `genre_in: [${Array.from(genres).map(g => `"${g}"`).join(',')}]` : "";
 
+    const adultFilter = includeAdult ? "" : ", isAdult: false";
     const query = `
       query ($perPage: Int) {
         Page (page: 1, perPage: $perPage) {
-          media (type: ANIME, sort: POPULARITY_DESC, ${genreFilter}) {
+          media (type: ANIME, sort: POPULARITY_DESC, ${genreFilter}${adultFilter}) {
             id
             title {
               romaji

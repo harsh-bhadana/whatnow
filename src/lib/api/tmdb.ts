@@ -37,7 +37,8 @@ export async function fetchRecommendations(
   moods: string[], 
   watchedHistoryIds: number[] = [],
   mediaType: "all" | "movie" | "tv" | "anime" = "all",
-  likedMediaIds: { id: number, type: "movie" | "tv" }[] = []
+  likedMediaIds: { id: number, type: "movie" | "tv" }[] = [],
+  includeAdult: boolean = false
 ): Promise<MediaCardProps[]> {
   
   if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") {
@@ -76,7 +77,7 @@ export async function fetchRecommendations(
       
       const genreParam = Array.from(genreIds).join('|');
       // Advanced Filters applied to Discover queries
-      const commonParams = `&api_key=${TMDB_API_KEY}&include_adult=false&vote_average.gte=6.5&vote_count.gte=100${genreParam ? `&with_genres=${genreParam}` : ''}&sort_by=popularity.desc`;
+      const commonParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.5&vote_count.gte=100${genreParam ? `&with_genres=${genreParam}` : ''}&sort_by=popularity.desc`;
 
       const handleFetch = async (url: string, type: string) => {
         try {
@@ -104,7 +105,7 @@ export async function fetchRecommendations(
         allPromises.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}${commonParams}`, "tv"));
       }
       if (mediaType === "anime") {
-        allPromises.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}&api_key=${TMDB_API_KEY}&include_adult=false&vote_average.gte=6.5&vote_count.gte=50&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "tv"));
+        allPromises.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.5&vote_count.gte=50&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "tv"));
       }
     }
 

@@ -15,8 +15,8 @@ interface AppState {
   
   // Persistent Data
   activeProfileId: string | null;
-  activeProfile: { name: string; color: string } | null;
-  setActiveProfile: (id: string | null, profile?: { name: string; color: string }) => void;
+  activeProfile: { name: string; color: string; includeAdult?: boolean } | null;
+  setActiveProfile: (id: string | null, profile?: { name: string; color: string; includeAdult?: boolean }) => void;
   
   watchHistory: WatchHistoryItem[];
   setWatchHistory: (history: WatchHistoryItem[]) => void;

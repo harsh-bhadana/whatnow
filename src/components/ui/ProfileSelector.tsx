@@ -18,6 +18,7 @@ export default function ProfileSelector() {
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState("");
+  const [includeAdult, setIncludeAdult] = useState(false);
   
   const { setActiveProfile, setWatchHistory } = useAppStore();
 
@@ -31,7 +32,7 @@ export default function ProfileSelector() {
   }, []);
 
   const handleSelectProfile = (profile: Profile) => {
-    setActiveProfile(profile._id!, { name: profile.name, color: profile.color });
+    setActiveProfile(profile._id!, { name: profile.name, color: profile.color, includeAdult: profile.includeAdult });
     setWatchHistory(profile.watchHistory || []);
     router.push("/discover");
   };
@@ -41,12 +42,13 @@ export default function ProfileSelector() {
     if (!newName.trim()) return;
     
     const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-    const newProfile = await createProfile(newName, randomColor);
+    const newProfile = await createProfile(newName, randomColor, includeAdult);
     
     if (newProfile) {
       setProfiles([...profiles, newProfile]);
       setShowAdd(false);
       setNewName("");
+      setIncludeAdult(false);
     }
   };
 
@@ -157,8 +159,21 @@ export default function ProfileSelector() {
                     className="w-full bg-transparent text-lg text-[var(--color-m3-on-surface)] outline-none placeholder:text-transparent group-focus-within:placeholder:text-[var(--color-m3-on-surface-variant)]/50"
                   />
                 </div>
+
+                <div className="flex items-center gap-3 px-2">
+                  <input
+                    type="checkbox"
+                    id="includeAdult"
+                    checked={includeAdult}
+                    onChange={(e) => setIncludeAdult(e.target.checked)}
+                    className="w-5 h-5 rounded-[4px] border-[var(--color-m3-outline)] text-[var(--color-m3-primary)] focus:ring-[var(--color-m3-primary)] bg-transparent cursor-pointer"
+                  />
+                  <label htmlFor="includeAdult" className="text-sm font-medium text-[var(--color-m3-on-surface)] cursor-pointer">
+                    Show Adult Content (18+)
+                  </label>
+                </div>
                 
-                <div className="flex gap-4 w-full justify-end mt-4">
+                <div className="flex gap-4 w-full justify-end mt-2">
                   <button type="button" onClick={() => setShowAdd(false)} className="px-6 py-2.5 rounded-full hover:bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] font-medium transition-colors">
                     Cancel
                   </button>

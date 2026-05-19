@@ -14,7 +14,7 @@ export default function Recommendations() {
   const { 
     availableTime, selectedMoods, watchHistory, activeProfileId, 
     cachedRecommendations, setCachedRecommendations, setSelectedMedia,
-    mediaType, selectedLikedMediaIds
+    mediaType, selectedLikedMediaIds, activeProfile
   } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
@@ -55,8 +55,8 @@ export default function Recommendations() {
 
       // Fetch concurrently
       const [moviesAndTv, anime] = await Promise.all([
-        fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData),
-        mediaType === "all" || mediaType === "anime" ? fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds) : Promise.resolve([])
+        fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, activeProfile?.includeAdult || false),
+        mediaType === "all" || mediaType === "anime" ? fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds, activeProfile?.includeAdult || false) : Promise.resolve([])
       ]);
 
       // Combine and shuffle

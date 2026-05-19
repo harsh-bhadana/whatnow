@@ -11,6 +11,7 @@ export interface Profile {
   userId: string;
   name: string;
   color: string;
+  includeAdult?: boolean;
   watchHistory: WatchHistoryItem[];
 }
 
@@ -33,7 +34,7 @@ export async function getProfiles(): Promise<Profile[]> {
   }
 }
 
-export async function createProfile(name: string, color: string): Promise<Profile | null> {
+export async function createProfile(name: string, color: string, includeAdult: boolean = false): Promise<Profile | null> {
   try {
     const session = await auth();
     if (!session?.user?.id) return null;
@@ -45,6 +46,7 @@ export async function createProfile(name: string, color: string): Promise<Profil
       userId: session.user.id,
       name,
       color,
+      includeAdult,
       watchHistory: [],
     };
     
