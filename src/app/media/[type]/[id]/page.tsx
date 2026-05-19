@@ -80,7 +80,7 @@ export default function MediaDetailPage({ params }: PageProps) {
   };
 
   return (
-    <main className="h-screen max-h-screen overflow-hidden relative flex flex-col md:flex-row bg-zinc-950">
+    <main className="flex-1 relative flex flex-col md:flex-row bg-zinc-950 md:overflow-hidden">
       
       {/* LEFT SIDE: Bleed Poster Image */}
       <div className="relative w-full h-[40vh] md:h-full md:w-auto md:aspect-[2/3] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900">
@@ -107,7 +107,7 @@ export default function MediaDetailPage({ params }: PageProps) {
       </div>
 
       {/* RIGHT SIDE: Info Section */}
-      <div className="flex-1 relative z-20 h-full overflow-y-auto scrollbar-hide flex flex-col bg-zinc-950 md:bg-transparent -mt-6 md:mt-0 rounded-t-3xl md:rounded-none">
+      <div className="flex-1 relative z-20 md:h-full md:overflow-y-auto scrollbar-hide flex flex-col bg-zinc-950 md:bg-transparent -mt-6 md:mt-0 rounded-t-3xl md:rounded-none">
         
         {/* Immersive Ambient Background for right side on desktop */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none hidden md:block">

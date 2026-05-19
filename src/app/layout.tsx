@@ -36,9 +36,9 @@ export default async function RootLayout({
     <ViewTransitions>
       <html
         lang="en"
-        className={`${roboto.variable} ${plusJakarta.variable} h-full antialiased`}
+        className={`${roboto.variable} ${plusJakarta.variable} min-h-screen antialiased`}
       >
-        <body className="h-full flex flex-col font-sans">
+        <body className="min-h-screen flex flex-col font-sans">
           {session && (
             <AppHeader session={session}>
               <form

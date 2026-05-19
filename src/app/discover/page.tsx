@@ -45,7 +45,7 @@ export default function Discover() {
   };
 
   return (
-    <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-4 sm:px-6 sm:py-6 w-full overflow-hidden">
+    <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 w-full overflow-x-hidden">
       {/* Organic Background Blobs (Pixel UI Aesthetic) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div 
