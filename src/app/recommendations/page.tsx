@@ -183,11 +183,11 @@ export default function Recommendations() {
             ))}
 
             {/* Mobile bottom space filler easter egg */}
-            <div className="sm:hidden break-inside-avoid flex flex-col items-center justify-center p-6 text-center h-full min-h-[140px] opacity-50 rounded-3xl border border-dashed border-[var(--color-m3-outline-variant)]">
-              <span className="block text-sm font-bold text-[var(--color-m3-on-surface)] mb-1">
+            <div className="sm:hidden break-inside-avoid flex flex-col items-center justify-center p-6 text-center h-full min-h-[140px] rounded-3xl border-2 border-dashed border-green-500/40 bg-green-500/5 transition-all hover:bg-green-500/10 hover:border-green-500/60 group">
+              <span className="block text-sm font-bold text-green-700 dark:text-green-400 mb-1 font-serif italic tracking-wide">
                 Don't like anything?
               </span>
-              <span className="block text-xs text-[var(--color-m3-outline)] font-medium">
+              <span className="block text-xs text-green-600/90 dark:text-green-400/80 font-medium">
                 Maybe try touching some grass 🌿
               </span>
             </div>
