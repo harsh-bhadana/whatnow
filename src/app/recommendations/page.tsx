@@ -112,6 +112,7 @@ export default function Recommendations() {
               <div className="sm:hidden break-inside-avoid">
                 <button 
                   onClick={() => router.push("/discover")}
+                  style={{ viewTransitionName: 'mood-container' }}
                   className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
                 >
                   {/* Decorative background glow */}
@@ -147,6 +148,7 @@ export default function Recommendations() {
             <div className="sm:hidden break-inside-avoid">
               <button 
                 onClick={() => router.push("/discover")}
+                style={{ viewTransitionName: 'mood-container' }}
                 className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
               >
                 {/* Decorative background glow */}
