@@ -7,7 +7,8 @@ import { ArrowLeft, Star, Clock, Trash2, Check } from "lucide-react";
 import { Link } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
-import { addWatchedMedia, removeWatchedMedia } from "@/app/actions/profiles";
+import { addWatchedMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/profiles";
+import { Bookmark, BookmarkCheck } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ type: string; id: string }>;
@@ -16,13 +17,14 @@ interface PageProps {
 export default function MediaDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
-  const { selectedMedia, watchHistory, addToHistory, removeFromHistory, activeProfileId } = useAppStore();
+  const { selectedMedia, watchHistory, addToHistory, removeFromHistory, activeProfileId, watchlist, addToWatchlistStore, removeFromWatchlistStore } = useAppStore();
   
   const [details, setDetails] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [, startTransition] = useTransition();
 
   const isWatched = watchHistory.some((item) => item.id === Number(resolvedParams.id));
+  const isWatchlisted = watchlist?.some((item) => item.id === Number(resolvedParams.id)) || false;
 
   // If a user hits this page directly without going through the flow, 
   // selectedMedia might be null. We should ideally fetch the basic details or use what we have.
@@ -75,6 +77,22 @@ export default function MediaDetailPage({ params }: PageProps) {
       addToHistory(historyItem);
       if (activeProfileId) {
         await addWatchedMedia(activeProfileId, selectedMedia);
+      }
+    }
+  };
+
+  const handleToggleWatchlist = async () => {
+    if (!selectedMedia) return;
+    
+    if (isWatchlisted) {
+      removeFromWatchlistStore(selectedMedia.id);
+      if (activeProfileId) {
+        await removeFromWatchlist(activeProfileId, selectedMedia.id);
+      }
+    } else {
+      addToWatchlistStore(selectedMedia);
+      if (activeProfileId) {
+        await addToWatchlist(activeProfileId, selectedMedia);
       }
     }
   };
@@ -188,6 +206,27 @@ export default function MediaDetailPage({ params }: PageProps) {
                 <>
                   <Check className="w-6 h-6" />
                   <span>Mark as Watched</span>
+                </>
+              )}
+            </button>
+            <button 
+              onClick={handleToggleWatchlist}
+              disabled={!selectedMedia}
+              className={`flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform active:scale-95 shadow-lg text-base sm:text-lg ${
+                isWatchlisted 
+                  ? 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:brightness-110 border border-[var(--color-m3-outline)]/20' 
+                  : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {isWatchlisted ? (
+                <>
+                  <BookmarkCheck className="w-6 h-6" />
+                  <span>In Watchlist</span>
+                </>
+              ) : (
+                <>
+                  <Bookmark className="w-6 h-6" />
+                  <span>Watch Later</span>
                 </>
               )}
             </button>

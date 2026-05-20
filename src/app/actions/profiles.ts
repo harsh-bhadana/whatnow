@@ -13,6 +13,7 @@ export interface Profile {
   color: string;
   includeAdult?: boolean;
   watchHistory: WatchHistoryItem[];
+  watchlist?: MediaCardProps[];
 }
 
 export async function getProfiles(): Promise<Profile[]> {
@@ -48,6 +49,7 @@ export async function createProfile(name: string, color: string, includeAdult: b
       color,
       includeAdult,
       watchHistory: [],
+      watchlist: [],
     };
     
     const result = await db.collection("profiles").insertOne(newProfile);
@@ -66,13 +68,23 @@ export async function addWatchedMedia(profileId: string, media: MediaCardProps):
   if (!profileId) return false;
   
   try {
+    const session = await auth();
+    if (!session?.user?.id) return false;
+
     const client = await clientPromise;
     const db = client.db("whatNow");
+    
+    // Create history item
+    const historyItem: WatchHistoryItem = {
+      ...media,
+      watchedAt: Date.now(),
+      userRating: 0
+    };
     
     // Add to watch history, ensuring uniqueness isn't strictly necessary here if we just push,
     // but better to use $addToSet to avoid duplicates
     await db.collection("profiles").updateOne(
-      { _id: new ObjectId(profileId) },
+      { _id: new ObjectId(profileId), userId: session.user.id },
       { 
         // @ts-expect-error
         $push: { 
@@ -95,22 +107,56 @@ export async function removeWatchedMedia(profileId: string, mediaId: number): Pr
   if (!profileId) return false;
   
   try {
+    const session = await auth();
+    if (!session?.user?.id) return false;
+
+    const client = await clientPromise;
+    const db = client.db("whatNow");
+    const result = await db.collection("profiles").updateOne(
+      { _id: new ObjectId(profileId), userId: session.user.id },
+      { $pull: { watchHistory: { id: mediaId } } as any }
+    );
+    return result.modifiedCount > 0;
+  } catch (error) {
+    console.error("Failed to remove from watch history:", error);
+    return false;
+  }
+}
+
+export async function addToWatchlist(profileId: string, media: MediaCardProps): Promise<boolean> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return false;
+
     const client = await clientPromise;
     const db = client.db("whatNow");
     
-    await db.collection("profiles").updateOne(
-      { _id: new ObjectId(profileId) },
-      { 
-        // @ts-expect-error
-        $pull: { 
-          watchHistory: { id: mediaId } 
-        } 
-      }
+    const result = await db.collection("profiles").updateOne(
+      { _id: new ObjectId(profileId), userId: session.user.id },
+      { $push: { watchlist: media } as any }
     );
+    return result.modifiedCount > 0;
+  } catch (error) {
+    console.error("Failed to add to watchlist:", error);
+    return false;
+  }
+}
+
+export async function removeFromWatchlist(profileId: string, mediaId: number): Promise<boolean> {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return false;
+
+    const client = await clientPromise;
+    const db = client.db("whatNow");
     
-    return true;
-  } catch (e) {
-    console.error("Failed to remove watched media", e);
+    const result = await db.collection("profiles").updateOne(
+      { _id: new ObjectId(profileId), userId: session.user.id },
+      { $pull: { watchlist: { id: mediaId } } as any }
+    );
+    return result.modifiedCount > 0;
+  } catch (error) {
+    console.error("Failed to remove from watchlist:", error);
     return false;
   }
 }

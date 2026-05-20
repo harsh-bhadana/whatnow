@@ -23,6 +23,11 @@ interface AppState {
   addToHistory: (item: WatchHistoryItem) => void;
   removeFromHistory: (id: number) => void;
   
+  watchlist: MediaCardProps[];
+  setWatchlist: (watchlist: MediaCardProps[]) => void;
+  addToWatchlistStore: (item: MediaCardProps) => void;
+  removeFromWatchlistStore: (id: number) => void;
+  
 
   
   // Transition State
@@ -70,6 +75,18 @@ export const useAppStore = create<AppState>()(
           watchHistory: state.watchHistory.filter((item) => item.id !== id),
         })),
         
+      watchlist: [],
+      setWatchlist: (watchlist) => set({ watchlist }),
+      addToWatchlistStore: (item) =>
+        set((state) => {
+          if (state.watchlist.some((w) => w.id === item.id)) return state;
+          return { watchlist: [item, ...state.watchlist] };
+        }),
+      removeFromWatchlistStore: (id) =>
+        set((state) => ({
+          watchlist: state.watchlist.filter((item) => item.id !== id),
+        })),
+        
 
         
       selectedMedia: null,
@@ -92,6 +109,7 @@ export const useAppStore = create<AppState>()(
       name: "media-recommender-storage",
       partialize: (state) => ({
         watchHistory: state.watchHistory,
+        watchlist: state.watchlist,
         activeProfileId: state.activeProfileId,
         activeProfile: state.activeProfile,
       }),

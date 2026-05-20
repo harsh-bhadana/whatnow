@@ -20,7 +20,7 @@ export default function ProfileSelector() {
   const [newName, setNewName] = useState("");
   const [includeAdult, setIncludeAdult] = useState(false);
   
-  const { setActiveProfile, setWatchHistory } = useAppStore();
+  const { setActiveProfile, setWatchHistory, setWatchlist } = useAppStore();
 
   useEffect(() => {
     async function fetchProfiles() {
@@ -34,6 +34,7 @@ export default function ProfileSelector() {
   const handleSelectProfile = (profile: Profile) => {
     setActiveProfile(profile._id!, { name: profile.name, color: profile.color, includeAdult: profile.includeAdult });
     setWatchHistory(profile.watchHistory || []);
+    setWatchlist(profile.watchlist || []);
     router.push("/discover");
   };
 

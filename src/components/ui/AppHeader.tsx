@@ -24,6 +24,12 @@ export function AppHeader({ session, children }: { session: any, children: React
         <SearchBar />
         <nav className="flex gap-2 sm:gap-4 items-center shrink-0">
           <Link 
+            href="/watchlist" 
+            className="hidden sm:block text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
+          >
+            Watchlist
+          </Link>
+          <Link 
             href="/history" 
             className="hidden sm:block text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
           >
