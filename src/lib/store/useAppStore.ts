@@ -4,6 +4,7 @@ import { MediaCardProps } from "@/components/ui/MediaCard";
 
 export interface WatchHistoryItem extends MediaCardProps {
   watchedAt: number;
+  userRating?: number;
 }
 
 interface AppState {

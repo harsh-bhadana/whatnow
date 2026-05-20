@@ -3,12 +3,12 @@
 
 import { useEffect, useState, useTransition, use } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
-import { ArrowLeft, Star, Clock, Trash2, Check } from "lucide-react";
+import { ArrowLeft, Star, Clock, Trash2, Check, Bookmark, BookmarkCheck } from "lucide-react";
 import { Link } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
 import { addWatchedMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/profiles";
-import { Bookmark, BookmarkCheck } from "lucide-react";
+import { MediaCardProps } from "@/components/ui/MediaCard";
 
 interface PageProps {
   params: Promise<{ type: string; id: string }>;
