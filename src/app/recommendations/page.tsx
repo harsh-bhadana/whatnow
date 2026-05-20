@@ -112,10 +112,21 @@ export default function Recommendations() {
               <div className="sm:hidden break-inside-avoid">
                 <button 
                   onClick={() => router.push("/discover")}
-                  className="w-full h-full min-h-[100px] flex flex-col items-center justify-center text-sm font-bold text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] hover:bg-[var(--color-m3-surface-variant)] transition-colors gap-2 bg-[var(--color-m3-surface-variant)]/50 rounded-2xl"
+                  className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
                 >
-                  <ArrowLeft className="w-5 h-5" />
-                  <span>Mood change</span>
+                  {/* Decorative background glow */}
+                  <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-m3-primary)]/10 rounded-full blur-2xl group-hover:bg-[var(--color-m3-primary)]/20 transition-colors" />
+                  
+                  <div className="p-2.5 bg-[var(--color-m3-surface)] rounded-full shadow-sm z-10">
+                    <ArrowLeft className="w-5 h-5 text-[var(--color-m3-primary)]" />
+                  </div>
+                  
+                  <div className="mt-6 relative z-10">
+                    <span className="block text-base font-bold mb-1">Mood change</span>
+                    <span className="block text-xs text-[var(--color-m3-outline)] font-medium leading-tight">
+                      Not feeling these? Refine your vibes and time.
+                    </span>
+                  </div>
                 </button>
               </div>
 
@@ -136,10 +147,21 @@ export default function Recommendations() {
             <div className="sm:hidden break-inside-avoid">
               <button 
                 onClick={() => router.push("/discover")}
-                className="w-full h-full min-h-[120px] flex flex-col items-center justify-center text-sm font-bold text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] hover:bg-[var(--color-m3-surface-variant)] transition-colors gap-2 bg-[var(--color-m3-surface-variant)]/50 rounded-3xl"
+                className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
               >
-                <ArrowLeft className="w-6 h-6" />
-                <span>Mood change</span>
+                {/* Decorative background glow */}
+                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-m3-primary)]/10 rounded-full blur-2xl group-hover:bg-[var(--color-m3-primary)]/20 transition-colors" />
+                
+                <div className="p-2.5 bg-[var(--color-m3-surface)] rounded-full shadow-sm z-10">
+                  <ArrowLeft className="w-5 h-5 text-[var(--color-m3-primary)]" />
+                </div>
+                
+                <div className="mt-6 relative z-10">
+                  <span className="block text-base font-bold mb-1">Mood change</span>
+                  <span className="block text-xs text-[var(--color-m3-outline)] font-medium leading-tight">
+                    Not feeling these? Refine your vibes and time.
+                  </span>
+                </div>
               </button>
             </div>
             {results.map((item, index) => (
