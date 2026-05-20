@@ -26,17 +26,31 @@ export default function MediaDetailPage({ params }: PageProps) {
   const isWatched = watchHistory.some((item) => item.id === Number(resolvedParams.id));
   const isWatchlisted = watchlist?.some((item) => item.id === Number(resolvedParams.id)) || false;
 
-  // If a user hits this page directly without going through the flow, 
-  // selectedMedia might be null. We should ideally fetch the basic details or use what we have.
-  // For now, we'll assume they navigated from the app.
-  const mediaContext = selectedMedia || {
+  const isDirectLink = !selectedMedia || selectedMedia.id !== Number(resolvedParams.id);
+
+  // If we navigated normally, selectedMedia has the initial data.
+  // If direct link (or refresh), we rely on details once it loads.
+  const mediaContext = isDirectLink ? {
     id: Number(resolvedParams.id),
     type: resolvedParams.type as "movie" | "tv" | "anime",
-    title: "Loading...", // Fallback if direct link
-    imageUrl: "",
-    rating: 0,
-    runtime: undefined,
-  };
+    title: (details as any)?.title || (details as any)?.name || "Loading...",
+    imageUrl: (details as any)?.poster_path ? `https://image.tmdb.org/t/p/w500${(details as any).poster_path}` : "",
+    rating: (details as any)?.vote_average || 0,
+    runtime: (details as any)?.runtime,
+  } : selectedMedia;
+
+  // For the actions (watchlist/history), we need a fully formed MediaCardProps.
+  // We use selectedMedia if valid, otherwise we reconstruct it from details.
+  const targetMedia: MediaCardProps | null = isDirectLink ? (
+    details ? {
+      id: Number(resolvedParams.id),
+      type: resolvedParams.type as "movie" | "tv" | "anime",
+      title: (details as any).title || (details as any).name || "",
+      imageUrl: (details as any).poster_path ? `https://image.tmdb.org/t/p/w500${(details as any).poster_path}` : "",
+      rating: (details as any).vote_average || 0,
+      runtime: (details as any).runtime,
+    } : null
+  ) : selectedMedia;
 
   useEffect(() => {
     async function load() {
@@ -61,38 +75,38 @@ export default function MediaDetailPage({ params }: PageProps) {
   }, [resolvedParams.id, resolvedParams.type]);
 
   const handleToggleWatch = async () => {
-    if (!selectedMedia) return;
+    if (!targetMedia) return;
 
     if (isWatched) {
-      removeFromHistory(selectedMedia.id);
+      removeFromHistory(targetMedia.id);
       if (activeProfileId) {
-        await removeWatchedMedia(activeProfileId, selectedMedia.id);
+        await removeWatchedMedia(activeProfileId, targetMedia.id);
       }
     } else {
       const historyItem = {
-        ...selectedMedia,
+        ...targetMedia,
         watchedAt: Date.now(),
         userRating: 0,
       };
       addToHistory(historyItem);
       if (activeProfileId) {
-        await addWatchedMedia(activeProfileId, selectedMedia);
+        await addWatchedMedia(activeProfileId, targetMedia);
       }
     }
   };
 
   const handleToggleWatchlist = async () => {
-    if (!selectedMedia) return;
+    if (!targetMedia) return;
     
     if (isWatchlisted) {
-      removeFromWatchlistStore(selectedMedia.id);
+      removeFromWatchlistStore(targetMedia.id);
       if (activeProfileId) {
-        await removeFromWatchlist(activeProfileId, selectedMedia.id);
+        await removeFromWatchlist(activeProfileId, targetMedia.id);
       }
     } else {
-      addToWatchlistStore(selectedMedia);
+      addToWatchlistStore(targetMedia);
       if (activeProfileId) {
-        await addToWatchlist(activeProfileId, selectedMedia);
+        await addToWatchlist(activeProfileId, targetMedia);
       }
     }
   };
@@ -190,7 +204,7 @@ export default function MediaDetailPage({ params }: PageProps) {
           <div className="mt-8 sm:mt-12 flex gap-4 max-w-md shrink-0">
             <button 
               onClick={handleToggleWatch}
-              disabled={!selectedMedia}
+              disabled={!targetMedia}
               className={`flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform active:scale-95 shadow-lg text-base sm:text-lg ${
                 isWatched 
                   ? 'bg-white/10 text-white hover:bg-red-500/80 hover:shadow-red-500/20 border border-white/10 hover:border-transparent' 
@@ -211,7 +225,7 @@ export default function MediaDetailPage({ params }: PageProps) {
             </button>
             <button 
               onClick={handleToggleWatchlist}
-              disabled={!selectedMedia}
+              disabled={!targetMedia}
               className={`flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform active:scale-95 shadow-lg text-base sm:text-lg ${
                 isWatchlisted 
                   ? 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:brightness-110 border border-[var(--color-m3-outline)]/20' 
