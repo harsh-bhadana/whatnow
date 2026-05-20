@@ -151,3 +151,30 @@ export async function fetchMediaDetails(id: number, type: "movie" | "tv" = "movi
     return null;
   }
 }
+
+export async function searchMedia(query: string, includeAdult: boolean = false): Promise<MediaCardProps[]> {
+  if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") {
+    return MOCK_DATA.filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&include_adult=${includeAdult}&language=en-US&page=1`);
+    const data = await res.json();
+    
+    if (!data.results) return [];
+
+    return data.results
+      .filter((item: any) => item.media_type === "movie" || item.media_type === "tv")
+      .map((item: any): MediaCardProps => ({
+        id: item.id,
+        title: item.title || item.name,
+        imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
+        rating: item.vote_average,
+        type: item.media_type as "movie" | "tv",
+        shape: Math.random() > 0.6 ? "pill" : "default",
+      }));
+  } catch (error) {
+    console.error("Failed to search media", error);
+    return [];
+  }
+}

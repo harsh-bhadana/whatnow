@@ -3,6 +3,7 @@
 import { Link } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useEffect, useState } from "react";
+import { SearchBar } from "./SearchBar";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AppHeader({ session, children }: { session: any, children: React.ReactNode }) {
@@ -17,10 +18,11 @@ export function AppHeader({ session, children }: { session: any, children: React
   return (
     <header className="sticky top-0 z-50 w-full bg-[var(--color-m3-surface)]/80 backdrop-blur-md border-b border-[var(--color-m3-outline)]/20 shadow-sm shrink-0">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="font-heading font-bold text-xl text-[var(--color-m3-primary)]">
+        <Link href="/" className="font-heading font-bold text-xl text-[var(--color-m3-primary)] shrink-0">
           WhatNow?
         </Link>
-        <nav className="flex gap-2 sm:gap-4 items-center">
+        <SearchBar />
+        <nav className="flex gap-2 sm:gap-4 items-center shrink-0">
           <Link 
             href="/history" 
             className="hidden sm:block text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
