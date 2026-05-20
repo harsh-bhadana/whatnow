@@ -181,6 +181,16 @@ export default function Recommendations() {
                 />
               </motion.div>
             ))}
+
+            {/* Mobile bottom space filler easter egg */}
+            <div className="sm:hidden break-inside-avoid flex flex-col items-center justify-center p-6 text-center h-full min-h-[140px] opacity-50 rounded-3xl border border-dashed border-[var(--color-m3-outline-variant)]">
+              <span className="block text-sm font-bold text-[var(--color-m3-on-surface)] mb-1">
+                Don't like anything?
+              </span>
+              <span className="block text-xs text-[var(--color-m3-outline)] font-medium">
+                Maybe try touching some grass 🌿
+              </span>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
