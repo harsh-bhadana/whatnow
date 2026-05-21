@@ -42,6 +42,9 @@ interface AppState {
   setMediaType: (type: "all" | "movie" | "tv" | "anime") => void;
   selectedLikedMediaIds: number[];
   toggleLikedMedia: (id: number) => void;
+  
+  // Session Management
+  resetSession: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -105,6 +108,15 @@ export const useAppStore = create<AppState>()(
             ? state.selectedLikedMediaIds.filter((mid) => mid !== id)
             : [...state.selectedLikedMediaIds, id],
         })),
+        
+      resetSession: () => set({
+        availableTime: 120,
+        selectedMoods: [],
+        cachedRecommendations: [],
+        selectedMedia: null,
+        mediaType: "all",
+        selectedLikedMediaIds: [],
+      }),
     }),
     {
       name: "media-recommender-storage",
