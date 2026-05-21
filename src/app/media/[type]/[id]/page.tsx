@@ -125,7 +125,7 @@ export default function MediaDetailPage({ params }: PageProps) {
         
         <div 
           style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
-          className="w-full h-full relative overflow-hidden"
+          className="absolute inset-0 w-full h-full overflow-hidden"
         >
           {mediaContext.imageUrl && (
             /* eslint-disable-next-line @next/next/no-img-element */
