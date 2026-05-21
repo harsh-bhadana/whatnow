@@ -5,6 +5,7 @@ import { ObjectId, Document } from "mongodb";
 import { MediaCardProps } from "@/components/ui/MediaCard";
 import { WatchHistoryItem } from "@/lib/store/useAppStore";
 import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
 
 export interface UserData {
   watchHistory: WatchHistoryItem[];
@@ -62,6 +63,7 @@ export async function addWatchedMedia(media: MediaCardProps): Promise<boolean> {
       }
     );
     
+    revalidatePath("/history");
     return true;
   } catch (e) {
     console.error("Failed to add watched media", e);
@@ -81,6 +83,8 @@ export async function removeWatchedMedia(mediaId: number): Promise<boolean> {
       { _id: new ObjectId(session.user.id) },
       { $pull: { watchHistory: { id: mediaId } } as Document }
     );
+    
+    revalidatePath("/history");
     return result.modifiedCount > 0;
   } catch (error) {
     console.error("Failed to remove from watch history:", error);
@@ -100,6 +104,8 @@ export async function addToWatchlist(media: MediaCardProps): Promise<boolean> {
       { _id: new ObjectId(session.user.id) },
       { $push: { watchlist: media } as Document }
     );
+    
+    revalidatePath("/watchlist");
     return result.modifiedCount > 0;
   } catch (error) {
     console.error("Failed to add to watchlist:", error);
@@ -119,6 +125,8 @@ export async function removeFromWatchlist(mediaId: number): Promise<boolean> {
       { _id: new ObjectId(session.user.id) },
       { $pull: { watchlist: { id: mediaId } } as Document }
     );
+    
+    revalidatePath("/watchlist");
     return result.modifiedCount > 0;
   } catch (error) {
     console.error("Failed to remove from watchlist:", error);

@@ -1,106 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client";
+import { getUserData } from "@/app/actions/user";
+import { HistoryGrid } from "./HistoryGrid";
+import { redirect } from "next/navigation";
 
-import { useEffect, useState } from "react";
-import { useTransitionRouter as useRouter } from "next-view-transitions";
-import { motion } from "framer-motion";
-import { ArrowLeft, Trash2 } from "lucide-react";
-import { useAppStore } from "@/lib/store/useAppStore";
-import { MediaCard } from "@/components/ui/MediaCard";
-import { removeWatchedMedia } from "@/app/actions/user";
+export default async function HistoryPage() {
+  const data = await getUserData();
+  
+  if (!data) {
+    redirect("/");
+  }
 
-export default function History() {
-  const router = useRouter();
-  const { watchHistory, removeFromHistory, userDataLoaded, setSelectedMedia } = useAppStore();
+  const history = data.watchHistory || [];
 
-  const handleCardClick = (item: any) => {
-    setSelectedMedia(item);
-  };
-
-  const handleRemove = async (e: React.MouseEvent, id: number) => {
-    e.stopPropagation();
-    removeFromHistory(id);
-    await removeWatchedMedia(id);
-  };
-
-  const [isMounted, setIsMounted] = useState(false);
-
-  // Hydration fix for Zustand persist
-  useEffect(() => {
-    // eslint-disable-next-line
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted || !userDataLoaded) return (
-    <div className="flex-1 bg-[var(--color-m3-background)] flex items-center justify-center">
-      <div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin" />
-    </div>
-  );
-
-  return (
-    <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.push("/discover")}
-            className="p-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] transition-colors"
-          >
-            <ArrowLeft className="w-6 h-6 text-[var(--color-m3-on-surface)]" />
-          </button>
-          <div>
-            <h1 className="text-3xl font-heading font-bold text-[var(--color-m3-primary)]">
-              Watch History
-            </h1>
-            <p className="text-[var(--color-m3-outline)] text-sm">
-              Your previous ratings and viewed content
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {watchHistory.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-[var(--color-m3-outline)] space-y-4">
-          <p className="text-lg">Your history is empty.</p>
-          <button 
-            onClick={() => router.push("/discover")}
-            className="text-[var(--color-m3-primary)] font-bold hover:underline"
-          >
-            Go discover something new!
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
-          {watchHistory.map((item, index) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.05 }}
-              className="relative group"
-            >
-              <MediaCard 
-                {...item} 
-                shape="default" 
-                href={`/media/${item.type}/${item.id}`}
-                onClick={() => handleCardClick(item)} 
-              />
-              <button 
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  removeFromHistory(item.id);
-                  await removeWatchedMedia(item.id);
-                }}
-                className="absolute top-2 right-2 p-2 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 text-white text-xs rounded-full backdrop-blur-sm">
-                Watched {new Date(item.watchedAt).toLocaleDateString()}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-    </main>
-  );
+  return <HistoryGrid initialHistory={history} />;
 }
