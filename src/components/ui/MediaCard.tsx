@@ -48,26 +48,34 @@ export function MediaCard({
       onClick={onClick}
     >
       {/* Ambient Blurred Background for the entire card */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={imageUrl}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
-        aria-hidden="true"
-      />
+      {imageUrl && (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={imageUrl}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
+          aria-hidden="true"
+        />
+      )}
 
       {/* The fully visible poster image on top */}
       <div 
         style={{ viewTransitionName: `card-image-${type}-${id}` }}
         className="relative z-10 w-full aspect-[2/3] overflow-hidden rounded-t-2xl bg-black/20"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={imageUrl}
-          alt={title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          loading="lazy"
-        />
+        {imageUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-800 text-zinc-500">
+            <span className="text-xs font-bold text-center px-4 leading-tight">{title}</span>
+          </div>
+        )}
         
         {/* Subtle top gradient for badges */}
         <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
