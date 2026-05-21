@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AppHeader({ session, children }: { session: any, children: React.ReactNode }) {
-  const { activeProfile } = useAppStore();
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -107,18 +106,6 @@ export function AppHeader({ session, children }: { session: any, children: React
           >
             Watch History
           </Link>
-          {/* Active Profile Info (Desktop Only) */}
-          {mounted && activeProfile && (
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-[var(--color-m3-surface-variant)] rounded-full">
-              <div className={`w-6 h-6 rounded-full ${activeProfile.color} flex items-center justify-center text-white text-xs font-bold uppercase`}>
-                {activeProfile.name.charAt(0)}
-              </div>
-              <span className="text-sm font-medium text-[var(--color-m3-on-surface)] truncate max-w-[120px]">
-                {activeProfile.name}
-              </span>
-            </div>
-          )}
-
           {/* User Profile Dropdown */}
           {session?.user && (
             <div className="relative" ref={menuRef}>
@@ -222,19 +209,6 @@ export function AppHeader({ session, children }: { session: any, children: React
                             </div>
                           </div>
                           
-                          {/* Active profile */}
-                          {mounted && activeProfile && (
-                            <div className="px-5 py-5 border-b border-[var(--color-m3-outline)]/10 flex items-center gap-4 bg-[var(--color-m3-surface)] shrink-0">
-                              <div className={`w-12 h-12 rounded-full ${activeProfile.color} flex items-center justify-center text-white text-lg font-bold uppercase shrink-0 shadow-sm`}>
-                                {activeProfile.name.charAt(0)}
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-xs text-[var(--color-m3-on-surface-variant)] uppercase tracking-wider font-semibold">Watching As</span>
-                                <span className="text-base font-bold text-[var(--color-m3-on-surface)] truncate mt-0.5">{activeProfile.name}</span>
-                              </div>
-                            </div>
-                          )}
-
                           {/* Nav links with icons */}
                           <div className="flex-1 flex flex-col py-1 border-b border-[var(--color-m3-outline)]/10">
                             <Link 
@@ -281,19 +255,6 @@ export function AppHeader({ session, children }: { session: any, children: React
                         <p className="text-sm font-bold text-[var(--color-m3-on-surface)] truncate">{session.user.name}</p>
                         <p className="text-xs text-[var(--color-m3-on-surface-variant)] truncate mt-1">{session.user.email}</p>
                       </div>
-                      
-                      {mounted && activeProfile && (
-                        <div className="px-5 py-4 border-b border-[var(--color-m3-outline)]/10 flex items-center gap-4 bg-[var(--color-m3-surface)] shrink-0">
-                          <div className={`w-10 h-10 rounded-full ${activeProfile.color} flex items-center justify-center text-white text-base font-bold uppercase shrink-0 shadow-sm`}>
-                            {activeProfile.name.charAt(0)}
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-xs text-[var(--color-m3-on-surface-variant)] uppercase tracking-wider font-semibold">Watching As</span>
-                            <span className="text-sm font-bold text-[var(--color-m3-on-surface)] truncate mt-0.5">{activeProfile.name}</span>
-                          </div>
-                        </div>
-                      )}
-                      
                       <div className="p-2 shrink-0">
                         {children}
                       </div>

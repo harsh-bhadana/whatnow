@@ -17,8 +17,7 @@ export default function SearchPage({ searchParams }: PageProps) {
   const resolvedParams = use(searchParams);
   const query = resolvedParams.q || "";
   const router = useRouter();
-  const { activeProfile, setSelectedMedia } = useAppStore();
-  
+  const { setSelectedMedia } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [, startTransition] = useTransition();
@@ -36,8 +35,7 @@ export default function SearchPage({ searchParams }: PageProps) {
     startTransition(() => {
       setLoading(true);
     });
-    
-    searchMedia(query, activeProfile?.includeAdult || false).then((data) => {
+    searchMedia(query, false).then((data) => {
       if (isSubscribed) {
         startTransition(() => {
           setResults(data);
@@ -49,7 +47,7 @@ export default function SearchPage({ searchParams }: PageProps) {
     return () => {
       isSubscribed = false;
     };
-  }, [query, activeProfile]);
+  }, [query]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);

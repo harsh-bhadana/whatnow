@@ -24,6 +24,7 @@ import { Link } from 'next-view-transitions';
 import { auth, signOut } from "@/auth";
 import { LogOut } from "lucide-react";
 import { AppHeader } from "@/components/ui/AppHeader";
+import { StoreInitializer } from "@/components/ui/StoreInitializer";
 
 export default async function RootLayout({
   children,
@@ -40,7 +41,9 @@ export default async function RootLayout({
       >
         <body className="min-h-screen flex flex-col font-sans">
           {session && (
-            <AppHeader session={session}>
+            <>
+              <StoreInitializer />
+              <AppHeader session={session}>
               <form
                 action={async () => {
                   "use server";
@@ -56,7 +59,8 @@ export default async function RootLayout({
                   <span>Sign Out</span>
                 </button>
               </form>
-            </AppHeader>
+              </AppHeader>
+            </>
           )}
           {children}
         </body>

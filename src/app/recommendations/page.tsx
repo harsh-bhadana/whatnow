@@ -13,9 +13,9 @@ import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
 export default function Recommendations() {
   const router = useRouter();
   const { 
-    availableTime, selectedMoods, watchHistory, activeProfileId, 
+    availableTime, selectedMoods, watchHistory, 
     cachedRecommendations, setCachedRecommendations, setSelectedMedia,
-    mediaType, selectedLikedMediaIds, activeProfile
+    mediaType, selectedLikedMediaIds, userDataLoaded
   } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
@@ -29,12 +29,7 @@ export default function Recommendations() {
   }, []);
 
   useEffect(() => {
-    if (isMounted && !activeProfileId) {
-      router.push("/");
-      return;
-    }
-    
-    if (!isMounted) return;
+    if (!isMounted || !userDataLoaded) return;
     
     if (selectedMoods.length === 0 && selectedLikedMediaIds.length === 0) {
       router.push("/discover");
@@ -56,8 +51,8 @@ export default function Recommendations() {
 
       // Fetch concurrently
       const [moviesAndTv, anime] = await Promise.all([
-        fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, activeProfile?.includeAdult || false),
-        mediaType === "all" || mediaType === "anime" ? fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds, activeProfile?.includeAdult || false) : Promise.resolve([])
+        fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false),
+        mediaType === "all" || mediaType === "anime" ? fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds, false) : Promise.resolve([])
       ]);
 
       // Combine and shuffle
@@ -77,7 +72,7 @@ export default function Recommendations() {
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTime, selectedMoods, router, watchHistory, activeProfileId, isMounted, mediaType, selectedLikedMediaIds]);
+  }, [availableTime, selectedMoods, router, watchHistory, userDataLoaded, isMounted, mediaType, selectedLikedMediaIds]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);

@@ -7,7 +7,7 @@ import { ArrowLeft, Star, Clock, Trash2, Check, Bookmark, BookmarkCheck, Chevron
 import { Link } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
-import { addWatchedMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/profiles";
+import { addWatchedMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { MediaCardProps } from "@/components/ui/MediaCard";
 
 interface PageProps {
@@ -17,7 +17,7 @@ interface PageProps {
 export default function MediaDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
-  const { selectedMedia, watchHistory, addToHistory, removeFromHistory, activeProfileId, watchlist, addToWatchlistStore, removeFromWatchlistStore } = useAppStore();
+  const { selectedMedia, watchHistory, addToHistory, removeFromHistory, watchlist, addToWatchlistStore, removeFromWatchlistStore } = useAppStore();
   
   const [details, setDetails] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
@@ -79,9 +79,7 @@ export default function MediaDetailPage({ params }: PageProps) {
 
     if (isWatched) {
       removeFromHistory(targetMedia.id);
-      if (activeProfileId) {
-        await removeWatchedMedia(activeProfileId, targetMedia.id);
-      }
+      await removeWatchedMedia(targetMedia.id);
     } else {
       const historyItem = {
         ...targetMedia,
@@ -89,9 +87,7 @@ export default function MediaDetailPage({ params }: PageProps) {
         userRating: 0,
       };
       addToHistory(historyItem);
-      if (activeProfileId) {
-        await addWatchedMedia(activeProfileId, targetMedia);
-      }
+      await addWatchedMedia(targetMedia);
     }
   };
 
@@ -100,14 +96,10 @@ export default function MediaDetailPage({ params }: PageProps) {
     
     if (isWatchlisted) {
       removeFromWatchlistStore(targetMedia.id);
-      if (activeProfileId) {
-        await removeFromWatchlist(activeProfileId, targetMedia.id);
-      }
+      await removeFromWatchlist(targetMedia.id);
     } else {
       addToWatchlistStore(targetMedia);
-      if (activeProfileId) {
-        await addToWatchlist(activeProfileId, targetMedia);
-      }
+      await addToWatchlist(targetMedia);
     }
   };
   return (

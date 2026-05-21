@@ -14,10 +14,9 @@ interface AppState {
   selectedMoods: string[];
   toggleMood: (mood: string) => void;
   
-  // Persistent Data
-  activeProfileId: string | null;
-  activeProfile: { name: string; color: string; includeAdult?: boolean } | null;
-  setActiveProfile: (id: string | null, profile?: { name: string; color: string; includeAdult?: boolean }) => void;
+  // Persistent Data (Now loaded from User collection)
+  userDataLoaded: boolean;
+  setUserDataLoaded: (loaded: boolean) => void;
   
   watchHistory: WatchHistoryItem[];
   setWatchHistory: (history: WatchHistoryItem[]) => void;
@@ -62,9 +61,8 @@ export const useAppStore = create<AppState>()(
             : [...state.selectedMoods, mood],
         })),
         
-      activeProfileId: null,
-      activeProfile: null,
-      setActiveProfile: (id, profile) => set({ activeProfileId: id, activeProfile: profile || null }),
+      userDataLoaded: false,
+      setUserDataLoaded: (loaded) => set({ userDataLoaded: loaded }),
       watchHistory: [],
       setWatchHistory: (history) => set({ watchHistory: history }),
       addToHistory: (item) =>
@@ -121,10 +119,9 @@ export const useAppStore = create<AppState>()(
     {
       name: "media-recommender-storage",
       partialize: (state) => ({
-        watchHistory: state.watchHistory,
-        watchlist: state.watchlist,
-        activeProfileId: state.activeProfileId,
-        activeProfile: state.activeProfile,
+        // We only persist session inputs. Watch history and watchlist are fetched from the server.
+        availableTime: state.availableTime,
+        selectedMoods: state.selectedMoods,
       }),
     }
   )

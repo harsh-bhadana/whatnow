@@ -6,7 +6,13 @@ import { Bookmark, Inbox } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function WatchlistPage() {
-  const { watchlist, setSelectedMedia } = useAppStore();
+  const { watchlist, setSelectedMedia, userDataLoaded } = useAppStore();
+
+  if (!userDataLoaded) return (
+    <div className="flex-1 bg-[var(--color-m3-background)] flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin" />
+    </div>
+  );
 
   return (
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">

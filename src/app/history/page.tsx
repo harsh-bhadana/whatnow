@@ -7,11 +7,11 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { MediaCard } from "@/components/ui/MediaCard";
-import { removeWatchedMedia } from "@/app/actions/profiles";
+import { removeWatchedMedia } from "@/app/actions/user";
 
 export default function History() {
   const router = useRouter();
-  const { watchHistory, removeFromHistory, activeProfileId, setSelectedMedia } = useAppStore();
+  const { watchHistory, removeFromHistory, userDataLoaded, setSelectedMedia } = useAppStore();
 
   const handleCardClick = (item: any) => {
     setSelectedMedia(item);
@@ -20,9 +20,7 @@ export default function History() {
   const handleRemove = async (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
     removeFromHistory(id);
-    if (activeProfileId) {
-      await removeWatchedMedia(activeProfileId, id);
-    }
+    await removeWatchedMedia(id);
   };
 
   const [isMounted, setIsMounted] = useState(false);
@@ -33,11 +31,11 @@ export default function History() {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (isMounted && !activeProfileId) {
-      router.push("/");
-    }
-  }, [isMounted, activeProfileId, router]);
+  if (!isMounted || !userDataLoaded) return (
+    <div className="flex-1 bg-[var(--color-m3-background)] flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin" />
+    </div>
+  );
 
   return (
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
@@ -90,9 +88,7 @@ export default function History() {
                 onClick={async (e) => {
                   e.stopPropagation();
                   removeFromHistory(item.id);
-                  if (activeProfileId) {
-                    await removeWatchedMedia(activeProfileId, item.id);
-                  }
+                  await removeWatchedMedia(item.id);
                 }}
                 className="absolute top-2 right-2 p-2 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
               >
