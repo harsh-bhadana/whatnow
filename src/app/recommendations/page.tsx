@@ -113,7 +113,7 @@ export default function Recommendations() {
                 <button 
                   onClick={() => router.push("/discover")}
                   style={{ viewTransitionName: 'mood-container' }}
-                  className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
+                  className="w-full h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
                 >
                   {/* Decorative background glow */}
                   <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-m3-primary)]/10 rounded-full blur-2xl group-hover:bg-[var(--color-m3-primary)]/20 transition-colors" />
@@ -149,7 +149,7 @@ export default function Recommendations() {
               <button 
                 onClick={() => router.push("/discover")}
                 style={{ viewTransitionName: 'mood-container' }}
-                className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
+                className="w-full h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
               >
                 {/* Decorative background glow */}
                 <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-m3-primary)]/10 rounded-full blur-2xl group-hover:bg-[var(--color-m3-primary)]/20 transition-colors" />
@@ -183,7 +183,7 @@ export default function Recommendations() {
             ))}
 
             {/* Mobile bottom space filler easter egg */}
-            <div className="sm:hidden break-inside-avoid flex flex-col items-center justify-center p-6 text-center h-full min-h-[140px] rounded-3xl border-2 border-dashed border-green-500/40 bg-green-500/5 transition-all hover:bg-green-500/10 hover:border-green-500/60 group">
+            <div className="sm:hidden break-inside-avoid flex flex-col items-center justify-center p-5 text-center w-full h-[140px] rounded-3xl border-2 border-dashed border-green-500/40 bg-green-500/5 transition-all hover:bg-green-500/10 hover:border-green-500/60 group">
               <span className="block text-sm font-bold text-green-700 dark:text-green-400 mb-1 font-serif italic tracking-wide">
                 Don't like anything?
               </span>
