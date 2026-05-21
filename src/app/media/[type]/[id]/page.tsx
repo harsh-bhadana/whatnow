@@ -112,7 +112,7 @@ export default function MediaDetailPage({ params }: PageProps) {
   };
 
   return (
-    <main className="flex-1 relative flex flex-col md:flex-row bg-zinc-950 md:overflow-hidden min-h-0">
+    <main className="flex-1 relative flex flex-col md:flex-row bg-zinc-950 md:h-[calc(100vh-64px)] md:overflow-hidden min-h-0">
       
       {/* LEFT SIDE: Bleed Poster Image */}
       <div className="relative w-full h-[40vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900">
