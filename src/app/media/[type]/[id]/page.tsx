@@ -114,7 +114,7 @@ export default function MediaDetailPage({ params }: PageProps) {
     <main className="flex-1 md:flex-none relative flex flex-col md:flex-row bg-zinc-950 md:h-[calc(100dvh-64px)] md:max-h-[calc(100dvh-64px)] md:min-h-0 md:overflow-hidden">
       
       {/* LEFT SIDE: Bleed Poster Image */}
-      <div className="relative flex flex-col w-full h-[75vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900 overflow-hidden">
+      <div className="relative flex flex-col w-full h-[90vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900 overflow-hidden">
         <button 
           onClick={() => router.back()}
           className="absolute top-6 left-6 z-30 p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-xl transition-colors text-white border border-white/20"
@@ -140,12 +140,12 @@ export default function MediaDetailPage({ params }: PageProps) {
         )}
 
         {/* Mobile Gradient & Blur Overlay */}
-        <div className="absolute inset-0 top-[40%] bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent md:hidden z-20 pointer-events-none" />
+        <div className="absolute inset-0 top-[40%] bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent md:hidden z-20 pointer-events-none" />
         <div 
-          className="absolute inset-0 top-[40%] backdrop-blur-md md:hidden z-20 pointer-events-none"
+          className="absolute inset-0 top-[40%] backdrop-blur-3xl md:hidden z-20 pointer-events-none"
           style={{ 
-            maskImage: 'linear-gradient(to top, black 10%, transparent 100%)', 
-            WebkitMaskImage: 'linear-gradient(to top, black 10%, transparent 100%)' 
+            maskImage: 'linear-gradient(to top, black 25%, transparent 100%)', 
+            WebkitMaskImage: 'linear-gradient(to top, black 25%, transparent 100%)' 
           }}
         />
       </div>
