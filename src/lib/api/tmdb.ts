@@ -174,7 +174,7 @@ export async function searchMedia(query: string, includeAdult: boolean = false):
         shape: Math.random() > 0.6 ? "pill" : "default",
       }));
   } catch (error) {
-    console.error("Failed to search media", error);
+    console.error("Failed to search media:", error);
     return [];
   }
 }
