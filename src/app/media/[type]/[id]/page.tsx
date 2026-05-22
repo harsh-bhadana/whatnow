@@ -114,7 +114,7 @@ export default function MediaDetailPage({ params }: PageProps) {
     <main className="flex-1 md:flex-none relative flex flex-col md:flex-row bg-zinc-950 md:h-[calc(100dvh-64px)] md:max-h-[calc(100dvh-64px)] md:min-h-0 md:overflow-hidden">
       
       {/* LEFT SIDE: Bleed Poster Image */}
-      <div className="relative flex flex-col w-full h-[40vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900 overflow-hidden">
+      <div className="relative flex flex-col w-full h-[75vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900 overflow-hidden">
         <button 
           onClick={() => router.back()}
           className="absolute top-6 left-6 z-30 p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-xl transition-colors text-white border border-white/20"
@@ -138,10 +138,20 @@ export default function MediaDetailPage({ params }: PageProps) {
             <span className="text-xs font-bold text-center px-4 leading-tight">{mediaContext.title}</span>
           </div>
         )}
+
+        {/* Mobile Gradient & Blur Overlay */}
+        <div className="absolute inset-0 top-[40%] bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent md:hidden z-20 pointer-events-none" />
+        <div 
+          className="absolute inset-0 top-[40%] backdrop-blur-md md:hidden z-20 pointer-events-none"
+          style={{ 
+            maskImage: 'linear-gradient(to top, black 10%, transparent 100%)', 
+            WebkitMaskImage: 'linear-gradient(to top, black 10%, transparent 100%)' 
+          }}
+        />
       </div>
 
       {/* RIGHT SIDE: Info Section */}
-      <div className="flex-1 relative z-20 md:overflow-y-auto scrollbar-hide flex flex-col bg-zinc-950 md:bg-transparent -mt-6 md:mt-0 rounded-t-3xl md:rounded-none min-h-0">
+      <div className="flex-1 relative z-20 md:overflow-y-auto scrollbar-hide flex flex-col bg-transparent md:bg-transparent -mt-[25vh] md:mt-0 min-h-0">
         
         {/* Immersive Ambient Background for right side on desktop */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none hidden md:block">
@@ -155,8 +165,8 @@ export default function MediaDetailPage({ params }: PageProps) {
           )}
         </div>
 
-        <div className="relative z-10 p-6 sm:p-10 lg:p-16 max-w-4xl w-full md:pt-16">
-          <div className="shrink-0">
+        <div className="relative z-10 p-6 sm:p-10 lg:p-16 max-w-4xl w-full flex flex-col min-h-full md:pt-16">
+          <div className="shrink-0 mb-6 md:mb-0">
             <h1 
               style={{ viewTransitionName: `card-title-${mediaContext.type}-${mediaContext.id}` }}
               className="text-4xl sm:text-5xl lg:text-7xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg w-fit"
@@ -164,7 +174,9 @@ export default function MediaDetailPage({ params }: PageProps) {
               {mediaContext.title || (details as any)?.title || (details as any)?.name}
             </h1>
           </div>
-          <div className="flex flex-wrap items-center gap-3 mt-6 text-sm sm:text-base font-medium text-zinc-300 shrink-0">
+          
+          <div className="flex-1 bg-zinc-950 md:bg-transparent -mx-6 px-6 sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 pt-6 md:pt-0 rounded-t-3xl md:rounded-none md:mt-6">
+            <div className="flex flex-wrap items-center gap-3 text-sm sm:text-base font-medium text-zinc-300 shrink-0">
             <span 
               style={{ viewTransitionName: `card-tag-${mediaContext.type}-${mediaContext.id}` }}
               className="uppercase tracking-wider px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white shadow-sm"
@@ -312,6 +324,7 @@ export default function MediaDetailPage({ params }: PageProps) {
               </div>
             );
           })()}
+          </div>
         </div>
       </div>
     </main>
