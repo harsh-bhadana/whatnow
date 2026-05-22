@@ -25,12 +25,17 @@ export default function SearchPage({ searchParams }: PageProps) {
 
   useEffect(() => {
     if (!query) {
-      setLoading(false);
+      startTransition(() => {
+        setLoading(false);
+        setResults([]);
+      });
       return;
     }
 
     let isSubscribed = true;
-    setLoading(true);
+    startTransition(() => {
+      setLoading(true);
+    });
     
     searchMedia(query, activeProfile?.includeAdult || false).then((data) => {
       if (isSubscribed) {

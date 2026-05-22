@@ -4,11 +4,9 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { MediaCard } from "@/components/ui/MediaCard";
 import { Bookmark, Inbox } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTransitionRouter as useRouter } from "next-view-transitions";
 
 export default function WatchlistPage() {
   const { watchlist, setSelectedMedia } = useAppStore();
-  const router = useRouter();
 
   return (
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
@@ -35,7 +33,7 @@ export default function WatchlistPage() {
             Your Watchlist is Empty
           </h2>
           <p className="text-[var(--color-m3-on-surface-variant)] max-w-md">
-            Save movies and TV shows you want to watch later by clicking the "Watch Later" button on any media page.
+            Save movies and TV shows you want to watch later by clicking the &quot;Watch Later&quot; button on any media page.
           </p>
         </div>
       ) : (

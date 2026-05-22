@@ -1,7 +1,7 @@
 "use server";
 
 import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
+import { ObjectId, Document } from "mongodb";
 import { MediaCardProps } from "@/components/ui/MediaCard";
 import { WatchHistoryItem } from "@/lib/store/useAppStore";
 import { auth } from "@/auth";
@@ -86,12 +86,9 @@ export async function addWatchedMedia(profileId: string, media: MediaCardProps):
     await db.collection("profiles").updateOne(
       { _id: new ObjectId(profileId), userId: session.user.id },
       { 
-        // @ts-expect-error
+        // @ts-expect-error - MongoDB types are tricky with nested arrays
         $push: { 
-          watchHistory: {
-            ...media,
-            watchedAt: Date.now()
-          } 
+          watchHistory: historyItem
         } 
       }
     );
@@ -114,7 +111,7 @@ export async function removeWatchedMedia(profileId: string, mediaId: number): Pr
     const db = client.db("whatNow");
     const result = await db.collection("profiles").updateOne(
       { _id: new ObjectId(profileId), userId: session.user.id },
-      { $pull: { watchHistory: { id: mediaId } } as any }
+      { $pull: { watchHistory: { id: mediaId } } as Document }
     );
     return result.modifiedCount > 0;
   } catch (error) {
@@ -133,7 +130,7 @@ export async function addToWatchlist(profileId: string, media: MediaCardProps): 
     
     const result = await db.collection("profiles").updateOne(
       { _id: new ObjectId(profileId), userId: session.user.id },
-      { $push: { watchlist: media } as any }
+      { $push: { watchlist: media } as Document }
     );
     return result.modifiedCount > 0;
   } catch (error) {
@@ -152,7 +149,7 @@ export async function removeFromWatchlist(profileId: string, mediaId: number): P
     
     const result = await db.collection("profiles").updateOne(
       { _id: new ObjectId(profileId), userId: session.user.id },
-      { $pull: { watchlist: { id: mediaId } } as any }
+      { $pull: { watchlist: { id: mediaId } } as Document }
     );
     return result.modifiedCount > 0;
   } catch (error) {
