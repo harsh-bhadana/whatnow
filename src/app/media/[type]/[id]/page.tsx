@@ -115,7 +115,7 @@ export default function MediaDetailPage({ params }: PageProps) {
     <main className="flex-1 relative flex flex-col md:flex-row bg-zinc-950 md:h-[calc(100vh-64px)] md:overflow-hidden min-h-0">
       
       {/* LEFT SIDE: Bleed Poster Image */}
-      <div className="relative flex flex-col w-full h-[40vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900">
+      <div className="relative w-full h-[40vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-zinc-900">
         <button 
           onClick={() => router.back()}
           className="absolute top-6 left-6 z-30 p-3 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-xl transition-colors text-white border border-white/20"
@@ -123,19 +123,22 @@ export default function MediaDetailPage({ params }: PageProps) {
           <ArrowLeft className="w-6 h-6" />
         </button>
         
-        <div 
-          style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
-          className="w-full flex-1 relative overflow-hidden"
-        >
-          {mediaContext.imageUrl && (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={mediaContext.imageUrl.replace('/w500/', '/original/')}
-              alt={mediaContext.title}
-              className="w-full h-full object-cover"
-            />
-          )}
-        </div>
+        {mediaContext.imageUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
+            src={mediaContext.imageUrl.replace('/w500/', '/original/')}
+            alt={mediaContext.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div 
+            style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
+            className="w-full h-full flex flex-col items-center justify-center bg-zinc-800 text-zinc-500"
+          >
+            <span className="text-xs font-bold text-center px-4 leading-tight">{mediaContext.title}</span>
+          </div>
+        )}
       </div>
 
       {/* RIGHT SIDE: Info Section */}
