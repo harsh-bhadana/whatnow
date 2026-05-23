@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useTransition, use } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
-import { ArrowLeft, Star, Clock, Trash2, Check, Bookmark, BookmarkCheck } from "lucide-react";
+import { ArrowLeft, Star, Clock, Trash2, Check, Bookmark, BookmarkCheck, ChevronUp } from "lucide-react";
 import { Link } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
@@ -166,13 +166,16 @@ export default function MediaDetailPage({ params }: PageProps) {
         </div>
 
         <div className="relative z-10 p-6 sm:p-10 lg:p-16 max-w-4xl w-full flex flex-col min-h-full md:pt-16">
-          <div className="shrink-0 mb-6 md:mb-0">
+          <div className="shrink-0 mb-6 md:mb-0 relative pr-12 md:pr-0">
             <h1 
               style={{ viewTransitionName: `card-title-${mediaContext.type}-${mediaContext.id}` }}
               className="text-4xl sm:text-5xl lg:text-7xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg w-fit"
             >
               {mediaContext.title || (details as any)?.title || (details as any)?.name}
             </h1>
+            <div className="md:hidden absolute right-0 bottom-2 text-white/80 animate-bounce">
+              <ChevronUp className="w-8 h-8 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]" />
+            </div>
           </div>
           
           <div className="flex-1 bg-zinc-950 md:bg-transparent -mx-6 px-6 sm:-mx-10 sm:px-10 lg:-mx-16 lg:px-16 pt-6 md:pt-0 rounded-t-3xl md:rounded-none md:mt-6">
