@@ -14,7 +14,7 @@ WhatNow is a personalized content recommendation platform built on a modern serv
 ### Backend (Server)
 - **Framework**: Next.js Server Components and API Routes (Route Handlers).
 - **Authentication**: NextAuth.js (v5 beta) handling session management.
-- **AI Integration**: `@google/genai` (Gemini SDK) used in Server Actions to process user context and deliver personalized recommendations.
+- **AI Integration**: `@google/genai` (Gemini SDK) used in Server Actions to process user context and deliver personalized recommendations *(Work in Progress)*.
 - **Data Validation**: Zod for schema validation on API inputs and environment variables.
 
 ### Database Layer

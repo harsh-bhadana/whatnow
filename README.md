@@ -3,7 +3,7 @@
 WhatNow is a personalized content recommendation platform built with Next.js. It helps users discover new movies, TV shows, and anime tailored to their precise moods and available time. 
 
 ## Features
-- **AI-Driven Recommendations:** Uses the Gemini 2.0 Flash model to generate hyper-personalized media recommendations based on your unique watch history and current vibe.
+- **AI-Driven Recommendations:** Uses the Gemini 2.0 Flash model to generate hyper-personalized media recommendations based on your unique watch history and current vibe. *(Note: AI integration is currently a work in progress)*.
 - **Unified Experience:** Seamless single-user architecture where all your watch history and watchlists are securely synced with your account.
 - **Server-Rendered Performance:** Key pages like History and Watchlist use Next.js Server Components for instant loading and zero layout shift.
 - **Modern UI:** Built with Tailwind CSS and Framer Motion for a sleek, animated experience.
