@@ -49,11 +49,11 @@ export default async function RootLayout({
               >
                 <button
                   type="submit"
-                  className="flex items-center justify-center p-2 sm:px-4 sm:py-2 text-sm font-medium rounded-full bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-surface-container-highest)] transition-colors group"
+                  className="w-full flex items-center justify-start px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors rounded-lg group"
                   title="Sign Out"
                 >
-                  <LogOut size={18} className="sm:mr-2" />
-                  <span className="hidden sm:inline">Sign Out</span>
+                  <LogOut size={18} className="mr-3" />
+                  <span>Sign Out</span>
                 </button>
               </form>
             </AppHeader>
