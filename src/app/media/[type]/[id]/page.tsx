@@ -3,11 +3,11 @@
 
 import { useEffect, useState, useTransition, use } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
-import { ArrowLeft, Star, Clock, Trash2, Check, Bookmark, BookmarkCheck, ChevronUp } from "lucide-react";
+import { ArrowLeft, Star, Clock, ThumbsUp, ThumbsDown, Bookmark, BookmarkCheck, ChevronUp } from "lucide-react";
 import { Link } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
-import { addWatchedMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
+import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { MediaCardProps } from "@/components/ui/MediaCard";
 
 interface PageProps {
@@ -17,13 +17,14 @@ interface PageProps {
 export default function MediaDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
-  const { selectedMedia, watchHistory, addToHistory, removeFromHistory, watchlist, addToWatchlistStore, removeFromWatchlistStore } = useAppStore();
+  const { selectedMedia, watchHistory, rateMediaStore, removeFromHistory, watchlist, addToWatchlistStore, removeFromWatchlistStore } = useAppStore();
   
   const [details, setDetails] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [, startTransition] = useTransition();
 
-  const isWatched = watchHistory.some((item) => item.id === Number(resolvedParams.id));
+  const watchedItem = watchHistory.find((item) => item.id === Number(resolvedParams.id));
+  const userRating = watchedItem?.userRating;
   const isWatchlisted = watchlist?.some((item) => item.id === Number(resolvedParams.id)) || false;
 
   const isDirectLink = !selectedMedia || selectedMedia.id !== Number(resolvedParams.id);
@@ -74,20 +75,22 @@ export default function MediaDetailPage({ params }: PageProps) {
     load();
   }, [resolvedParams.id, resolvedParams.type]);
 
-  const handleToggleWatch = async () => {
+  const handleRate = async (rating: 1 | -1) => {
     if (!targetMedia) return;
 
-    if (isWatched) {
+    if (userRating === rating) {
+      // Toggle off: remove the rating entirely
       removeFromHistory(targetMedia.id);
       await removeWatchedMedia(targetMedia.id);
     } else {
+      // Set or update rating
       const historyItem = {
         ...targetMedia,
         watchedAt: Date.now(),
-        userRating: 0,
+        userRating: rating,
       };
-      addToHistory(historyItem);
-      await addWatchedMedia(targetMedia);
+      rateMediaStore(historyItem);
+      await rateMedia(targetMedia, rating);
     }
   };
 
@@ -211,27 +214,32 @@ export default function MediaDetailPage({ params }: PageProps) {
           
           {/* Action Buttons */}
           <div className="mt-8 sm:mt-12 flex gap-4 max-w-md shrink-0">
-            <button 
-              onClick={handleToggleWatch}
-              disabled={!targetMedia}
-              className={`flex-1 flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-bold transition-all duration-300 transform active:scale-95 shadow-lg text-base sm:text-lg ${
-                isWatched 
-                  ? 'bg-white/10 text-white hover:bg-red-500/80 hover:shadow-red-500/20 border border-white/10 hover:border-transparent' 
-                  : 'bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] hover:brightness-110 hover:shadow-[var(--color-m3-primary)]/30'
-              } disabled:opacity-50 disabled:cursor-not-allowed`}
-            >
-              {isWatched ? (
-                <>
-                  <Trash2 className="w-6 h-6" />
-                  <span>Remove from History</span>
-                </>
-              ) : (
-                <>
-                  <Check className="w-6 h-6" />
-                  <span>Mark as Watched</span>
-                </>
-              )}
-            </button>
+            <div className="flex-1 flex gap-2">
+              <button 
+                onClick={() => handleRate(1)}
+                disabled={!targetMedia}
+                className={`flex-1 flex flex-col items-center justify-center gap-1.5 px-4 py-3 rounded-2xl font-bold transition-all duration-300 transform active:scale-95 shadow-lg text-sm sm:text-base ${
+                  userRating === 1 
+                    ? 'bg-green-500/20 text-green-400 border border-green-500/50 hover:bg-green-500/30 shadow-green-500/20' 
+                    : 'bg-white/5 text-zinc-400 hover:bg-white/10 border border-white/5 hover:text-white'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <ThumbsUp className={`w-5 h-5 sm:w-6 sm:h-6 ${userRating === 1 ? 'fill-current' : ''}`} />
+                <span>Like</span>
+              </button>
+              <button 
+                onClick={() => handleRate(-1)}
+                disabled={!targetMedia}
+                className={`flex-1 flex flex-col items-center justify-center gap-1.5 px-4 py-3 rounded-2xl font-bold transition-all duration-300 transform active:scale-95 shadow-lg text-sm sm:text-base ${
+                  userRating === -1 
+                    ? 'bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500/30 shadow-red-500/20' 
+                    : 'bg-white/5 text-zinc-400 hover:bg-white/10 border border-white/5 hover:text-white'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                <ThumbsDown className={`w-5 h-5 sm:w-6 sm:h-6 ${userRating === -1 ? 'fill-current' : ''}`} />
+                <span>Dislike</span>
+              </button>
+            </div>
             <button 
               onClick={handleToggleWatchlist}
               disabled={!targetMedia}

@@ -20,7 +20,7 @@ interface AppState {
   
   watchHistory: WatchHistoryItem[];
   setWatchHistory: (history: WatchHistoryItem[]) => void;
-  addToHistory: (item: WatchHistoryItem) => void;
+  rateMediaStore: (item: WatchHistoryItem) => void;
   removeFromHistory: (id: number) => void;
   
   watchlist: MediaCardProps[];
@@ -65,11 +65,17 @@ export const useAppStore = create<AppState>()(
       setUserDataLoaded: (loaded) => set({ userDataLoaded: loaded }),
       watchHistory: [],
       setWatchHistory: (history) => set({ watchHistory: history }),
-      addToHistory: (item) =>
+      rateMediaStore: (item) =>
         set((state) => {
           // Check if it already exists
-          const exists = state.watchHistory.find((h) => h.id === item.id);
-          if (exists) return state;
+          const existingIndex = state.watchHistory.findIndex((h) => h.id === item.id);
+          if (existingIndex !== -1) {
+            // Update existing rating
+            const newHistory = [...state.watchHistory];
+            newHistory[existingIndex] = { ...newHistory[existingIndex], userRating: item.userRating };
+            return { watchHistory: newHistory };
+          }
+          // Otherwise prepend new
           return { watchHistory: [item, ...state.watchHistory] };
         }),
       removeFromHistory: (id) =>

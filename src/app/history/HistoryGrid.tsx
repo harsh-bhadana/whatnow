@@ -3,7 +3,7 @@
 import { useOptimistic, useTransition } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, ThumbsUp, ThumbsDown } from "lucide-react";
 import { MediaCard } from "@/components/ui/MediaCard";
 import { removeWatchedMedia } from "@/app/actions/user";
 import { WatchHistoryItem } from "@/lib/store/useAppStore";
@@ -92,8 +92,13 @@ export function HistoryGrid({ initialHistory }: { initialHistory: WatchHistoryIt
               >
                 <Trash2 className="w-4 h-4" />
               </button>
-              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 text-white text-xs rounded-full backdrop-blur-sm">
-                Watched {new Date(item.watchedAt).toLocaleDateString()}
+              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 text-white text-xs rounded-full backdrop-blur-sm flex items-center gap-1.5 shadow-sm">
+                {item.userRating === 1 ? (
+                  <ThumbsUp className="w-3 h-3 text-green-400 fill-current" />
+                ) : item.userRating === -1 ? (
+                  <ThumbsDown className="w-3 h-3 text-red-400 fill-current" />
+                ) : null}
+                <span>{new Date(item.watchedAt).toLocaleDateString()}</span>
               </div>
             </motion.div>
           ))}

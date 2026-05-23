@@ -39,7 +39,7 @@ export async function getUserData(): Promise<UserData | null> {
   }
 }
 
-export async function addWatchedMedia(media: MediaCardProps): Promise<boolean> {
+export async function rateMedia(media: MediaCardProps, rating: 1 | -1): Promise<boolean> {
   try {
     const session = await auth();
     if (!session?.user?.id) return false;
@@ -50,15 +50,28 @@ export async function addWatchedMedia(media: MediaCardProps): Promise<boolean> {
     const historyItem: WatchHistoryItem = {
       ...media,
       watchedAt: Date.now(),
-      userRating: 0
+      userRating: rating
     };
     
+    // Use an aggregation pipeline with an update, or just try to update the array element first.
+    // If we update the element, it will only succeed if the element exists.
+    // Actually, in MongoDB it's easiest to pull it first and then push it, or use $set with array filters.
+    // Let's do a pull then push to ensure it is at the front and has the new rating, 
+    // OR we can just check if it exists in a separate query, but to be safe and update `watchedAt` + `userRating`:
+    await db.collection("users").updateOne(
+      { _id: new ObjectId(session.user.id) },
+      { $pull: { watchHistory: { id: media.id } } as Document }
+    );
+
     await db.collection("users").updateOne(
       { _id: new ObjectId(session.user.id) },
       { 
         // @ts-expect-error - MongoDB types are tricky with nested arrays
         $push: { 
-          watchHistory: historyItem
+          watchHistory: {
+            $each: [historyItem],
+            $position: 0
+          }
         } 
       }
     );
@@ -66,7 +79,7 @@ export async function addWatchedMedia(media: MediaCardProps): Promise<boolean> {
     revalidatePath("/history");
     return true;
   } catch (e) {
-    console.error("Failed to add watched media", e);
+    console.error("Failed to rate media", e);
     return false;
   }
 }
