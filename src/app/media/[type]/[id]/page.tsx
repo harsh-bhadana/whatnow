@@ -118,13 +118,25 @@ export default function MediaDetailPage({ params }: PageProps) {
         </button>
         
         {mediaContext.imageUrl ? (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
-            src={mediaContext.imageUrl.replace('/w500/', '/original/')}
-            alt={mediaContext.title}
-            className="w-full h-full object-cover"
-          />
+          <div className="relative w-full h-full">
+            {/* Base Image: Cached w500 image for instant, smooth View Transitions */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
+              src={mediaContext.imageUrl}
+              alt={mediaContext.title}
+              className="w-full h-full object-cover absolute inset-0 z-0"
+            />
+            {/* High-Res Image: Fades in once loaded */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={mediaContext.imageUrl.replace('/w500/', '/original/')}
+              alt={mediaContext.title}
+              className="w-full h-full object-cover absolute inset-0 z-10 transition-opacity duration-700 ease-in-out"
+              onLoad={(e) => (e.currentTarget.style.opacity = '1')}
+              style={{ opacity: 0 }}
+            />
+          </div>
         ) : (
           <div 
             style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
