@@ -3,7 +3,7 @@
 import { Link } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useEffect, useState, useRef } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { SearchBar } from "./SearchBar";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,44 +83,52 @@ export function AppHeader({ session, children }: { session: any, children: React
                 </span>
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown Menu / Full-screen Mobile Menu */}
               {isMenuOpen && (
-                <div className="absolute right-0 top-full mt-3 w-72 bg-[var(--color-m3-surface-container)] border border-[var(--color-m3-outline)]/20 rounded-2xl shadow-xl overflow-hidden z-50 flex flex-col animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="px-5 py-4 border-b border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface-container-high)]">
-                    <p className="text-sm font-bold text-[var(--color-m3-on-surface)] truncate">{session.user.name}</p>
-                    <p className="text-xs text-[var(--color-m3-on-surface-variant)] truncate mt-1">{session.user.email}</p>
+                <div className="fixed inset-0 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-3 w-full sm:w-72 h-[100dvh] sm:h-auto bg-[var(--color-m3-surface-container)] sm:border sm:border-[var(--color-m3-outline)]/20 sm:rounded-2xl sm:shadow-xl overflow-hidden z-[100] sm:z-50 flex flex-col animate-in fade-in slide-in-from-bottom-8 sm:slide-in-from-top-2 duration-300">
+                  {/* Mobile Header */}
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-m3-outline)]/10 sm:hidden bg-[var(--color-m3-surface)] shrink-0">
+                    <span className="font-heading font-bold text-lg text-[var(--color-m3-on-surface)]">Menu</span>
+                    <button onClick={() => setIsMenuOpen(false)} className="p-2 -mr-2 text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-surface-variant)] rounded-full transition-colors">
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <div className="px-5 py-6 sm:py-4 border-b border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface-container-high)] shrink-0">
+                    <p className="text-base sm:text-sm font-bold text-[var(--color-m3-on-surface)] truncate">{session.user.name}</p>
+                    <p className="text-sm sm:text-xs text-[var(--color-m3-on-surface-variant)] truncate mt-1">{session.user.email}</p>
                   </div>
                   
                   {mounted && activeProfile && (
-                    <div className="px-5 py-4 border-b border-[var(--color-m3-outline)]/10 flex items-center gap-4 bg-[var(--color-m3-surface)]">
-                      <div className={`w-10 h-10 rounded-full ${activeProfile.color} flex items-center justify-center text-white text-base font-bold uppercase shrink-0 shadow-sm`}>
+                    <div className="px-5 py-5 sm:py-4 border-b border-[var(--color-m3-outline)]/10 flex items-center gap-4 bg-[var(--color-m3-surface)] shrink-0">
+                      <div className={`w-12 h-12 sm:w-10 sm:h-10 rounded-full ${activeProfile.color} flex items-center justify-center text-white text-lg sm:text-base font-bold uppercase shrink-0 shadow-sm`}>
                         {activeProfile.name.charAt(0)}
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs text-[var(--color-m3-on-surface-variant)] uppercase tracking-wider font-semibold">Watching As</span>
-                        <span className="text-sm font-bold text-[var(--color-m3-on-surface)] truncate mt-0.5">{activeProfile.name}</span>
+                        <span className="text-base sm:text-sm font-bold text-[var(--color-m3-on-surface)] truncate mt-0.5">{activeProfile.name}</span>
                       </div>
                     </div>
                   )}
 
-                  <div className="flex flex-col py-2 border-b border-[var(--color-m3-outline)]/10 sm:hidden">
+                  <div className="flex-1 overflow-y-auto flex flex-col py-2 border-b border-[var(--color-m3-outline)]/10 sm:hidden">
                     <Link 
                       href="/watchlist" 
                       onClick={() => setIsMenuOpen(false)} 
-                      className="px-5 py-3 text-sm font-medium text-[var(--color-m3-on-surface)] hover:bg-[var(--color-m3-surface-variant)] transition-colors"
+                      className="px-5 py-4 text-base font-medium text-[var(--color-m3-on-surface)] hover:bg-[var(--color-m3-surface-variant)] transition-colors active:bg-[var(--color-m3-surface-variant)]"
                     >
                       Watch Later
                     </Link>
                     <Link 
                       href="/history" 
                       onClick={() => setIsMenuOpen(false)} 
-                      className="px-5 py-3 text-sm font-medium text-[var(--color-m3-on-surface)] hover:bg-[var(--color-m3-surface-variant)] transition-colors"
+                      className="px-5 py-4 text-base font-medium text-[var(--color-m3-on-surface)] hover:bg-[var(--color-m3-surface-variant)] transition-colors active:bg-[var(--color-m3-surface-variant)]"
                     >
                       Watch History
                     </Link>
                   </div>
                   
-                  <div className="p-2">
+                  <div className="p-4 sm:p-2 shrink-0">
                     {children}
                   </div>
                 </div>
