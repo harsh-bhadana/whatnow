@@ -1,0 +1,35 @@
+# System Architecture
+
+## Overview
+WhatNow is a personalized content recommendation platform built on a modern serverless stack utilizing Next.js App Router for full-stack React capabilities.
+
+## High-Level Architecture
+
+### Frontend (Client)
+- **Framework**: Next.js (React 19)
+- **State Management**: Zustand is used for ephemeral UI state (e.g., active mood selections, discover UI states). Data-heavy pages like History and Watchlist are rendered via Server Components and do not rely on global client state.
+- **Styling & UI**: Tailwind CSS for responsive utility-first styling. Framer Motion for fluid animations and micro-interactions.
+- **Routing**: Next-View-Transitions for seamless page transitions.
+
+### Backend (Server)
+- **Framework**: Next.js Server Components and API Routes (Route Handlers).
+- **Authentication**: NextAuth.js (v5 beta) handling session management.
+- **AI Integration**: `@google/genai` (Gemini SDK) used in Server Actions to process user context and deliver personalized recommendations.
+- **Data Validation**: Zod for schema validation on API inputs and environment variables.
+
+### Database Layer
+- **Database**: MongoDB (via `mongodb` driver and `@auth/mongodb-adapter`).
+- **Data Models**: Users, Sessions, Accounts (NextAuth default). The `users` collection also directly embeds all user-specific app data such as `watchHistory` and `watchlist`, enforcing a strict single-user paradigm.
+
+## Data Flow
+1. **User Request**: Client navigates to a route or triggers an action.
+2. **Next.js Server**: Server Components fetch initial data directly from MongoDB (e.g., retrieving watch history on the server to prevent layout shift).
+3. **Client Hydration**: React components render interactively on the client. Ephemeral UI states are managed by Zustand.
+4. **API Actions**: Client-side interactions trigger Server Actions or API routes, which validate inputs using Zod, interact with MongoDB, and return results.
+
+## Folder Structure
+- `src/app/`: Next.js App Router pages, layouts, and API routes.
+- `src/components/`: Reusable React components (UI elements, forms, layouts).
+- `src/lib/`: Utility functions, database connections, NextAuth configuration.
+- `public/`: Static assets like images and icons.
+- `docs/`: Project documentation.
