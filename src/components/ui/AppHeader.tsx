@@ -85,7 +85,7 @@ export function AppHeader({ session, children }: { session: any, children: React
 
               {/* Dropdown Menu / Full-screen Mobile Menu */}
               {isMenuOpen && (
-                <div className="fixed inset-0 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-3 w-full sm:w-72 h-[100dvh] sm:h-auto bg-[var(--color-m3-surface-container)] sm:border sm:border-[var(--color-m3-outline)]/20 sm:rounded-2xl sm:shadow-xl overflow-hidden z-[100] sm:z-50 flex flex-col animate-in fade-in slide-in-from-bottom-8 sm:slide-in-from-top-2 duration-300">
+                <div className="fixed inset-0 sm:absolute sm:inset-auto sm:right-0 sm:top-full sm:mt-3 w-full sm:w-72 h-[100dvh] sm:h-auto bg-[var(--color-m3-surface-container)] sm:border sm:border-[var(--color-m3-outline)]/20 sm:rounded-2xl sm:shadow-xl overflow-hidden z-[100] sm:z-50 flex flex-col animate-in fade-in slide-in-from-top-8 sm:slide-in-from-top-2 duration-300">
                   {/* Mobile Header */}
                   <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--color-m3-outline)]/10 sm:hidden bg-[var(--color-m3-surface)] shrink-0">
                     <span className="font-heading font-bold text-lg text-[var(--color-m3-on-surface)]">Menu</span>
