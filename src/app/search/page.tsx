@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition, use } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { searchMedia } from "@/lib/api/tmdb";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
@@ -20,7 +20,19 @@ export default function SearchPage({ searchParams }: PageProps) {
   const { setSelectedMedia } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>([]);
   const [loading, setLoading] = useState(true);
+  const [inputValue, setInputValue] = useState(query);
   const [, startTransition] = useTransition();
+
+  useEffect(() => {
+    setInputValue(query);
+  }, [query]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputValue.trim()) {
+      router.push(`/search?q=${encodeURIComponent(inputValue.trim())}`);
+    }
+  };
 
   useEffect(() => {
     if (!query) {
@@ -55,21 +67,35 @@ export default function SearchPage({ searchParams }: PageProps) {
 
   return (
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
-      <div className="flex items-center gap-4 mb-8 shrink-0">
-        <button 
-          onClick={() => router.back()}
-          className="p-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] transition-colors"
-        >
-          <ArrowLeft className="w-6 h-6 text-[var(--color-m3-on-surface)]" />
-        </button>
-        <div>
-          <h1 className="text-3xl font-heading font-bold text-[var(--color-m3-primary)]">
-            Search Results
-          </h1>
-          <p className="text-[var(--color-m3-outline)] text-sm">
-            {query ? `Showing results for "${query}"` : "Search for a movie or TV show"}
-          </p>
+      <div className="flex flex-col gap-6 mb-8 shrink-0">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => router.back()}
+            className="p-2 rounded-full hover:bg-[var(--color-m3-surface-variant)] transition-colors"
+          >
+            <ArrowLeft className="w-6 h-6 text-[var(--color-m3-on-surface)]" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-heading font-bold text-[var(--color-m3-primary)]">
+              Search Results
+            </h1>
+            <p className="text-[var(--color-m3-outline)] text-sm">
+              {query ? `Showing results for "${query}"` : "Search for a movie or TV show"}
+            </p>
+          </div>
         </div>
+
+        {/* Mobile Search Input */}
+        <form onSubmit={handleSearchSubmit} className="relative sm:hidden w-full">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-m3-on-surface-variant)]" />
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Search movies, tv..."
+            className="w-full bg-[var(--color-m3-surface-container-highest)] border border-transparent focus:border-[var(--color-m3-primary)] focus:bg-[var(--color-m3-surface)] rounded-2xl py-4 pl-12 pr-4 text-base text-[var(--color-m3-on-surface)] placeholder-[var(--color-m3-on-surface-variant)] outline-none transition-all shadow-sm"
+          />
+        </form>
       </div>
 
       <AnimatePresence mode="wait">
