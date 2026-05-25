@@ -295,25 +295,41 @@ export function AppHeader({ session, children }: { session: any, children: React
       {/* Expandable Mobile Search Bar */}
       <AnimatePresence>
         {isMobileSearchOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="sm:hidden overflow-hidden border-t border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface-container)]"
-          >
-            <form onSubmit={handleMobileSearch} className="px-4 py-3 relative">
-              <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-m3-on-surface-variant)]" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={mobileSearchQuery}
-                onChange={(e) => setMobileSearchQuery(e.target.value)}
-                placeholder="Search movies, tv..."
-                className="w-full bg-[var(--color-m3-surface-container-highest)] border border-transparent focus:border-[var(--color-m3-primary)] focus:bg-[var(--color-m3-surface)] rounded-full py-2.5 pl-10 pr-4 text-sm text-[var(--color-m3-on-surface)] placeholder-[var(--color-m3-on-surface-variant)] outline-none transition-all shadow-sm"
-              />
-            </form>
-          </motion.div>
+          <>
+            {/* Backdrop */}
+            <motion.div 
+              className="fixed inset-0 top-[64px] bg-black/40 backdrop-blur-sm sm:hidden z-[-1]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setMobileSearchQuery("");
+              }}
+            />
+            
+            {/* Search Bar Dropdown */}
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="sm:hidden relative overflow-hidden border-t border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface-container)]"
+            >
+              <form onSubmit={handleMobileSearch} className="px-4 py-3 relative">
+                <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-m3-on-surface-variant)]" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={mobileSearchQuery}
+                  onChange={(e) => setMobileSearchQuery(e.target.value)}
+                  placeholder="Search movies, tv..."
+                  className="w-full bg-[var(--color-m3-surface-container-highest)] border border-transparent focus:border-[var(--color-m3-primary)] focus:bg-[var(--color-m3-surface)] rounded-full py-2.5 pl-10 pr-4 text-sm text-[var(--color-m3-on-surface)] placeholder-[var(--color-m3-on-surface-variant)] outline-none transition-all shadow-sm"
+                />
+              </form>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </header>
