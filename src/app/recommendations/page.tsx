@@ -6,9 +6,10 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
-import { fetchAnimeRecommendations } from "@/lib/api/anilist";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
+import { TouchGrassCard } from "@/components/ui/TouchGrassCard";
+import { Loader2 } from "lucide-react";
 
 export default function Recommendations() {
   const router = useRouter();
@@ -19,7 +20,9 @@ export default function Recommendations() {
   } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [isInitialLoad] = useState(cachedRecommendations.length === 0);
+  const [page, setPage] = useState(1);
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -37,42 +40,44 @@ export default function Recommendations() {
     }
 
     async function loadData() {
-      if (cachedRecommendations.length > 0) {
+      if (page === 1 && cachedRecommendations.length > 0) {
         setResults(cachedRecommendations);
         setLoading(false);
         return;
       }
 
-      setLoading(true);
+      if (page === 1) setLoading(true);
+      else setLoadingMore(true);
+
       const watchedIds = watchHistory.map(item => item.id);
       const likedMediaData = watchHistory
         .filter(item => selectedLikedMediaIds.includes(item.id))
         .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
 
-      // Fetch concurrently
-      const [moviesAndTv, anime] = await Promise.all([
-        fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false),
-        mediaType === "all" || mediaType === "anime" ? fetchAnimeRecommendations(availableTime, selectedMoods, watchedIds, false) : Promise.resolve([])
-      ]);
+      const newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, page);
 
-      // Combine and shuffle
-      const combined = [...moviesAndTv, ...anime].sort(() => Math.random() - 0.5);
+      if (page === 1) {
+        setResults(newResults);
+        setCachedRecommendations(newResults);
+      } else {
+        // Append and deduplicate
+        setResults(prev => {
+          const combined = [...prev, ...newResults];
+          const uniqueMap = new Map();
+          combined.forEach(item => {
+            if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
+          });
+          return Array.from(uniqueMap.values());
+        });
+      }
       
-      // Deduplicate locally just in case
-      const uniqueMap = new Map();
-      combined.forEach(item => {
-        if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
-      });
-      const finalResults = Array.from(uniqueMap.values());
-
-      setResults(finalResults);
-      setCachedRecommendations(finalResults);
       setLoading(false);
+      setLoadingMore(false);
     }
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTime, selectedMoods, router, watchHistory, userDataLoaded, isMounted, mediaType, selectedLikedMediaIds]);
+  }, [availableTime, selectedMoods, router, watchHistory, userDataLoaded, isMounted, mediaType, selectedLikedMediaIds, page]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
@@ -127,19 +132,27 @@ export default function Recommendations() {
         ) : (
           <>
             {results.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={isInitialLoad ? { opacity: 0, scale: 0.9 } : false}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: isInitialLoad ? index * 0.05 : 0 }}
-                className="break-inside-avoid"
-              >
-                <MediaCard 
-                  {...item}
-                  href={`/media/${item.type}/${item.id}`} 
-                  onClick={() => handleCardClick(item)}
-                />
-              </motion.div>
+              <div key={`${item.id}-${index}`} className="break-inside-avoid">
+                <motion.div
+                  initial={isInitialLoad && page === 1 ? { opacity: 0, scale: 0.9 } : false}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: isInitialLoad && page === 1 ? index * 0.05 : 0 }}
+                  className="mb-4 sm:mb-6"
+                >
+                  <MediaCard 
+                    {...item}
+                    href={`/media/${item.type}/${item.id}`} 
+                    onClick={() => handleCardClick(item)}
+                  />
+                </motion.div>
+                
+                {/* Touch Grass Element every 15 items */}
+                {(index + 1) % 15 === 0 && (
+                  <div className="mb-4 sm:mb-6 block sm:hidden">
+                    <TouchGrassCard />
+                  </div>
+                )}
+              </div>
             ))}
 
             {/* Mobile bottom space filler easter egg */}
@@ -150,6 +163,32 @@ export default function Recommendations() {
               <span className="block text-xs text-green-600/90 dark:text-green-400/80 font-medium">
                 Maybe try touching some grass 🌿
               </span>
+            </div>
+            {/* Desktop touch grass interjected into columns flow */}
+            {results.length >= 15 && (
+              <div className="hidden sm:block break-inside-avoid mb-6 w-full">
+                <TouchGrassCard />
+              </div>
+            )}
+            
+            {/* Load More Trigger */}
+            <div 
+              className="w-full flex items-center justify-center p-8 break-inside-avoid"
+              ref={(el) => {
+                if (!el) return;
+                const observer = new IntersectionObserver(
+                  (entries) => {
+                    if (entries[0].isIntersecting && !loadingMore && !loading) {
+                      setPage(p => p + 1);
+                    }
+                  },
+                  { threshold: 0.1 }
+                );
+                observer.observe(el);
+                return () => observer.disconnect();
+              }}
+            >
+              {loadingMore && <Loader2 className="w-8 h-8 animate-spin text-[var(--color-m3-primary)]" />}
             </div>
           </>
         )}
