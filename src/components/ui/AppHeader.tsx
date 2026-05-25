@@ -1,6 +1,6 @@
 "use client";
 
-import { Link } from 'next-view-transitions';
+import { Link, useTransitionRouter as useRouter } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Search, X, Bookmark, History } from "lucide-react";
@@ -11,7 +11,11 @@ import { motion, AnimatePresence } from "framer-motion";
 export function AppHeader({ session, children }: { session: any, children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
+  const router = useRouter();
   const menuRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
@@ -29,6 +33,24 @@ export function AppHeader({ session, children }: { session: any, children: React
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (isMobileSearchOpen && searchInputRef.current) {
+      // Focus after animation completes
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isMobileSearchOpen]);
+
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(mobileSearchQuery.trim())}`);
+      setMobileSearchQuery("");
+      setIsMobileSearchOpen(false);
+    }
+  };
 
   // Lock body scroll & blur page content when mobile menu is open
   useEffect(() => {
@@ -91,9 +113,12 @@ export function AppHeader({ session, children }: { session: any, children: React
         </Link>
         <SearchBar />
         <nav className="flex gap-2 sm:gap-4 items-center shrink-0">
-          <Link href="/search" className="sm:hidden p-2 text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors rounded-full hover:bg-[var(--color-m3-surface-variant)]">
-            <Search className="w-5 h-5" />
-          </Link>
+          <button 
+            onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)} 
+            className="sm:hidden p-2 text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors rounded-full hover:bg-[var(--color-m3-surface-variant)]"
+          >
+            {isMobileSearchOpen ? <X className="w-5 h-5" /> : <Search className="w-5 h-5" />}
+          </button>
           <Link 
             href="/watchlist" 
             className="hidden sm:block text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
@@ -266,6 +291,31 @@ export function AppHeader({ session, children }: { session: any, children: React
           )}
         </nav>
       </div>
+
+      {/* Expandable Mobile Search Bar */}
+      <AnimatePresence>
+        {isMobileSearchOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="sm:hidden overflow-hidden border-t border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface-container)]"
+          >
+            <form onSubmit={handleMobileSearch} className="px-4 py-3 relative">
+              <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-m3-on-surface-variant)]" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={mobileSearchQuery}
+                onChange={(e) => setMobileSearchQuery(e.target.value)}
+                placeholder="Search movies, tv..."
+                className="w-full bg-[var(--color-m3-surface-container-highest)] border border-transparent focus:border-[var(--color-m3-primary)] focus:bg-[var(--color-m3-surface)] rounded-full py-2.5 pl-10 pr-4 text-sm text-[var(--color-m3-on-surface)] placeholder-[var(--color-m3-on-surface-variant)] outline-none transition-all shadow-sm"
+              />
+            </form>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
