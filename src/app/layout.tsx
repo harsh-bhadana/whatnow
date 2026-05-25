@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 
 import { ViewTransitions } from 'next-view-transitions';
 import { Link } from 'next-view-transitions';
+import Script from "next/script";
 import { auth, signOut } from "@/auth";
 import { LogOut } from "lucide-react";
 import { AppHeader } from "@/components/ui/AppHeader";
@@ -63,6 +64,19 @@ export default async function RootLayout({
             </>
           )}
           {children}
+          <Script
+            id="register-sw"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                if ('serviceWorker' in navigator) {
+                  window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('/sw.js');
+                  });
+                }
+              `,
+            }}
+          />
         </body>
       </html>
     </ViewTransitions>
