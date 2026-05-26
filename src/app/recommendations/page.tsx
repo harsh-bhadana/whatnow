@@ -155,17 +155,6 @@ export default function Recommendations() {
               </div>
             ))}
 
-            {/* Mobile bottom space filler easter egg */}
-            <div className="sm:hidden break-inside-avoid flex flex-col items-center justify-center p-5 text-center w-full h-full min-h-[140px] rounded-3xl border-2 border-dashed border-green-500/40 bg-green-500/5 transition-all hover:bg-green-500/10 hover:border-green-500/60 group">
-              <span className="block text-sm font-bold text-green-700 dark:text-green-400 mb-1 font-serif italic tracking-wide">
-                Don&apos;t like anything?
-              </span>
-              <span className="block text-xs text-green-600/90 dark:text-green-400/80 font-medium">
-                Maybe try touching some grass 🌿
-              </span>
-            </div>
-
-            {/* Load More Trigger */}
             <div 
               className="w-full flex items-center justify-center p-8 break-inside-avoid"
               ref={(el) => {
