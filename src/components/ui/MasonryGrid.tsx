@@ -35,8 +35,21 @@ export function MasonryGrid({ children, breakpoints, defaultCols = 2 }: MasonryG
 
   const columns = useMemo(() => {
     const colsArray: React.ReactNode[][] = Array.from({ length: cols }, () => []);
-    // Ensure we handle Fragments and nested arrays correctly by flattening
-    const flatChildren = React.Children.toArray(children);
+    
+    // Helper to recursively flatten React.Fragment
+    const flattenChildren = (nodes: React.ReactNode): React.ReactNode[] => {
+      const flat: React.ReactNode[] = [];
+      React.Children.forEach(nodes, (child) => {
+        if (React.isValidElement(child) && child.type === React.Fragment) {
+          flat.push(...flattenChildren(child.props.children));
+        } else if (child) {
+          flat.push(child);
+        }
+      });
+      return flat;
+    };
+    
+    const flatChildren = flattenChildren(children);
     
     flatChildren.forEach((child, index) => {
       colsArray[index % cols].push(child);
