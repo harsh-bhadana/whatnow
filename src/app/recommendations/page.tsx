@@ -99,9 +99,9 @@ export default function Recommendations() {
         </button>
       </div>
 
-      <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 sm:gap-6 space-y-4 sm:space-y-6 w-full">
+      <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 sm:gap-6 w-full">
         {/* Mobile button inside the columns to cause shift, kept outside conditional so it doesn't unmount */}
-        <div className="sm:hidden break-inside-avoid">
+        <div className="sm:hidden break-inside-avoid mb-4 sm:mb-6">
           <button 
             onClick={() => router.push("/discover")}
             style={{ viewTransitionName: 'mood-container' }}
@@ -125,20 +125,22 @@ export default function Recommendations() {
 
         {loading ? (
           Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="break-inside-avoid">
+            <div key={i} className="break-inside-avoid mb-4 sm:mb-6">
               <MediaCardSkeleton />
             </div>
           ))
         ) : (
           <>
-            {results.map((item, index) => (
-              <div key={`${item.id}-${index}`} className="break-inside-avoid">
+            {results.flatMap((item, index) => {
+              const nodes = [];
+              nodes.push(
                 <motion.div
+                  key={item.id}
                   initial={{ opacity: 0, y: 30 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                   transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="mb-4 sm:mb-6"
+                  className="break-inside-avoid mb-4 sm:mb-6 block"
                 >
                   <MediaCard 
                     {...item}
@@ -146,15 +148,19 @@ export default function Recommendations() {
                     onClick={() => handleCardClick(item)}
                   />
                 </motion.div>
-                
-                {/* Touch Grass Element every 15 items */}
-                {(index + 1) % 15 === 0 && (
-                  <div className="mb-4 sm:mb-6 break-inside-avoid">
+              );
+              
+              // Touch Grass Element every 15 items
+              if ((index + 1) % 15 === 0) {
+                nodes.push(
+                  <div key={`grass-${index}`} className="break-inside-avoid mb-4 sm:mb-6 block">
                     <TouchGrassCard />
                   </div>
-                )}
-              </div>
-            ))}
+                );
+              }
+              
+              return nodes;
+            })}
 
             <div 
               className="w-full flex items-center justify-center p-8 break-inside-avoid"
