@@ -275,18 +275,55 @@ export default function MediaDetailPage({ params }: PageProps) {
             </button>
           </div>
           
+          {/* Cast Section */}
           {(details as any)?.credits?.cast && (details as any).credits.cast.length > 0 && (
             <div className="mt-10 sm:mt-14 border-t border-white/10 pt-6 sm:pt-8 shrink-0">
               <h3 className="text-xl sm:text-2xl font-heading font-semibold text-white mb-4 sm:mb-6">Top Cast</h3>
-              <div className="flex flex-wrap gap-3">
-                {(details as any).credits.cast.slice(0, 8).map((c: any) => (
-                  <span key={c.id} className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-sm sm:text-base text-zinc-300 hover:bg-white/10 transition-colors cursor-default">
-                    {c.name}
-                  </span>
+              <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20">
+                {(details as any).credits.cast.slice(0, 12).map((c: any) => (
+                  <div key={c.id} className="snap-start shrink-0 w-28 sm:w-32 flex flex-col items-center text-center">
+                    {c.profile_path ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img 
+                        src={`https://image.tmdb.org/t/p/w185${c.profile_path}`}
+                        alt={c.name}
+                        className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover mb-3 shadow-lg border-2 border-[var(--color-m3-surface-container)]"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-white/5 border-2 border-white/10 mb-3 flex items-center justify-center text-white/30">
+                        <span className="text-2xl">{c.name.charAt(0)}</span>
+                      </div>
+                    )}
+                    <span className="text-sm font-medium text-white leading-tight">{c.name}</span>
+                    <span className="text-xs text-white/50 mt-1 line-clamp-2">{c.character}</span>
+                  </div>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Trailer Section */}
+          {(() => {
+            const trailer = (details as any)?.videos?.results?.find(
+              (v: any) => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser')
+            );
+            if (!trailer) return null;
+            return (
+              <div className="mt-10 sm:mt-14 border-t border-white/10 pt-6 sm:pt-8 shrink-0 pb-12">
+                <h3 className="text-xl sm:text-2xl font-heading font-semibold text-white mb-4 sm:mb-6">Trailer</h3>
+                <div className="relative w-full aspect-video rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-black/50">
+                  <iframe 
+                    src={`https://www.youtube.com/embed/${trailer.key}?modestbranding=1&rel=0`} 
+                    title="YouTube video player" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  ></iframe>
+                </div>
+              </div>
+            );
+          })()}
 
           {(() => {
             if (mediaContext.type === "anime") {
