@@ -134,9 +134,10 @@ export default function Recommendations() {
             {results.map((item, index) => (
               <div key={`${item.id}-${index}`} className="break-inside-avoid">
                 <motion.div
-                  initial={isInitialLoad && page === 1 ? { opacity: 0, scale: 0.9 } : false}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: isInitialLoad && page === 1 ? index * 0.05 : 0 }}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+                  transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                   className="mb-4 sm:mb-6"
                 >
                   <MediaCard 

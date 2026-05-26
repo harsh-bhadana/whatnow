@@ -4,8 +4,10 @@ import { TreePine } from "lucide-react";
 export function TouchGrassCard() {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+      transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
       className="w-full aspect-[2/3] bg-green-500/5 rounded-3xl p-4 sm:p-6 flex flex-col items-center justify-center text-center border-2 border-dashed border-green-500/30 hover:bg-green-500/10 hover:border-green-500/50 transition-colors shadow-sm overflow-hidden relative"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent pointer-events-none" />
