@@ -9,6 +9,7 @@ import { fetchRecommendations } from "@/lib/api/tmdb";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/ui/TouchGrassCard";
+import { MasonryGrid } from "@/components/ui/MasonryGrid";
 import { Loader2 } from "lucide-react";
 
 export default function Recommendations() {
@@ -99,9 +100,17 @@ export default function Recommendations() {
         </button>
       </div>
 
-      <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 sm:gap-6 w-full">
+      <MasonryGrid
+        breakpoints={{
+          640: 3,
+          768: 4,
+          1024: 5,
+          1280: 6,
+        }}
+        defaultCols={2}
+      >
         {/* Mobile button inside the columns to cause shift, kept outside conditional so it doesn't unmount */}
-        <div className="sm:hidden break-inside-avoid mb-4 sm:mb-6">
+        <div className="sm:hidden break-inside-avoid">
           <button 
             onClick={() => router.push("/discover")}
             style={{ viewTransitionName: 'mood-container' }}
@@ -125,7 +134,7 @@ export default function Recommendations() {
 
         {loading ? (
           Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="break-inside-avoid mb-4 sm:mb-6">
+            <div key={i} className="break-inside-avoid">
               <MediaCardSkeleton />
             </div>
           ))
@@ -140,7 +149,7 @@ export default function Recommendations() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                   transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="break-inside-avoid mb-4 sm:mb-6 block"
+                  className="break-inside-avoid block w-full h-full"
                 >
                   <MediaCard 
                     {...item}
@@ -153,7 +162,7 @@ export default function Recommendations() {
               // Touch Grass Element every 15 items
               if ((index + 1) % 15 === 0) {
                 nodes.push(
-                  <div key={`grass-${index}`} className="break-inside-avoid mb-4 sm:mb-6 block">
+                  <div key={`grass-${index}`} className="break-inside-avoid block w-full h-full">
                     <TouchGrassCard />
                   </div>
                 );
@@ -161,7 +170,9 @@ export default function Recommendations() {
               
               return nodes;
             })}
-
+          </>
+        )}
+      </MasonryGrid>
             <div 
               className="w-full flex items-center justify-center p-8 break-inside-avoid"
               ref={(el) => {
@@ -180,9 +191,6 @@ export default function Recommendations() {
             >
               {loadingMore && <Loader2 className="w-8 h-8 animate-spin text-[var(--color-m3-primary)]" />}
             </div>
-          </>
-        )}
-      </div>
 
       {!loading && results.length === 0 && (
         <div className="flex-1 flex flex-col items-center justify-center text-[var(--color-m3-outline)] space-y-4">
