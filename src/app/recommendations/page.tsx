@@ -148,7 +148,7 @@ export default function Recommendations() {
                 
                 {/* Touch Grass Element every 15 items */}
                 {(index + 1) % 15 === 0 && (
-                  <div className="mb-4 sm:mb-6 block sm:hidden">
+                  <div className="mb-4 sm:mb-6 break-inside-avoid">
                     <TouchGrassCard />
                   </div>
                 )}
@@ -164,13 +164,7 @@ export default function Recommendations() {
                 Maybe try touching some grass 🌿
               </span>
             </div>
-            {/* Desktop touch grass interjected into columns flow */}
-            {results.length >= 15 && (
-              <div className="hidden sm:block break-inside-avoid mb-6 w-full">
-                <TouchGrassCard />
-              </div>
-            )}
-            
+
             {/* Load More Trigger */}
             <div 
               className="w-full flex items-center justify-center p-8 break-inside-avoid"

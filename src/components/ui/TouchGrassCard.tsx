@@ -6,15 +6,15 @@ export function TouchGrassCard() {
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="col-span-2 sm:col-span-3 md:col-span-4 lg:col-span-5 xl:col-span-6 bg-[var(--color-m3-surface-container)] rounded-3xl p-8 flex flex-col items-center justify-center text-center border-2 border-dashed border-[var(--color-m3-outline)]/20 shadow-sm overflow-hidden relative"
+      className="w-full aspect-[2/3] bg-green-500/5 rounded-3xl p-4 sm:p-6 flex flex-col items-center justify-center text-center border-2 border-dashed border-green-500/30 hover:bg-green-500/10 hover:border-green-500/50 transition-colors shadow-sm overflow-hidden relative"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent pointer-events-none" />
-      <TreePine className="w-16 h-16 text-green-500 mb-4 animate-bounce" />
-      <h3 className="text-2xl font-bold font-heading text-[var(--color-m3-on-surface)] mb-2">
+      <TreePine className="w-10 h-10 sm:w-12 sm:h-12 text-green-500 mb-3 sm:mb-4 animate-bounce" />
+      <h3 className="text-lg sm:text-xl font-bold font-heading text-green-700 dark:text-green-400 mb-2 leading-tight">
         The rabbit hole goes deeper...
       </h3>
-      <p className="text-[var(--color-m3-on-surface-variant)] max-w-md">
-        But you've been scrolling for a while! It might be time to take a break, step outside, and touch some grass. 🌱
+      <p className="text-xs sm:text-sm text-green-600/90 dark:text-green-400/80">
+        You've been scrolling for a while! It might be time to touch some grass. 🌱
       </p>
     </motion.div>
   );
