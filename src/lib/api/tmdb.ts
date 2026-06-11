@@ -178,3 +178,97 @@ export async function searchMedia(query: string, includeAdult: boolean = false):
     return [];
   }
 }
+
+export interface TMDBDiscoverParams {
+  with_genres?: string;
+  with_keywords?: string;
+  "primary_release_date.gte"?: string;
+  "primary_release_date.lte"?: string;
+  "vote_average.gte"?: number;
+  with_runtime_lte?: number;
+  mediaType: "movie" | "tv" | "anime" | "all";
+}
+
+export async function discoverMediaFromParams(params: TMDBDiscoverParams, includeAdult: boolean = false): Promise<MediaCardProps[]> {
+  if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") {
+    return MOCK_DATA.sort(() => Math.random() - 0.5).slice(0, 10);
+  }
+
+  try {
+    let rawResults: any[] = [];
+    const allPromises: Promise<any[]>[] = [];
+
+    const buildUrl = (type: "movie" | "tv", isAnime: boolean = false) => {
+      const urlParams = new URLSearchParams();
+      urlParams.append("api_key", TMDB_API_KEY as string);
+      urlParams.append("include_adult", includeAdult.toString());
+      urlParams.append("sort_by", "popularity.desc");
+      urlParams.append("vote_count.gte", isAnime ? "50" : "100");
+
+      if (params.with_genres) urlParams.append("with_genres", params.with_genres);
+      if (params.with_keywords) urlParams.append("with_keywords", params.with_keywords);
+      
+      if (params["primary_release_date.gte"]) {
+        urlParams.append(type === "movie" ? "primary_release_date.gte" : "first_air_date.gte", params["primary_release_date.gte"]);
+      }
+      if (params["primary_release_date.lte"]) {
+        urlParams.append(type === "movie" ? "primary_release_date.lte" : "first_air_date.lte", params["primary_release_date.lte"]);
+      }
+      if (params["vote_average.gte"]) urlParams.append("vote_average.gte", params["vote_average.gte"].toString());
+      if (params.with_runtime_lte) urlParams.append("with_runtime.lte", params.with_runtime_lte.toString());
+
+      if (isAnime) {
+        urlParams.append("with_original_language", "ja");
+        if (!params.with_genres?.includes("16")) {
+           urlParams.append("with_genres", params.with_genres ? `${params.with_genres},16` : "16");
+        }
+      }
+
+      return `${BASE_URL}/discover/${type}?${urlParams.toString()}`;
+    };
+
+    const handleFetch = async (url: string, type: string) => {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.success === false) return [];
+        return (data.results || []).map((item: any) => ({ ...item, media_type: type }));
+      } catch (e) {
+        return [];
+      }
+    };
+
+    if (params.mediaType === "movie" || params.mediaType === "all") {
+      allPromises.push(handleFetch(buildUrl("movie"), "movie"));
+    }
+    if (params.mediaType === "tv" || params.mediaType === "all") {
+      allPromises.push(handleFetch(buildUrl("tv"), "tv"));
+    }
+    if (params.mediaType === "anime") {
+      allPromises.push(handleFetch(buildUrl("tv", true), "anime"));
+    }
+
+    const nestedResults = await Promise.all(allPromises);
+    rawResults = nestedResults.flat();
+
+    const uniqueMap = new Map();
+    rawResults.forEach(item => {
+      if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
+    });
+    rawResults = Array.from(uniqueMap.values());
+    rawResults = rawResults.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
+
+    return rawResults.slice(0, 15).map((item: any): MediaCardProps => ({
+      id: item.id,
+      title: item.title || item.name,
+      imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
+      rating: item.vote_average,
+      type: item.media_type === "anime" ? "anime" : (item.media_type || "movie"),
+      shape: Math.random() > 0.6 ? "asymmetric" : (Math.random() > 0.5 ? "pill" : "default"),
+      overview: item.overview // Added overview for Gemini insights step
+    }));
+  } catch (error) {
+    console.error("Failed to discover media from params:", error);
+    return [];
+  }
+}
