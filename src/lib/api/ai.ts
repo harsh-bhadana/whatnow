@@ -1,20 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { GoogleGenAI } from "@google/genai";
-import { searchMedia } from "./tmdb";
+import { GoogleGenAI, Type, Schema } from "@google/genai";
+import { discoverMediaFromParams, TMDBDiscoverParams } from "./tmdb";
 import { MediaCardProps } from "@/components/ui/MediaCard";
 
 const ai = process.env.GEMINI_API_KEY
   ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
   : null;
-
-export interface AIRecommendation {
-  title: string;
-  year?: number;
-  mediaType: "movie" | "tv" | "anime";
-  reason: string;
-}
 
 interface RecommendationContext {
   moods: string[];
@@ -27,122 +20,127 @@ interface RecommendationContext {
 
 export async function getAIRecommendations(
   context: RecommendationContext
-): Promise<AIRecommendation[]> {
+): Promise<Array<MediaCardProps & { reason: string }>> {
   if (!ai) {
-    console.warn(
-      "GEMINI_API_KEY is not set — skipping AI recommendations."
-    );
+    console.warn("GEMINI_API_KEY is not set — skipping AI recommendations.");
     return [];
   }
 
   const { moods, availableTime, mediaType, watchHistory, likedTitles, includeAdult } = context;
 
-  const systemPrompt = [
-    "You are an expert media recommendation engine with deep knowledge of movies, TV shows, and anime.",
-    "You understand nuanced mood combinations — for example, 'Cozy + Mind-bending' means something intellectually stimulating yet comforting, like a warm sci-fi mystery.",
-    "You balance popular crowd-pleasers with hidden gems that deserve more attention.",
-    "You ALWAYS return valid JSON — an array of recommendation objects, nothing else.",
-  ].join(" ");
+  // STEP 1: Intent Parsing to TMDB Params
+  const intentPrompt = `
+You are an expert media recommendation engine. Convert the user's request into TMDB discovery parameters.
+User is in the mood for: ${moods.length > 0 ? moods.join(" + ") : "anything"}.
+Time available: ${availableTime} minutes.
+Media Type: ${mediaType}
 
-  const watchHistoryBlock =
-    watchHistory.length > 0
-      ? `The user has already watched: ${watchHistory.map((w) => `"${w.title}" (${w.type}${w.rating ? `, rated ${w.rating}/10` : ""})`).join(", ")}. Do NOT recommend these titles. Use them to understand the user's taste and preferences.`
-      : "The user has no watch history yet.";
+Provide TMDB params. Use your knowledge of TMDB genres (e.g. Action=28, Comedy=35, Sci-Fi=878) to set 'with_genres'. 
+If they want a specific vibe, you can provide 'with_keywords' (pipe | separated TMDB keyword IDs or short descriptive words).
+You can set 'vote_average.gte' if they want high quality.
+`;
 
-  const likedBlock =
-    likedTitles.length > 0
-      ? `The user especially liked: ${likedTitles.map((t) => `"${t}"`).join(", ")}. Lean into what these titles have in common — tone, themes, pacing, storytelling style.`
-      : "";
+  const tmdbSchema: Schema = {
+    type: Type.OBJECT,
+    properties: {
+      with_genres: { type: Type.STRING, description: "Pipe (|) separated TMDB genre IDs." },
+      with_keywords: { type: Type.STRING, description: "Pipe (|) separated TMDB keyword IDs or short words." },
+      "primary_release_date.gte": { type: Type.STRING, description: "YYYY-MM-DD" },
+      "primary_release_date.lte": { type: Type.STRING, description: "YYYY-MM-DD" },
+      "vote_average.gte": { type: Type.NUMBER, description: "Minimum rating 0-10" },
+      with_runtime_lte: { type: Type.NUMBER, description: "Max runtime in minutes" }
+    },
+  };
 
-  const mediaTypeBlock =
-    mediaType === "all"
-      ? "Include a healthy mix of movies, TV shows, and anime."
-      : `Only recommend ${mediaType === "tv" ? "TV shows" : mediaType === "anime" ? "anime" : "movies"}.`;
-
-  const timeBlock =
-    mediaType === "movie" || mediaType === "all"
-      ? `For movies, prefer runtimes under ${availableTime} minutes.`
-      : `For TV shows/anime, prefer episodes around ${availableTime} minutes or less.`;
-
-  const adultBlock = includeAdult
-    ? "Adult/mature content is acceptable."
-    : "Keep recommendations family-friendly — no adult or explicit content.";
-
-  const userPrompt = [
-    `The user is in the mood for: ${moods.length > 0 ? moods.join(" + ") : "anything — surprise them"}.`,
-    `They have ${availableTime} minutes available.`,
-    mediaTypeBlock,
-    timeBlock,
-    watchHistoryBlock,
-    likedBlock,
-    adultBlock,
-    "",
-    "Return exactly 15 recommendations as a JSON array. Each object must have:",
-    '  - "title": the exact title of the movie/show/anime',
-    '  - "year": release year (number)',
-    '  - "mediaType": one of "movie", "tv", or "anime"',
-    '  - "reason": 1-2 sentences explaining why this fits, written in a personal and conversational tone',
-    "",
-    "Mix well-known titles with hidden gems. Order from strongest match to weakest.",
-  ].join("\n");
-
-  const prompt = `${systemPrompt}\n\n${userPrompt}`;
+  let tmdbParams: TMDBDiscoverParams = { mediaType, with_runtime_lte: availableTime };
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: prompt,
+    const intentResponse = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: intentPrompt,
       config: {
         responseMimeType: "application/json",
+        responseSchema: tmdbSchema,
       },
     });
 
-    const text = response.text;
-    if (!text) {
-      console.error("Gemini returned an empty response.");
-      return [];
+    if (intentResponse.text) {
+      const parsed = JSON.parse(intentResponse.text);
+      tmdbParams = { ...tmdbParams, ...parsed, mediaType };
     }
-
-    const parsed = JSON.parse(text);
-    const recommendations: AIRecommendation[] = Array.isArray(parsed)
-      ? parsed
-      : parsed.recommendations ?? [];
-
-    return recommendations;
-  } catch (error) {
-    console.error("Failed to get AI recommendations:", error);
-    return [];
+  } catch (e) {
+    console.error("Intent parsing failed, falling back to defaults.", e);
   }
+
+  // STEP 2: TMDB Discovery
+  const candidates = await discoverMediaFromParams(tmdbParams, includeAdult);
+  
+  if (candidates.length === 0) return [];
+
+  // Filter out watch history
+  const historyIds = watchHistory.map(w => w.title.toLowerCase());
+  const validCandidates = candidates.filter(c => !historyIds.includes(c.title.toLowerCase())).slice(0, 15);
+
+  if (validCandidates.length === 0) return [];
+
+  // STEP 3: AI Re-ranking & Insights
+  const candidatesJson = validCandidates.map(c => ({
+    id: c.id,
+    title: c.title,
+    overview: c.overview,
+    type: c.type
+  }));
+
+  const insightPrompt = `
+You are an expert movie/TV recommender.
+The user is in the mood for: ${moods.length > 0 ? moods.join(" + ") : "anything"}.
+They liked: ${likedTitles.length > 0 ? likedTitles.join(", ") : "nothing specific yet"}.
+Here are ${validCandidates.length} candidates from TMDB:
+${JSON.stringify(candidatesJson, null, 2)}
+
+For each candidate, provide a personalized 1-2 sentence reason ("Why you'll like this") explaining why it fits their current mood and past likes.
+Output a JSON array of objects with 'id' (number) and 'reason' (string).
+`;
+
+  const insightSchema: Schema = {
+    type: Type.ARRAY,
+    items: {
+      type: Type.OBJECT,
+      properties: {
+        id: { type: Type.INTEGER },
+        reason: { type: Type.STRING },
+      },
+      required: ["id", "reason"]
+    }
+  };
+
+  try {
+    const insightResponse = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: insightPrompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: insightSchema,
+      },
+    });
+
+    if (insightResponse.text) {
+      const insights = JSON.parse(insightResponse.text);
+      const insightMap = new Map<number, string>();
+      insights.forEach((i: any) => insightMap.set(i.id, i.reason));
+
+      return validCandidates.map(c => ({
+        ...c,
+        reason: insightMap.get(c.id) || "It perfectly matches your current mood!"
+      }));
+    }
+  } catch (e) {
+    console.error("Insight generation failed", e);
+  }
+
+  return validCandidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
 }
 
-export async function resolveWithTMDB(
-  aiRecs: AIRecommendation[],
-  includeAdult: boolean = false
-): Promise<Array<MediaCardProps & { reason: string }>> {
-  const results = await Promise.allSettled(
-    aiRecs.map(async (rec) => {
-      const searchResults = await searchMedia(
-        rec.year ? `${rec.title} ${rec.year}` : rec.title,
-        includeAdult
-      );
-
-      if (searchResults.length === 0) return null;
-
-      // Pick the best match — first result is usually the most relevant
-      const match = searchResults[0];
-
-      return {
-        ...match,
-        type: rec.mediaType,
-        reason: rec.reason,
-      } as MediaCardProps & { reason: string };
-    })
-  );
-
-  return results
-    .filter(
-      (r): r is PromiseFulfilledResult<MediaCardProps & { reason: string }> =>
-        r.status === "fulfilled" && r.value !== null
-    )
-    .map((r) => r.value);
+export async function resolveWithTMDB(aiRecs: any[]): Promise<any[]> {
+    return aiRecs;
 }
