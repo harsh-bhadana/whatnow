@@ -17,6 +17,7 @@ export interface MediaCardProps {
   onClick?: (e?: any) => void;
   isBasedOnLikes?: boolean;
   reason?: string;
+  overview?: string;
 }
 
 export function MediaCard({
