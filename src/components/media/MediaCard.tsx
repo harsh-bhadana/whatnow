@@ -15,6 +15,7 @@ export interface MediaCardProps {
   shape?: "rock1" | "rock2" | "rock3" | "rock4" | "default" | string;
   href?: string;
   onClick?: (e?: any) => void;
+  isBasedOnLikes?: boolean;
   actionButtons?: React.ReactNode;
   reason?: string;
   overview?: string;

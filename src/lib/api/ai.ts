@@ -3,7 +3,7 @@
 
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { discoverMediaFromParams, TMDBDiscoverParams } from "./tmdb";
-import { MediaCardProps } from "@/components/ui/MediaCard";
+import { MediaCardProps } from "@/components/media/MediaCard";
 
 const ai = process.env.GEMINI_API_KEY
   ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })

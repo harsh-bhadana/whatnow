@@ -8,6 +8,7 @@ import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { fetchRecommendations } from "@/lib/api/tmdb";
+import { getAIRecommendations } from "@/lib/api/ai";
 import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
 import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/media/TouchGrassCard";
@@ -92,16 +93,33 @@ export default function Recommendations() {
 
     currentPage.current += 1;
 
-    let newResults = await fetchRecommendations(
-      availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, currentPage.current
-    );
+    let newResults: MediaCardProps[] = [];
+    try {
+      const aiRecs = await getAIRecommendations({
+        moods: selectedMoods,
+        availableTime,
+        mediaType,
+        watchHistory: watchHistory.map(w => ({ title: w.title, type: w.type as "movie" | "tv" | "anime", rating: w.userRating || w.rating })),
+        likedTitles: watchHistory.filter(item => selectedLikedMediaIds.includes(item.id)).map(item => item.title),
+        includeAdult: false
+      });
+      if (aiRecs && aiRecs.length > 0) newResults = aiRecs;
+    } catch (error) {
+      console.error(error);
+    }
 
-    // Fallback if we exceeded TMDB pages or got fully filtered by watch history
-    if (newResults.length === 0 && currentPage.current > 1) {
-      currentPage.current = 1;
+    if (newResults.length === 0) {
       newResults = await fetchRecommendations(
-        availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1
+        availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, currentPage.current
       );
+
+      // Fallback if we exceeded TMDB pages or got fully filtered by watch history
+      if (newResults.length === 0 && currentPage.current > 1) {
+        currentPage.current = 1;
+        newResults = await fetchRecommendations(
+          availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1
+        );
+      }
     }
 
     setResults(newResults);
@@ -191,7 +209,24 @@ export default function Recommendations() {
         .filter(item => selectedLikedMediaIds.includes(item.id))
         .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
 
-      const newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
+      let newResults: MediaCardProps[] = [];
+      try {
+        const aiRecs = await getAIRecommendations({
+          moods: selectedMoods,
+          availableTime,
+          mediaType,
+          watchHistory: watchHistory.map(w => ({ title: w.title, type: w.type as "movie" | "tv" | "anime", rating: w.userRating || w.rating })),
+          likedTitles: watchHistory.filter(item => selectedLikedMediaIds.includes(item.id)).map(item => item.title),
+          includeAdult: false
+        });
+        if (aiRecs && aiRecs.length > 0) newResults = aiRecs;
+      } catch (error) {
+        console.error(error);
+      }
+
+      if (newResults.length === 0) {
+        newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
+      }
 
       setResults(newResults);
       setCachedRecommendations(newResults);

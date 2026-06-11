@@ -172,7 +172,7 @@ export interface TMDBDiscoverParams {
 
 export async function discoverMediaFromParams(params: TMDBDiscoverParams, includeAdult: boolean = false): Promise<MediaCardProps[]> {
   if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") {
-    return MOCK_DATA.sort(() => Math.random() - 0.5).slice(0, 10);
+    return [];
   }
 
   try {
@@ -214,7 +214,7 @@ export async function discoverMediaFromParams(params: TMDBDiscoverParams, includ
         const data = await res.json();
         if (data.success === false) return [];
         return (data.results || []).map((item: any) => ({ ...item, media_type: type }));
-      } catch (e) {
+      } catch (_e) {
         return [];
       }
     };
