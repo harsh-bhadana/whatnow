@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
-import { MoodSelector } from "@/components/ui/MoodSelector";
-import { TimeSlider } from "@/components/ui/TimeSlider";
+import { RotateCcw } from "lucide-react";
+import { MoodSelector } from "@/components/filters/MoodSelector";
+import { TimeSlider } from "@/components/filters/TimeSlider";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { cn } from "@/lib/utils";
 
@@ -18,10 +19,11 @@ export default function Discover() {
   const { 
     availableTime, setAvailableTime, 
     selectedMoods, toggleMood, 
-    activeProfileId, 
+    userDataLoaded, 
     watchHistory,
     mediaType, setMediaType,
-    selectedLikedMediaIds, toggleLikedMedia
+    selectedLikedMediaIds, toggleLikedMedia,
+    resetSession
   } = useAppStore();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -31,13 +33,11 @@ export default function Discover() {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (isMounted && !activeProfileId) {
-      router.push("/");
-    }
-  }, [isMounted, activeProfileId, router]);
-
-  if (!isMounted) return null;
+  if (!isMounted || !userDataLoaded) return (
+    <div className="flex-1 bg-[var(--color-m3-background)] flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin" />
+    </div>
+  );
 
   const handleDiscover = () => {
     // Navigate to recommendations page with query params or rely on store
@@ -45,7 +45,7 @@ export default function Discover() {
   };
 
   return (
-    <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 w-full overflow-x-hidden">
+    <main className="relative flex-1 flex flex-col items-center px-4 py-8 sm:px-6 sm:py-12 w-full overflow-x-hidden">
       {/* Organic Background Blobs (Pixel UI Aesthetic) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div 
@@ -81,7 +81,7 @@ export default function Discover() {
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.2, 0, 0, 1] }}
-        className="relative z-10 w-full max-w-2xl flex flex-col justify-center max-h-full"
+        className="relative z-10 w-full max-w-2xl flex flex-col"
       >
         <div className="text-center mb-4 sm:mb-6 shrink-0">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold tracking-tight text-[var(--color-m3-on-background)] leading-tight">
@@ -92,7 +92,10 @@ export default function Discover() {
           </p>
         </div>
 
-        <div className="bg-[var(--color-m3-surface-container)] p-4 sm:p-6 rounded-[28px] sm:rounded-[40px] shadow-sm border border-[var(--color-m3-outline)]/5 flex flex-col gap-4 sm:gap-6 shrink">
+        <div 
+          className="bg-[var(--color-m3-surface-container)] p-4 sm:p-6 rounded-[28px] sm:rounded-[40px] shadow-sm border border-[var(--color-m3-outline)]/5 flex flex-col gap-4 sm:gap-6 shrink"
+          style={{ viewTransitionName: 'mood-container' }}
+        >
           <TimeSlider 
             value={availableTime} 
             onChange={setAvailableTime} 
@@ -158,18 +161,29 @@ export default function Discover() {
             </div>
           )}
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleDiscover}
-            className={cn(
-              "w-full py-3 sm:py-4 mt-1 sm:mt-2 rounded-[24px] sm:rounded-[32px] text-base sm:text-lg font-bold transition-all shadow-[var(--shadow-m3-elevation-1)] shrink-0",
-              "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
-              (selectedMoods.length === 0) && "opacity-90 grayscale-[20%]"
-            )}
-          >
-            {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
-          </motion.button>
+          <div className="flex gap-2 sm:gap-3 w-full mt-1 sm:mt-2 shrink-0">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleDiscover}
+              className={cn(
+                "flex-1 py-3 sm:py-4 rounded-[24px] sm:rounded-[32px] text-base sm:text-lg font-bold transition-all shadow-[var(--shadow-m3-elevation-1)] shrink-0",
+                "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
+                (selectedMoods.length === 0) && "opacity-90 grayscale-[20%]"
+              )}
+            >
+              {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={resetSession}
+              className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-center rounded-[24px] sm:rounded-[32px] transition-all bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] shadow-sm hover:bg-[var(--color-m3-error)] hover:text-[var(--color-m3-on-error)] shrink-0"
+              title="Reset all filters"
+            >
+              <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />
+            </motion.button>
+          </div>
         </div>
       </motion.div>
     </main>

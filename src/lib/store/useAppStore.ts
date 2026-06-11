@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { MediaCardProps } from "@/components/ui/MediaCard";
+import { MediaCardProps } from "@/components/media/MediaCard";
 
 export interface WatchHistoryItem extends MediaCardProps {
   watchedAt: number;
@@ -14,14 +14,13 @@ interface AppState {
   selectedMoods: string[];
   toggleMood: (mood: string) => void;
   
-  // Persistent Data
-  activeProfileId: string | null;
-  activeProfile: { name: string; color: string; includeAdult?: boolean } | null;
-  setActiveProfile: (id: string | null, profile?: { name: string; color: string; includeAdult?: boolean }) => void;
+  // Persistent Data (Now loaded from User collection)
+  userDataLoaded: boolean;
+  setUserDataLoaded: (loaded: boolean) => void;
   
   watchHistory: WatchHistoryItem[];
   setWatchHistory: (history: WatchHistoryItem[]) => void;
-  addToHistory: (item: WatchHistoryItem) => void;
+  rateMediaStore: (item: WatchHistoryItem) => void;
   removeFromHistory: (id: number) => void;
   
   watchlist: MediaCardProps[];
@@ -42,6 +41,11 @@ interface AppState {
   setMediaType: (type: "all" | "movie" | "tv" | "anime") => void;
   selectedLikedMediaIds: number[];
   toggleLikedMedia: (id: number) => void;
+  resetSession: () => void;
+
+  // Theming
+  activePalette: string;
+  setActivePalette: (palette: string) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -59,16 +63,21 @@ export const useAppStore = create<AppState>()(
             : [...state.selectedMoods, mood],
         })),
         
-      activeProfileId: null,
-      activeProfile: null,
-      setActiveProfile: (id, profile) => set({ activeProfileId: id, activeProfile: profile || null }),
+      userDataLoaded: false,
+      setUserDataLoaded: (loaded) => set({ userDataLoaded: loaded }),
       watchHistory: [],
       setWatchHistory: (history) => set({ watchHistory: history }),
-      addToHistory: (item) =>
+      rateMediaStore: (item) =>
         set((state) => {
           // Check if it already exists
-          const exists = state.watchHistory.find((h) => h.id === item.id);
-          if (exists) return state;
+          const existingIndex = state.watchHistory.findIndex((h) => h.id === item.id);
+          if (existingIndex !== -1) {
+            // Update existing rating
+            const newHistory = [...state.watchHistory];
+            newHistory[existingIndex] = { ...newHistory[existingIndex], userRating: item.userRating };
+            return { watchHistory: newHistory };
+          }
+          // Otherwise prepend new
           return { watchHistory: [item, ...state.watchHistory] };
         }),
       removeFromHistory: (id) =>
@@ -105,14 +114,24 @@ export const useAppStore = create<AppState>()(
             ? state.selectedLikedMediaIds.filter((mid) => mid !== id)
             : [...state.selectedLikedMediaIds, id],
         })),
+      resetSession: () => set({
+        availableTime: 120,
+        selectedMoods: [],
+        cachedRecommendations: [],
+        selectedMedia: null,
+        mediaType: "all",
+        selectedLikedMediaIds: [],
+      }),
+
+      activePalette: "default",
+      setActivePalette: (palette) => set({ activePalette: palette }),
     }),
     {
       name: "media-recommender-storage",
       partialize: (state) => ({
-        watchHistory: state.watchHistory,
-        watchlist: state.watchlist,
-        activeProfileId: state.activeProfileId,
-        activeProfile: state.activeProfile,
+        // We only persist session inputs. Watch history and watchlist are fetched from the server.
+        availableTime: state.availableTime,
+        selectedMoods: state.selectedMoods,
       }),
     }
   )

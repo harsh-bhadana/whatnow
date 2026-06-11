@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
-import { MediaCardProps } from "@/components/ui/MediaCard";
+import { MediaCardProps } from "@/components/media/MediaCard";
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
@@ -21,31 +21,18 @@ const MOOD_TO_TMDB_GENRE: Record<string, number[]> = {
   "Nostalgic": [10751, 35] // Family, Comedy
 };
 
-const MOCK_DATA: MediaCardProps[] = [
-  { id: 1, title: "Inception", rating: 8.8, imageUrl: "https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg", type: "movie", shape: "default" },
-  { id: 2, title: "Stranger Things", rating: 8.6, imageUrl: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8OSqEpIG0.jpg", type: "tv", shape: "pill" },
-  { id: 3, title: "The Matrix", rating: 8.7, imageUrl: "https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg", type: "movie", shape: "asymmetric" },
-  { id: 4, title: "Interstellar", rating: 8.6, imageUrl: "https://image.tmdb.org/t/p/w500/gEU2QlsEOWpNATscjpbCUf3aX9C.jpg", type: "movie", shape: "default" },
-  { id: 5, title: "Breaking Bad", rating: 9.5, imageUrl: "https://image.tmdb.org/t/p/w500/ggFHVNu6YYI5L9pCfOacjizwpB2.jpg", type: "tv", shape: "asymmetric" },
-  { id: 6, title: "The Dark Knight", rating: 9.0, imageUrl: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg", type: "movie", shape: "pill" },
-  { id: 7, title: "Pulp Fiction", rating: 8.9, imageUrl: "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg", type: "movie", shape: "default" },
-  { id: 8, title: "The Office", rating: 8.9, imageUrl: "https://image.tmdb.org/t/p/w500/qWnJzyZwidYfSEgjnZ5s81nSNyC.jpg", type: "tv", shape: "pill" },
-];
-
 export async function fetchRecommendations(
   timeLimit: number, 
   moods: string[], 
   watchedHistoryIds: number[] = [],
   mediaType: "all" | "movie" | "tv" | "anime" = "all",
   likedMediaIds: { id: number, type: "movie" | "tv" }[] = [],
-  includeAdult: boolean = false
+  includeAdult: boolean = false,
+  page: number = 1
 ): Promise<MediaCardProps[]> {
   
   if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") {
-    return MOCK_DATA
-      .filter(item => !watchedHistoryIds.includes(item.id))
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 10);
+    return [];
   }
 
   try {
@@ -55,13 +42,11 @@ export async function fetchRecommendations(
     // LIKED MEDIA FETCHES
     if (likedMediaIds.length > 0) {
       const fetchPromises = likedMediaIds.map(async (media) => {
-        const res = await fetch(`${BASE_URL}/${media.type}/${media.id}/recommendations?api_key=${TMDB_API_KEY}&language=en-US&page=1`);
+        const res = await fetch(`${BASE_URL}/${media.type}/${media.id}/recommendations?api_key=${TMDB_API_KEY}&language=en-US&page=${page}`);
         const data = await res.json();
         if (data.success === false) {
            console.error(`TMDB API Error (Liked Media ${media.id}):`, data.status_message);
-           return MOCK_DATA
-             .filter(item => !watchedHistoryIds.includes(item.id))
-             .map(item => ({ ...item, media_type: item.type, isBasedOnLikes: true }));
+           return [];
         }
         return (data.results || []).map((item: any) => ({ ...item, media_type: media.type, isBasedOnLikes: true }));
       });
@@ -77,7 +62,7 @@ export async function fetchRecommendations(
       
       const genreParam = Array.from(genreIds).join('|');
       // Advanced Filters applied to Discover queries
-      const commonParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.5&vote_count.gte=100${genreParam ? `&with_genres=${genreParam}` : ''}&sort_by=popularity.desc`;
+      const commonParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&page=${page}&vote_average.gte=6.5&vote_count.gte=100${genreParam ? `&with_genres=${genreParam}` : ''}&sort_by=popularity.desc`;
 
       const handleFetch = async (url: string, type: string) => {
         try {
@@ -85,11 +70,7 @@ export async function fetchRecommendations(
           const data = await res.json();
           if (data.success === false) {
             console.error(`TMDB API Error (${type}):`, data.status_message);
-            // Fallback to mock data if API key is invalid or request fails
-            return MOCK_DATA
-              .filter(item => item.type === type || type === "all")
-              .filter(item => !watchedHistoryIds.includes(item.id))
-              .map(item => ({ ...item, media_type: item.type }));
+            return [];
           }
           return (data.results || []).map((item: any) => ({ ...item, media_type: type }));
         } catch (e) {
@@ -105,7 +86,7 @@ export async function fetchRecommendations(
         allPromises.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}${commonParams}`, "tv"));
       }
       if (mediaType === "anime") {
-        allPromises.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.5&vote_count.gte=50&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "tv"));
+        allPromises.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}&page=${page}&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.5&vote_count.gte=50&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "tv"));
       }
     }
 
@@ -154,7 +135,7 @@ export async function fetchMediaDetails(id: number, type: "movie" | "tv" = "movi
 
 export async function searchMedia(query: string, includeAdult: boolean = false): Promise<MediaCardProps[]> {
   if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") {
-    return MOCK_DATA.filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
+    return [];
   }
 
   try {

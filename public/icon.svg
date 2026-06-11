@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#db2777" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bg)" />
+  
+  <!-- Question Mark Top Part -->
+  <path d="M180,200 C180,130 332,130 332,200 C332,250 256,260 256,310" fill="none" stroke="white" stroke-width="48" stroke-linecap="round" />
+  
+  <!-- Play Button (Dot of Question Mark) -->
+  <!-- Centered around x=256, y=390 -->
+  <path d="M236,358 L292,390 L236,422 Z" fill="white" />
+</svg>
