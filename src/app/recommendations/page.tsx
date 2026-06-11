@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
-import { getAIRecommendations, resolveWithTMDB } from "@/lib/api/ai";
+import { getAIRecommendations } from "@/lib/api/ai";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
 
@@ -68,7 +68,7 @@ export default function Recommendations() {
         });
 
         if (aiRecs && aiRecs.length > 0) {
-          finalResults = await resolveWithTMDB(aiRecs, activeProfile?.includeAdult || false);
+          finalResults = aiRecs;
         }
       } catch (error) {
         console.error("Error with AI recommendations:", error);
