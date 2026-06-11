@@ -13,9 +13,9 @@ function loadTracker() {
         return JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf-8'));
     }
     return {
-        currentDate: new Date('2026-05-13T10:00:00Z').getTime(),
+        currentDate: new Date('2026-06-11T10:00:00Z').getTime(),
         commitsToday: 0,
-        targetCommitsToday: getRandomInt(4, 7),
+        targetCommitsToday: getRandomInt(3, 9),
         daysPassed: 0,
         log: {}
     };
@@ -38,7 +38,7 @@ function getNextDate(tracker) {
         
         tracker.currentDate += daysToAdvance * 24 * 60 * 60 * 1000;
         tracker.commitsToday = 1;
-        tracker.targetCommitsToday = getRandomInt(4, 7);
+        tracker.targetCommitsToday = getRandomInt(3, 9);
     }
     
     const d = new Date(tracker.currentDate);
