@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
@@ -22,8 +22,12 @@ export default function Recommendations() {
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [isInitialLoad] = useState(cachedRecommendations.length === 0);
-  const [page, setPage] = useState(1);
+  
+  // Calculate initial page based on how many items we already fetched (assuming 12 items per page)
+  const initialPage = Math.max(1, Math.ceil(cachedRecommendations.length / 12));
+  const [page, setPage] = useState(initialPage);
+  
+  const hasRestoredCache = useRef(false);
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -41,11 +45,15 @@ export default function Recommendations() {
     }
 
     async function loadData() {
-      if (page === 1 && cachedRecommendations.length > 0) {
+      // If we already have the cache for this page, just use it on initial mount
+      if (!hasRestoredCache.current && cachedRecommendations.length > 0) {
+        hasRestoredCache.current = true;
         setResults(cachedRecommendations);
         setLoading(false);
         return;
       }
+      
+      hasRestoredCache.current = true;
 
       if (page === 1) setLoading(true);
       else setLoadingMore(true);
@@ -68,7 +76,10 @@ export default function Recommendations() {
           combined.forEach(item => {
             if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
           });
-          return Array.from(uniqueMap.values());
+          const newArray = Array.from(uniqueMap.values());
+          // Cache the accumulated results so they are available when returning from detail page
+          setCachedRecommendations(newArray);
+          return newArray;
         });
       }
       
