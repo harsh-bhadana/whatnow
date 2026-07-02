@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import React from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
@@ -11,6 +12,8 @@ import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/ui/TouchGrassCard";
 import { MasonryGrid } from "@/components/ui/MasonryGrid";
 import { Loader2 } from "lucide-react";
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : useEffect;
 
 export default function Recommendations() {
   const router = useRouter();
@@ -31,9 +34,24 @@ export default function Recommendations() {
 
   const [isMounted, setIsMounted] = useState(false);
 
+  // Synchronously restore scroll position before paint so View Transition API captures the right DOM offset
+  useIsomorphicLayoutEffect(() => {
+    const savedScroll = sessionStorage.getItem('whatnow_scroll_y');
+    if (savedScroll) {
+      window.scrollTo(0, parseInt(savedScroll, 10));
+    }
+  }, []);
+
   useEffect(() => {
     // eslint-disable-next-line
     setIsMounted(true);
+    
+    // Save scroll position for back navigation
+    const handleScroll = () => {
+      sessionStorage.setItem('whatnow_scroll_y', window.scrollY.toString());
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
