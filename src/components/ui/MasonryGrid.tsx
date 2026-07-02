@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useLayoutEffect, useState, useMemo } from "react";
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 interface MasonryGridProps {
   children: React.ReactNode;
@@ -8,10 +10,29 @@ interface MasonryGridProps {
   defaultCols?: number;
 }
 
+let hasHydrated = false;
+
 export function MasonryGrid({ children, breakpoints, defaultCols = 2 }: MasonryGridProps) {
-  const [cols, setCols] = useState(defaultCols);
+  const [cols, setCols] = useState(() => {
+    if (typeof window !== "undefined" && hasHydrated) {
+      let newCols = defaultCols;
+      const sortedKeys = Object.keys(breakpoints).map(Number).sort((a, b) => b - a);
+      for (const bp of sortedKeys) {
+        if (window.innerWidth >= bp) {
+          newCols = breakpoints[bp];
+          break;
+        }
+      }
+      return newCols;
+    }
+    return defaultCols;
+  });
 
   useEffect(() => {
+    hasHydrated = true;
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
     const updateCols = () => {
       let newCols = defaultCols;
       // Sort breakpoints descending
@@ -41,7 +62,7 @@ export function MasonryGrid({ children, breakpoints, defaultCols = 2 }: MasonryG
       const flat: React.ReactNode[] = [];
       React.Children.forEach(nodes, (child) => {
         if (React.isValidElement(child) && child.type === React.Fragment) {
-          flat.push(...flattenChildren((child.props as any).children));
+          flat.push(...flattenChildren((child as React.ReactElement).props.children));
         } else if (child) {
           flat.push(child);
         }

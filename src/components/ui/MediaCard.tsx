@@ -69,7 +69,6 @@ export function MediaCard({
             src={imageUrl}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-800 text-zinc-500">
