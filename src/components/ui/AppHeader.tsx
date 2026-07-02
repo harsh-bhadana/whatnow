@@ -21,6 +21,7 @@ export function AppHeader({ session, children }: { session: any, children: React
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     
     // Close menu when clicking outside
@@ -139,7 +140,7 @@ export function AppHeader({ session, children }: { session: any, children: React
                 className="flex items-center gap-2 border-l border-[var(--color-m3-outline)]/20 pl-2 sm:pl-4 ml-1 sm:ml-2 focus:outline-none rounded-full transition-transform hover:scale-105"
               >
                 {session.user.image ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
+                   
                   <motion.img layoutId="profile-avatar" src={session.user.image} alt={session.user.name || "User"} className="w-8 h-8 rounded-full border border-[var(--color-m3-outline)]/20 object-cover" />
                 ) : (
                   <motion.div layoutId="profile-avatar" className="w-8 h-8 rounded-full bg-[var(--color-m3-primary)] flex items-center justify-center text-[var(--color-m3-on-primary)] text-xs font-bold uppercase">
@@ -221,7 +222,7 @@ export function AppHeader({ session, children }: { session: any, children: React
                           {/* User info with shared-element profile image */}
                           <div className="px-5 py-5 border-b border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface-container-high)] shrink-0 flex items-center gap-4">
                             {session.user.image ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
+                               
                               <motion.img layoutId="profile-avatar" src={session.user.image} alt={session.user.name || "User"} className="w-14 h-14 rounded-full border-2 border-[var(--color-m3-outline)]/20 object-cover shrink-0 shadow-md" />
                             ) : (
                               <motion.div layoutId="profile-avatar" className="w-14 h-14 rounded-full bg-[var(--color-m3-primary)] flex items-center justify-center text-[var(--color-m3-on-primary)] text-xl font-bold uppercase shrink-0 shadow-md">
@@ -298,6 +299,7 @@ export function AppHeader({ session, children }: { session: any, children: React
           <>
             {/* Backdrop */}
             <motion.div 
+              key="mobile-search-backdrop"
               className="fixed inset-0 top-[64px] bg-black/40 backdrop-blur-sm sm:hidden z-[-1]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -311,6 +313,7 @@ export function AppHeader({ session, children }: { session: any, children: React
             
             {/* Search Bar Dropdown */}
             <motion.div
+              key="mobile-search-bar"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}

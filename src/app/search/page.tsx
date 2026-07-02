@@ -24,6 +24,7 @@ export default function SearchPage({ searchParams }: PageProps) {
   const [, startTransition] = useTransition();
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInputValue(query);
   }, [query]);
 
