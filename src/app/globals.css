@@ -49,3 +49,28 @@
     color: var(--color-m3-on-background);
   }
 }
+
+/* Custom modern scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-m3-surface-variant);
+  border-radius: var(--radius-m3-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-m3-outline);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-m3-surface-variant) transparent;
+}
