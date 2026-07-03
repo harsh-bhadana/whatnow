@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import React from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, RefreshCw } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
@@ -27,6 +27,10 @@ export default function Recommendations() {
   
   const hasRestoredCache = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
+  
+  const [pullProgress, setPullProgress] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const blockRef = useRef<HTMLDivElement>(null);
 
   useIsomorphicLayoutEffect(() => {
     if (typeof window !== 'undefined') {
@@ -38,16 +42,60 @@ export default function Recommendations() {
     }
   }, []);
 
+  const handleResuggest = async () => {
+    setLoading(true);
+    const watchedIds = watchHistory.map(item => item.id);
+    const likedMediaData = watchHistory
+      .filter(item => selectedLikedMediaIds.includes(item.id))
+      .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
+
+    // Randomize page between 2 and 5 for a fresh batch
+    const randomPage = Math.floor(Math.random() * 4) + 2;
+
+    const newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, randomPage);
+
+    setResults(newResults);
+    setCachedRecommendations(newResults);
+    
+    setLoading(false);
+    setIsRefreshing(false);
+    setPullProgress(0);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   useEffect(() => {
     // eslint-disable-next-line
     setIsMounted(true);
     
     const handleScroll = () => {
       sessionStorage.setItem('whatnow_scroll_y', window.scrollY.toString());
+
+      if (!blockRef.current || isRefreshing || loading) return;
+
+      const rect = blockRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Calculate how far the top of the block is from the bottom of the viewport
+      // If rect.top <= windowHeight, it means it has entered the viewport.
+      if (rect.top <= windowHeight) {
+        const scrolledPast = windowHeight - rect.top;
+        const progress = Math.min(Math.max(scrolledPast / 150, 0), 1);
+        setPullProgress(progress);
+
+        if (progress >= 1 && !isRefreshing) {
+          setIsRefreshing(true);
+          handleResuggest();
+        }
+      } else {
+        setPullProgress(0);
+      }
     };
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRefreshing, loading]);
 
   useEffect(() => {
     if (!isMounted || !userDataLoaded) return;
@@ -178,6 +226,42 @@ export default function Recommendations() {
           </>
         )}
       </MasonryGrid>
+
+      {/* Pull-to-Resuggest Block */}
+      {!loading && results.length > 0 && (
+        <div className="w-full mt-12 pb-[25vh]">
+          <div 
+            ref={blockRef}
+            onClick={() => {
+              if (!isRefreshing) {
+                setIsRefreshing(true);
+                handleResuggest();
+              }
+            }}
+            className="w-full max-w-md mx-auto relative h-20 rounded-3xl border border-[var(--color-m3-outline-variant)] overflow-hidden cursor-pointer flex items-center justify-center transition-all bg-[var(--color-m3-surface-container)] group shadow-sm hover:shadow-md"
+          >
+            {/* The fill indicator */}
+            <div 
+              className="absolute top-0 left-0 h-full bg-[var(--color-m3-primary)] transition-all duration-75 ease-out origin-left opacity-20"
+              style={{ width: `${pullProgress * 100}%` }}
+            />
+            
+            <div className="relative z-10 flex flex-col items-center gap-1">
+              <RefreshCw 
+                className={`w-5 h-5 transition-all duration-300
+                  ${isRefreshing ? 'animate-spin text-[var(--color-m3-primary)]' : ''}
+                  ${pullProgress > 0 && !isRefreshing ? 'rotate-180 text-[var(--color-m3-primary)]' : 'text-[var(--color-m3-on-surface-variant)]'}
+                  group-hover:text-[var(--color-m3-primary)]
+                `}
+                style={{ transform: !isRefreshing ? `rotate(${pullProgress * 180}deg)` : undefined }}
+              />
+              <span className={`text-xs font-bold uppercase tracking-wider transition-colors ${pullProgress > 0 ? 'text-[var(--color-m3-primary)]' : 'text-[var(--color-m3-on-surface-variant)]'}`}>
+                {isRefreshing ? 'Refetching...' : 'Pull down to resuggest'}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {!loading && results.length === 0 && (
         <div className="flex-1 flex flex-col items-center justify-center text-[var(--color-m3-outline)] space-y-4">
