@@ -49,10 +49,19 @@ export default function Recommendations() {
       .filter(item => selectedLikedMediaIds.includes(item.id))
       .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
 
-    // Randomize page between 2 and 5 for a fresh batch
-    const randomPage = Math.floor(Math.random() * 4) + 2;
+    // Randomize sorting to ensure fresh results on page 1 without hitting empty pages
+    const sortOptions = [
+      "popularity.desc",
+      "vote_average.desc",
+      "revenue.desc",
+      "primary_release_date.desc",
+      "vote_count.desc"
+    ];
+    const randomSort = sortOptions[Math.floor(Math.random() * sortOptions.length)];
 
-    const newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, randomPage);
+    const newResults = await fetchRecommendations(
+      availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1, randomSort
+    );
 
     setResults(newResults);
     setCachedRecommendations(newResults);
@@ -227,38 +236,39 @@ export default function Recommendations() {
         )}
       </MasonryGrid>
 
-      {/* Pull-to-Resuggest Block */}
+      {/* Pull-to-Resuggest Scroll Tracker (Invisible) */}
       {!loading && results.length > 0 && (
-        <div className="w-full mt-12 pb-[25vh]">
+        <div ref={blockRef} className="w-full h-1 mt-12 pb-[25vh] opacity-0" />
+      )}
+
+      {/* Pull-to-Resuggest UI (Fixed at bottom) */}
+      {!loading && results.length > 0 && (
+        <div 
+          onClick={() => {
+            if (!isRefreshing) {
+              setIsRefreshing(true);
+              handleResuggest();
+            }
+          }}
+          className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-sm h-16 rounded-full border border-[var(--color-m3-outline-variant)] overflow-hidden cursor-pointer flex items-center justify-center transition-all duration-300 bg-[var(--color-m3-surface-container-high)] shadow-lg hover:shadow-xl z-50 ${pullProgress > 0 || isRefreshing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}
+        >
+          {/* The fill indicator */}
           <div 
-            ref={blockRef}
-            onClick={() => {
-              if (!isRefreshing) {
-                setIsRefreshing(true);
-                handleResuggest();
-              }
-            }}
-            className="w-full max-w-md mx-auto relative h-20 rounded-3xl border border-[var(--color-m3-outline-variant)] overflow-hidden cursor-pointer flex items-center justify-center transition-all bg-[var(--color-m3-surface-container)] group shadow-sm hover:shadow-md"
-          >
-            {/* The fill indicator */}
-            <div 
-              className="absolute top-0 left-0 h-full bg-[var(--color-m3-primary)] transition-all duration-75 ease-out origin-left opacity-20"
-              style={{ width: `${pullProgress * 100}%` }}
+            className="absolute top-0 left-0 h-full bg-[var(--color-m3-primary)] transition-all duration-75 ease-out origin-left opacity-20"
+            style={{ width: `${Math.max(pullProgress * 100, isRefreshing ? 100 : 0)}%` }}
+          />
+          
+          <div className="relative z-10 flex flex-row items-center gap-3 px-6">
+            <RefreshCw 
+              className={`w-5 h-5 transition-all duration-300
+                ${isRefreshing ? 'animate-spin text-[var(--color-m3-primary)]' : ''}
+                ${pullProgress > 0 && !isRefreshing ? 'rotate-180 text-[var(--color-m3-primary)]' : 'text-[var(--color-m3-on-surface-variant)]'}
+              `}
+              style={{ transform: !isRefreshing ? `rotate(${pullProgress * 180}deg)` : undefined }}
             />
-            
-            <div className="relative z-10 flex flex-col items-center gap-1">
-              <RefreshCw 
-                className={`w-5 h-5 transition-all duration-300
-                  ${isRefreshing ? 'animate-spin text-[var(--color-m3-primary)]' : ''}
-                  ${pullProgress > 0 && !isRefreshing ? 'rotate-180 text-[var(--color-m3-primary)]' : 'text-[var(--color-m3-on-surface-variant)]'}
-                  group-hover:text-[var(--color-m3-primary)]
-                `}
-                style={{ transform: !isRefreshing ? `rotate(${pullProgress * 180}deg)` : undefined }}
-              />
-              <span className={`text-xs font-bold uppercase tracking-wider transition-colors ${pullProgress > 0 ? 'text-[var(--color-m3-primary)]' : 'text-[var(--color-m3-on-surface-variant)]'}`}>
-                {isRefreshing ? 'Refetching...' : 'Pull down to resuggest'}
-              </span>
-            </div>
+            <span className={`text-sm font-bold uppercase tracking-wider transition-colors ${pullProgress > 0 ? 'text-[var(--color-m3-primary)]' : 'text-[var(--color-m3-on-surface-variant)]'}`}>
+              {isRefreshing ? 'Refetching...' : 'Pull to resuggest'}
+            </span>
           </div>
         </div>
       )}
