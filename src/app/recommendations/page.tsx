@@ -11,7 +11,7 @@ import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/ui/TouchGrassCard";
 import { MasonryGrid } from "@/components/ui/MasonryGrid";
-import { Loader2 } from "lucide-react";
+
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : useEffect;
 
@@ -24,18 +24,14 @@ export default function Recommendations() {
   } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
-  const [loadingMore, setLoadingMore] = useState(false);
-  
-  // Calculate initial page based on how many items we already fetched (assuming 12 items per page)
-  const initialPage = Math.max(1, Math.ceil(cachedRecommendations.length / 12));
-  const [page, setPage] = useState(initialPage);
   
   const hasRestoredCache = useRef(false);
-
   const [isMounted, setIsMounted] = useState(false);
 
-  // Synchronously restore scroll position before paint so View Transition API captures the right DOM offset
   useIsomorphicLayoutEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.history.scrollRestoration = 'manual';
+    }
     const savedScroll = sessionStorage.getItem('whatnow_scroll_y');
     if (savedScroll) {
       window.scrollTo(0, parseInt(savedScroll, 10));
@@ -46,7 +42,6 @@ export default function Recommendations() {
     // eslint-disable-next-line
     setIsMounted(true);
     
-    // Save scroll position for back navigation
     const handleScroll = () => {
       sessionStorage.setItem('whatnow_scroll_y', window.scrollY.toString());
     };
@@ -72,42 +67,23 @@ export default function Recommendations() {
       }
       
       hasRestoredCache.current = true;
-
-      if (page === 1) setLoading(true);
-      else setLoadingMore(true);
+      setLoading(true);
 
       const watchedIds = watchHistory.map(item => item.id);
       const likedMediaData = watchHistory
         .filter(item => selectedLikedMediaIds.includes(item.id))
         .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
 
-      const newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, page);
+      const newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
 
-      if (page === 1) {
-        setResults(newResults);
-        setCachedRecommendations(newResults);
-      } else {
-        // Append and deduplicate
-        setResults(prev => {
-          const combined = [...prev, ...newResults];
-          const uniqueMap = new Map();
-          combined.forEach(item => {
-            if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item);
-          });
-          const newArray = Array.from(uniqueMap.values());
-          // Cache the accumulated results so they are available when returning from detail page
-          setCachedRecommendations(newArray);
-          return newArray;
-        });
-      }
-      
+      setResults(newResults);
+      setCachedRecommendations(newResults);
       setLoading(false);
-      setLoadingMore(false);
     }
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTime, selectedMoods, router, watchHistory, userDataLoaded, isMounted, mediaType, selectedLikedMediaIds, page]);
+  }, [availableTime, selectedMoods, router, watchHistory, userDataLoaded, isMounted, mediaType, selectedLikedMediaIds]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
@@ -202,33 +178,15 @@ export default function Recommendations() {
           </>
         )}
       </MasonryGrid>
-            <div 
-              className="w-full flex items-center justify-center p-8 break-inside-avoid"
-              ref={(el) => {
-                if (!el) return;
-                const observer = new IntersectionObserver(
-                  (entries) => {
-                    if (entries[0].isIntersecting && !loadingMore && !loading) {
-                      setPage(p => p + 1);
-                    }
-                  },
-                  { threshold: 0.1 }
-                );
-                observer.observe(el);
-                return () => observer.disconnect();
-              }}
-            >
-              {loadingMore && <Loader2 className="w-8 h-8 animate-spin text-[var(--color-m3-primary)]" />}
-            </div>
 
       {!loading && results.length === 0 && (
         <div className="flex-1 flex flex-col items-center justify-center text-[var(--color-m3-outline)] space-y-4">
-          <p className="text-lg">No matches found for your exact criteria.</p>
+          <p className="text-lg font-medium">No matches found for your current moods.</p>
           <button 
             onClick={() => router.push("/discover")}
-            className="text-[var(--color-m3-primary)] font-bold hover:underline"
+            className="px-6 py-2 rounded-full bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-primary)] hover:text-[var(--color-m3-on-primary)] transition-colors font-bold text-sm"
           >
-            Try different moods or more time
+            Change Mood
           </button>
         </div>
       )}
