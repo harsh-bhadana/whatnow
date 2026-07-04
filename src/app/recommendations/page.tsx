@@ -31,6 +31,7 @@ export default function Recommendations() {
   const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const blockRef = useRef<HTMLDivElement>(null);
+  const currentPage = useRef(1);
 
   useIsomorphicLayoutEffect(() => {
     if (typeof window !== 'undefined') {
@@ -49,19 +50,19 @@ export default function Recommendations() {
       .filter(item => selectedLikedMediaIds.includes(item.id))
       .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
 
-    // Randomize sorting to ensure fresh results on page 1 without hitting empty pages
-    const sortOptions = [
-      "popularity.desc",
-      "vote_average.desc",
-      "revenue.desc",
-      "primary_release_date.desc",
-      "vote_count.desc"
-    ];
-    const randomSort = sortOptions[Math.floor(Math.random() * sortOptions.length)];
+    currentPage.current += 1;
 
-    const newResults = await fetchRecommendations(
-      availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1, randomSort
+    let newResults = await fetchRecommendations(
+      availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, currentPage.current
     );
+
+    // Fallback if we exceeded TMDB pages or got fully filtered by watch history
+    if (newResults.length === 0 && currentPage.current > 1) {
+      currentPage.current = 1;
+      newResults = await fetchRecommendations(
+        availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1
+      );
+    }
 
     setResults(newResults);
     setCachedRecommendations(newResults);
