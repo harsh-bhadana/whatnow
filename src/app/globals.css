@@ -50,10 +50,9 @@
   }
 }
 
-/* Custom modern scrollbar */
+/* Custom modern scrollbar - Sideways Teardrop */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -61,16 +60,22 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-m3-surface-variant);
-  border-radius: var(--radius-m3-full);
+  /* Inactive: almost hidden to the side (thin line on the right) */
+  background-color: var(--color-m3-outline);
+  border-left: 7px solid transparent;
+  background-clip: padding-box;
+  border-radius: 10px 0 0 10px; /* Rounded left, flat right */
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-m3-outline);
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  /* Active: expands to a bold bright primary color */
+  background-color: var(--color-m3-primary);
+  border-left: 2px solid transparent;
 }
 
-/* For Firefox */
+/* For Firefox (limited styling, fallback) */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-m3-surface-variant) transparent;
+  scrollbar-color: var(--color-m3-outline) transparent;
 }
