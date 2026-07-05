@@ -92,12 +92,22 @@ export default function Recommendations() {
 
       if (isRefreshing || loading) return;
 
-      // Trigger exactly at the bottom (using Math.ceil to handle fractional pixels)
-      const isAtBottom = Math.ceil(container.scrollTop + container.clientHeight) >= container.scrollHeight;
-      
-      if (isAtBottom) {
-        setIsRefreshing(true);
-        handleResuggest();
+      if (blockRef.current) {
+        const rect = blockRef.current.getBoundingClientRect();
+        const visiblePixels = window.innerHeight - rect.top;
+
+        if (visiblePixels > 0) {
+          // Require pulling 120px to trigger the resuggest
+          const progress = Math.min(visiblePixels / 120, 1);
+          setPullProgress(progress);
+
+          if (progress >= 1 && !isRefreshing && !loading) {
+            setIsRefreshing(true);
+            handleResuggest();
+          }
+        } else {
+          setPullProgress(prev => (prev > 0 ? 0 : prev));
+        }
       }
     };
     
