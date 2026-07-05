@@ -90,13 +90,12 @@ export default function Recommendations() {
       
       sessionStorage.setItem('whatnow_scroll_y', container.scrollTop.toString());
 
-      if (!blockRef.current || isRefreshing || loading) return;
+      if (isRefreshing || loading) return;
 
-      const rect = blockRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+      // Trigger exactly at the bottom (using Math.ceil to handle fractional pixels)
+      const isAtBottom = Math.ceil(container.scrollTop + container.clientHeight) >= container.scrollHeight;
       
-      // Trigger when the tracker enters the viewport (i.e. scroll ends)
-      if (rect.top <= windowHeight + 50) {
+      if (isAtBottom) {
         setIsRefreshing(true);
         handleResuggest();
       }
@@ -240,10 +239,7 @@ export default function Recommendations() {
         )}
       </MasonryGrid>
 
-      {/* Auto-Resuggest Scroll Tracker (Zero Height) */}
-      {!loading && results.length > 0 && (
-        <div ref={blockRef} className="w-full h-px opacity-0 pointer-events-none mt-4" />
-      )}
+      {/* Scroll tracker removed in favor of native scroll detection */}
       
       {/* Overlay Loader for Refetching */}
       {isRefreshing && (
