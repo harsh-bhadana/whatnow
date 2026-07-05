@@ -39,7 +39,10 @@ export default function Recommendations() {
     }
     const savedScroll = sessionStorage.getItem('whatnow_scroll_y');
     if (savedScroll) {
-      window.scrollTo(0, parseInt(savedScroll, 10));
+      const container = document.getElementById('main-scroll-container');
+      if (container) {
+        container.scrollTo(0, parseInt(savedScroll, 10));
+      }
     }
   }, []);
 
@@ -71,7 +74,10 @@ export default function Recommendations() {
     setIsRefreshing(false);
     setPullProgress(0);
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const container = document.getElementById('main-scroll-container');
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {
@@ -79,7 +85,10 @@ export default function Recommendations() {
     setIsMounted(true);
     
     const handleScroll = () => {
-      sessionStorage.setItem('whatnow_scroll_y', window.scrollY.toString());
+      const container = document.getElementById('main-scroll-container');
+      if (!container) return;
+      
+      sessionStorage.setItem('whatnow_scroll_y', container.scrollTop.toString());
 
       if (!blockRef.current || isRefreshing || loading) return;
 
@@ -93,8 +102,11 @@ export default function Recommendations() {
       }
     };
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const container = document.getElementById('main-scroll-container');
+    if (container) {
+      container.addEventListener('scroll', handleScroll, { passive: true });
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRefreshing, loading]);
 
@@ -228,15 +240,16 @@ export default function Recommendations() {
         )}
       </MasonryGrid>
 
-      {/* Auto-Resuggest Scroll Tracker */}
+      {/* Auto-Resuggest Scroll Tracker (Zero Height) */}
       {!loading && results.length > 0 && (
-        <div ref={blockRef} className="w-full h-16 mt-8 mb-8 flex items-center justify-center">
-          {isRefreshing && (
-            <div className="flex items-center gap-3 text-[var(--color-m3-primary)] font-bold uppercase text-sm tracking-wider">
-              <RefreshCw className="w-5 h-5 animate-spin" />
-              <span>Refetching...</span>
-            </div>
-          )}
+        <div ref={blockRef} className="w-full h-px opacity-0 pointer-events-none mt-4" />
+      )}
+      
+      {/* Overlay Loader for Refetching */}
+      {isRefreshing && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[var(--color-m3-surface-container-high)] text-[var(--color-m3-primary)] font-bold uppercase text-sm tracking-wider px-6 py-4 rounded-full shadow-lg border border-[var(--color-m3-outline-variant)] z-50">
+          <RefreshCw className="w-5 h-5 animate-spin" />
+          <span>Refetching...</span>
         </div>
       )}
 

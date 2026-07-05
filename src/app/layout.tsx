@@ -40,7 +40,7 @@ export default async function RootLayout({
         lang="en"
         className={`${roboto.variable} ${plusJakarta.variable} min-h-screen antialiased`}
       >
-        <body className="min-h-screen flex flex-col font-sans">
+        <body className="h-[100dvh] overflow-hidden flex flex-col font-sans">
           {session && (
             <>
               <StoreInitializer />
@@ -63,7 +63,9 @@ export default async function RootLayout({
               </AppHeader>
             </>
           )}
-          {children}
+          <div id="main-scroll-container" className="flex-1 overflow-y-auto w-full relative">
+            {children}
+          </div>
           <Script
             id="register-sw"
             strategy="afterInteractive"

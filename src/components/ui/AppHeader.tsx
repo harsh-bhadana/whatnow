@@ -59,10 +59,14 @@ export function AppHeader({ session, children }: { session: any, children: React
     let bgResetTimer: ReturnType<typeof setTimeout>;
     if (isMenuOpen && isMobile) {
       document.body.style.overflow = "hidden";
+      const scrollContainer = document.getElementById("main-scroll-container");
+      if (scrollContainer) scrollContainer.style.overflow = "hidden";
       document.documentElement.style.backgroundColor = "black";
       document.body.style.backgroundColor = "black";
     } else {
       document.body.style.overflow = "";
+      const scrollContainer = document.getElementById("main-scroll-container");
+      if (scrollContainer) scrollContainer.style.overflow = "";
       // Delay background reset so it stays black while blur/scale animates out
       bgResetTimer = setTimeout(() => {
         document.documentElement.style.backgroundColor = "";
@@ -89,6 +93,8 @@ export function AppHeader({ session, children }: { session: any, children: React
     return () => {
       clearTimeout(bgResetTimer);
       document.body.style.overflow = "";
+      const scrollContainer = document.getElementById("main-scroll-container");
+      if (scrollContainer) scrollContainer.style.overflow = "";
       document.documentElement.style.backgroundColor = "";
       document.body.style.backgroundColor = "";
       if (headerRef.current) {
