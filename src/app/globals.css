@@ -74,10 +74,10 @@
   background-color: var(--color-m3-primary, #6750A4);
   background-image: repeating-linear-gradient(
     -45deg,
-    rgba(255, 255, 255, 0.3) 0,
-    rgba(255, 255, 255, 0.3) 6px,
-    transparent 6px,
-    transparent 12px
+    var(--color-m3-on-primary, #FFFFFF) 0,
+    var(--color-m3-on-primary, #FFFFFF) 4px,
+    transparent 4px,
+    transparent 8px
   );
   border: 1px solid transparent;
   background-clip: padding-box;

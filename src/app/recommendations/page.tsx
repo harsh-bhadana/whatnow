@@ -86,19 +86,10 @@ export default function Recommendations() {
       const rect = blockRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       
-      // Calculate how far the top of the block is from the bottom of the viewport
-      // If rect.top <= windowHeight, it means it has entered the viewport.
-      if (rect.top <= windowHeight) {
-        const scrolledPast = windowHeight - rect.top;
-        const progress = Math.min(Math.max(scrolledPast / 150, 0), 1);
-        setPullProgress(progress);
-
-        if (progress >= 1 && !isRefreshing) {
-          setIsRefreshing(true);
-          handleResuggest();
-        }
-      } else {
-        setPullProgress(0);
+      // Trigger when the tracker enters the viewport (i.e. scroll ends)
+      if (rect.top <= windowHeight + 50) {
+        setIsRefreshing(true);
+        handleResuggest();
       }
     };
     
@@ -237,40 +228,15 @@ export default function Recommendations() {
         )}
       </MasonryGrid>
 
-      {/* Pull-to-Resuggest Scroll Tracker (Invisible) */}
+      {/* Auto-Resuggest Scroll Tracker */}
       {!loading && results.length > 0 && (
-        <div ref={blockRef} className="w-full h-1 mt-12 pb-[25vh] opacity-0" />
-      )}
-
-      {/* Pull-to-Resuggest UI (Fixed at bottom) */}
-      {!loading && results.length > 0 && (
-        <div 
-          onClick={() => {
-            if (!isRefreshing) {
-              setIsRefreshing(true);
-              handleResuggest();
-            }
-          }}
-          className={`fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-sm h-16 rounded-full border border-[var(--color-m3-outline-variant)] overflow-hidden cursor-pointer flex items-center justify-center transition-all duration-300 bg-[var(--color-m3-surface-container-high)] shadow-lg hover:shadow-xl z-50 ${pullProgress > 0 || isRefreshing ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8 pointer-events-none'}`}
-        >
-          {/* The fill indicator */}
-          <div 
-            className="absolute top-0 left-0 h-full bg-[var(--color-m3-primary)] transition-all duration-75 ease-out origin-left opacity-20"
-            style={{ width: `${Math.max(pullProgress * 100, isRefreshing ? 100 : 0)}%` }}
-          />
-          
-          <div className="relative z-10 flex flex-row items-center gap-3 px-6">
-            <RefreshCw 
-              className={`w-5 h-5 transition-all duration-300
-                ${isRefreshing ? 'animate-spin text-[var(--color-m3-primary)]' : ''}
-                ${pullProgress > 0 && !isRefreshing ? 'rotate-180 text-[var(--color-m3-primary)]' : 'text-[var(--color-m3-on-surface-variant)]'}
-              `}
-              style={{ transform: !isRefreshing ? `rotate(${pullProgress * 180}deg)` : undefined }}
-            />
-            <span className={`text-sm font-bold uppercase tracking-wider transition-colors ${pullProgress > 0 ? 'text-[var(--color-m3-primary)]' : 'text-[var(--color-m3-on-surface-variant)]'}`}>
-              {isRefreshing ? 'Refetching...' : 'Pull to resuggest'}
-            </span>
-          </div>
+        <div ref={blockRef} className="w-full h-16 mt-8 mb-8 flex items-center justify-center">
+          {isRefreshing && (
+            <div className="flex items-center gap-3 text-[var(--color-m3-primary)] font-bold uppercase text-sm tracking-wider">
+              <RefreshCw className="w-5 h-5 animate-spin" />
+              <span>Refetching...</span>
+            </div>
+          )}
         </div>
       )}
 
