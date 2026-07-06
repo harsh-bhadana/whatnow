@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
+import { RotateCcw } from "lucide-react";
 import { MoodSelector } from "@/components/ui/MoodSelector";
 import { TimeSlider } from "@/components/ui/TimeSlider";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -21,7 +22,8 @@ export default function Discover() {
     userDataLoaded, 
     watchHistory,
     mediaType, setMediaType,
-    selectedLikedMediaIds, toggleLikedMedia
+    selectedLikedMediaIds, toggleLikedMedia,
+    resetSession
   } = useAppStore();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -159,18 +161,29 @@ export default function Discover() {
             </div>
           )}
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleDiscover}
-            className={cn(
-              "w-full py-3 sm:py-4 mt-1 sm:mt-2 rounded-[24px] sm:rounded-[32px] text-base sm:text-lg font-bold transition-all shadow-[var(--shadow-m3-elevation-1)] shrink-0",
-              "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
-              (selectedMoods.length === 0) && "opacity-90 grayscale-[20%]"
-            )}
-          >
-            {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
-          </motion.button>
+          <div className="flex gap-2 sm:gap-3 w-full mt-1 sm:mt-2 shrink-0">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleDiscover}
+              className={cn(
+                "flex-1 py-3 sm:py-4 rounded-[24px] sm:rounded-[32px] text-base sm:text-lg font-bold transition-all shadow-[var(--shadow-m3-elevation-1)] shrink-0",
+                "bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]",
+                (selectedMoods.length === 0) && "opacity-90 grayscale-[20%]"
+              )}
+            >
+              {selectedMoods.length === 0 ? "Surprise Me" : "Discover"}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={resetSession}
+              className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-center rounded-[24px] sm:rounded-[32px] transition-all bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] shadow-sm hover:bg-[var(--color-m3-error)] hover:text-[var(--color-m3-on-error)] shrink-0"
+              title="Reset all filters"
+            >
+              <RotateCcw className="w-5 h-5 sm:w-6 sm:h-6" />
+            </motion.button>
+          </div>
         </div>
       </motion.div>
     </main>
