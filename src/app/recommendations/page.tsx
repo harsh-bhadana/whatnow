@@ -28,9 +28,8 @@ export default function Recommendations() {
   const hasRestoredCache = useRef(false);
   const [isMounted, setIsMounted] = useState(false);
   
-  const [pullProgress, setPullProgress] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const blockRef = useRef<HTMLDivElement>(null);
+  const isFetchingRef = useRef(false);
   const currentPage = useRef(1);
 
   useIsomorphicLayoutEffect(() => {
@@ -47,6 +46,8 @@ export default function Recommendations() {
   }, []);
 
   const handleResuggest = async () => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
     setLoading(true);
     const watchedIds = watchHistory.map(item => item.id);
     const likedMediaData = watchHistory
@@ -72,7 +73,7 @@ export default function Recommendations() {
     
     setLoading(false);
     setIsRefreshing(false);
-    setPullProgress(0);
+    isFetchingRef.current = false;
 
     const container = document.getElementById('main-scroll-container');
     if (container) {
@@ -90,23 +91,33 @@ export default function Recommendations() {
       
       sessionStorage.setItem('whatnow_scroll_y', container.scrollTop.toString());
 
-      if (isRefreshing || loading) return;
+      if (isRefreshing || loading || isFetchingRef.current) return;
 
-      if (blockRef.current) {
-        const rect = blockRef.current.getBoundingClientRect();
-        const visiblePixels = window.innerHeight - rect.top;
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const distanceToBottom = scrollHeight - scrollTop - clientHeight;
 
-        if (visiblePixels > 0) {
-          // Require pulling 120px to trigger the resuggest
-          const progress = Math.min(visiblePixels / 120, 1);
-          setPullProgress(progress);
+      // Update progress bar as user scrolls into the bottom 300px
+      if (scrollHeight > clientHeight && scrollTop > 0) {
+        if (distanceToBottom <= 300) {
+          const progress = Math.max(0, Math.min(1 - (distanceToBottom / 300), 1));
+          
+          const progressBar = document.getElementById('pull-progress-bar');
+          if (progressBar) progressBar.style.width = `${progress * 100}%`;
+          
+          const progressText = document.getElementById('pull-progress-text');
+          if (progressText) progressText.innerText = progress >= 0.95 ? "Refreshing..." : "Pull down to refetch";
 
-          if (progress >= 1 && !isRefreshing && !loading) {
+          if (progress >= 0.95) {
             setIsRefreshing(true);
             handleResuggest();
           }
         } else {
-          setPullProgress(prev => (prev > 0 ? 0 : prev));
+          // Reset when scrolled back up
+          const progressBar = document.getElementById('pull-progress-bar');
+          if (progressBar) progressBar.style.width = '0%';
+          
+          const progressText = document.getElementById('pull-progress-text');
+          if (progressText) progressText.innerText = "Pull down to refetch";
         }
       }
     };
@@ -251,11 +262,30 @@ export default function Recommendations() {
 
       {/* Scroll tracker removed in favor of native scroll detection */}
       
-      {/* Overlay Loader for Refetching */}
-      {isRefreshing && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 bg-[var(--color-m3-surface-container-high)] text-[var(--color-m3-primary)] font-bold uppercase text-sm tracking-wider px-6 py-4 rounded-full shadow-lg border border-[var(--color-m3-outline-variant)] z-50">
-          <RefreshCw className="w-5 h-5 animate-spin" />
-          <span>Refetching...</span>
+      {/* Pull to Refresh Space */}
+      {!loading && results.length > 0 && (
+        <div className="h-[300px] w-full flex flex-col items-center justify-center border-t border-[var(--color-m3-outline-variant)]/30 mt-8">
+          <div className="flex flex-col items-center gap-3">
+            {isRefreshing ? (
+              <div className="flex items-center gap-3 bg-[var(--color-m3-surface-container-high)] text-[var(--color-m3-primary)] font-bold uppercase text-sm tracking-wider px-6 py-4 rounded-full shadow-lg border border-[var(--color-m3-outline-variant)]">
+                <RefreshCw className="w-5 h-5 animate-spin" />
+                <span>Refetching...</span>
+              </div>
+            ) : (
+              <>
+                <span id="pull-progress-text" className="text-sm font-bold uppercase tracking-wider text-[var(--color-m3-outline)]">
+                  Pull down to refetch
+                </span>
+                <div className="w-48 h-2 bg-[var(--color-m3-surface-variant)] rounded-full overflow-hidden shadow-inner">
+                  <div 
+                    id="pull-progress-bar"
+                    className="h-full bg-[var(--color-m3-primary)] transition-all duration-150 ease-out" 
+                    style={{ width: '0%' }}
+                  />
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
 
