@@ -128,14 +128,16 @@ export function AppHeader({ session, children }: { session: any, children: React
           </button>
           <Link 
             href="/watchlist" 
-            className="hidden sm:block text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
+            className="hidden sm:flex items-center gap-2 text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
           >
+            <Bookmark className="w-4 h-4" />
             Watchlist
           </Link>
           <Link 
             href="/history" 
-            className="hidden sm:block text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
+            className="hidden sm:flex items-center gap-2 text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
           >
+            <History className="w-4 h-4" />
             Watch History
           </Link>
           {/* User Profile Dropdown */}
