@@ -1,6 +1,7 @@
 "use client";
 
 import { Link, useTransitionRouter as useRouter } from 'next-view-transitions';
+import { usePathname } from 'next/navigation';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Search, X, Bookmark, History } from "lucide-react";
@@ -14,6 +15,7 @@ export function AppHeader({ session, children }: { session: any, children: React
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [mobileSearchQuery, setMobileSearchQuery] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
   const menuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const headerRef = useRef<HTMLElement>(null);
@@ -128,14 +130,22 @@ export function AppHeader({ session, children }: { session: any, children: React
           </button>
           <Link 
             href="/watchlist" 
-            className="hidden sm:flex items-center gap-2 text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
+            className={`hidden sm:flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full transition-colors ${
+              pathname === '/watchlist'
+                ? 'bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)]'
+                : 'text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] hover:bg-[var(--color-m3-surface-variant)]'
+            }`}
           >
-            <Bookmark className="w-4 h-4" />
+            <Bookmark className={`w-4 h-4 ${pathname === '/watchlist' ? 'fill-current' : ''}`} />
             Watchlist
           </Link>
           <Link 
             href="/history" 
-            className="hidden sm:flex items-center gap-2 text-sm font-medium text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] transition-colors px-4 py-2 rounded-full hover:bg-[var(--color-m3-surface-variant)]"
+            className={`hidden sm:flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full transition-colors ${
+              pathname === '/history'
+                ? 'bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)]'
+                : 'text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-primary)] hover:bg-[var(--color-m3-surface-variant)]'
+            }`}
           >
             <History className="w-4 h-4" />
             Watch History
@@ -248,23 +258,43 @@ export function AppHeader({ session, children }: { session: any, children: React
                             <Link 
                               href="/watchlist" 
                               onClick={closeMenu} 
-                              className="px-5 py-3.5 hover:bg-[var(--color-m3-surface-variant)] transition-colors active:bg-[var(--color-m3-surface-variant)] flex items-start gap-4"
+                              className={`px-5 py-3.5 flex items-start gap-4 transition-colors ${
+                                pathname === '/watchlist'
+                                  ? 'bg-[var(--color-m3-secondary-container)]'
+                                  : 'hover:bg-[var(--color-m3-surface-variant)] active:bg-[var(--color-m3-surface-variant)]'
+                              }`}
                             >
-                              <Bookmark className="w-5 h-5 text-[var(--color-m3-on-surface-variant)] mt-0.5 shrink-0" />
+                              <Bookmark className={`w-5 h-5 mt-0.5 shrink-0 ${
+                                pathname === '/watchlist' ? 'fill-current text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface-variant)]'
+                              }`} />
                               <div className="flex flex-col">
-                                <span className="text-base font-medium text-[var(--color-m3-on-surface)]">Watch Later</span>
-                                <span className="text-xs text-[var(--color-m3-on-surface-variant)] mt-0.5">Saved for your next binge</span>
+                                <span className={`text-base font-medium ${
+                                  pathname === '/watchlist' ? 'text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface)]'
+                                }`}>Watch Later</span>
+                                <span className={`text-xs mt-0.5 ${
+                                  pathname === '/watchlist' ? 'text-[var(--color-m3-on-secondary-container)]/80' : 'text-[var(--color-m3-on-surface-variant)]'
+                                }`}>Saved for your next binge</span>
                               </div>
                             </Link>
                             <Link 
                               href="/history" 
                               onClick={closeMenu} 
-                              className="px-5 py-3.5 hover:bg-[var(--color-m3-surface-variant)] transition-colors active:bg-[var(--color-m3-surface-variant)] flex items-start gap-4"
+                              className={`px-5 py-3.5 flex items-start gap-4 transition-colors ${
+                                pathname === '/history'
+                                  ? 'bg-[var(--color-m3-secondary-container)]'
+                                  : 'hover:bg-[var(--color-m3-surface-variant)] active:bg-[var(--color-m3-surface-variant)]'
+                              }`}
                             >
-                              <History className="w-5 h-5 text-[var(--color-m3-on-surface-variant)] mt-0.5 shrink-0" />
+                              <History className={`w-5 h-5 mt-0.5 shrink-0 ${
+                                pathname === '/history' ? 'text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface-variant)]'
+                              }`} />
                               <div className="flex flex-col">
-                                <span className="text-base font-medium text-[var(--color-m3-on-surface)]">Watch History</span>
-                                <span className="text-xs text-[var(--color-m3-on-surface-variant)] mt-0.5">Everything you&apos;ve watched so far</span>
+                                <span className={`text-base font-medium ${
+                                  pathname === '/history' ? 'text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface)]'
+                                }`}>Watch History</span>
+                                <span className={`text-xs mt-0.5 ${
+                                  pathname === '/history' ? 'text-[var(--color-m3-on-secondary-container)]/80' : 'text-[var(--color-m3-on-surface-variant)]'
+                                }`}>Everything you&apos;ve watched so far</span>
                               </div>
                             </Link>
                           </div>
