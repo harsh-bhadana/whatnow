@@ -4,12 +4,12 @@ import { useOptimistic, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bookmark, Inbox, Trash2, ThumbsUp } from "lucide-react";
 import { MediaCard } from "@/components/ui/MediaCard";
-import { removeFromWatchlist } from "@/app/actions/user";
+import { removeFromWatchlist, rateMedia, removeWatchedMedia } from "@/app/actions/user";
 import { MediaCardProps } from "@/components/ui/MediaCard";
 import { useAppStore } from "@/lib/store/useAppStore";
 
 export function WatchlistGrid({ initialWatchlist }: { initialWatchlist: MediaCardProps[] }) {
-  const { setSelectedMedia, removeFromWatchlistStore } = useAppStore();
+  const { setSelectedMedia, removeFromWatchlistStore, watchHistory, rateMediaStore, removeFromHistory } = useAppStore();
   const [, startTransition] = useTransition();
 
   const [optimisticWatchlist, setOptimisticWatchlist] = useOptimistic(
@@ -19,6 +19,25 @@ export function WatchlistGrid({ initialWatchlist }: { initialWatchlist: MediaCar
 
   const handleCardClick = (item: any) => {
     setSelectedMedia(item);
+  };
+
+  const handleRate = async (e: React.MouseEvent, item: MediaCardProps, rating: 1 | -1) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const historyItem = watchHistory.find(h => h.id === item.id);
+    if (historyItem?.userRating === rating) {
+      removeFromHistory(item.id);
+      await removeWatchedMedia(item.id);
+    } else {
+      const newItem = {
+        ...item,
+        watchedAt: Date.now(),
+        userRating: rating,
+      };
+      rateMediaStore(newItem);
+      await rateMedia(item, rating);
+    }
   };
 
   const handleDelete = async (e: React.MouseEvent, id: number) => {
@@ -78,48 +97,42 @@ export function WatchlistGrid({ initialWatchlist }: { initialWatchlist: MediaCar
           }}
         >
           <AnimatePresence>
-            {optimisticWatchlist.map((item) => (
+            {optimisticWatchlist.map((item, index) => {
+              const historyItem = watchHistory.find(h => h.id === item.id);
+              const userRating = historyItem?.userRating || 0;
+              
+              return (
               <motion.div
                 key={item.id}
-                variants={{
-                  hidden: { opacity: 0, scale: 0.9 },
-                  show: { opacity: 1, scale: 1 },
-                }}
-                layout
-                className="relative group"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.05 }}
               >
                 <MediaCard 
-                  {...item} 
-                  href={`/media/${item.type}/${item.id}`}
+                  {...item}
+                  href={`/media/${item.type}/${item.id}`} 
                   onClick={() => handleCardClick(item)}
-                  actionButtons={
-                    <div className="flex w-full items-center justify-center gap-3">
-                      <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // Liked functionality can be wired here
-                        }}
-                        className="flex items-center justify-center p-3 bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
-                        title="Like"
-                      >
-                        <ThumbsUp className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDelete(e, item.id);
-                        }}
-                        className="flex items-center justify-center p-3 bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
-                        title="Remove"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  }
-                />
-              </motion.div>
-            ))}
+                    actionButtons={
+                      <div className="flex w-full items-center justify-center gap-3">
+                        <button 
+                          onClick={(e) => handleRate(e, item, 1)}
+                          className={`flex items-center justify-center p-3 rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)] ${userRating === 1 ? 'bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]' : 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)]'}`}
+                          title="Like"
+                        >
+                          <ThumbsUp className={`w-4 h-4 ${userRating === 1 ? 'fill-current' : ''}`} />
+                        </button>
+                        <button 
+                          onClick={(e) => handleDelete(e, item.id)}
+                          className="flex items-center justify-center p-3 bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                          title="Remove"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    }
+                  />
+                </motion.div>
+              )})}
           </AnimatePresence>
         </motion.div>
       )}

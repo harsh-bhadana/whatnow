@@ -5,20 +5,46 @@ import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trash2, ThumbsUp, ThumbsDown } from "lucide-react";
 import { MediaCard } from "@/components/ui/MediaCard";
-import { removeWatchedMedia } from "@/app/actions/user";
+import { removeWatchedMedia, rateMedia } from "@/app/actions/user";
 import { WatchHistoryItem } from "@/lib/store/useAppStore";
 import { useAppStore } from "@/lib/store/useAppStore";
 
 export function HistoryGrid({ initialHistory }: { initialHistory: WatchHistoryItem[] }) {
   const router = useRouter();
-  const { setSelectedMedia, removeFromHistory } = useAppStore();
+  const { setSelectedMedia, removeFromHistory, rateMediaStore } = useAppStore();
   const [, startTransition] = useTransition();
 
-  // Optimistic UI for instant deletion feeling
+  // Optimistic UI for instant feedback
   const [optimisticHistory, setOptimisticHistory] = useOptimistic(
     initialHistory,
-    (state, idToRemove: number) => state.filter((item) => item.id !== idToRemove)
+    (state, action: { type: 'remove', id: number } | { type: 'rate', id: number, rating: 1 | -1 }) => {
+      if (action.type === 'remove') {
+        return state.filter((item) => item.id !== action.id);
+      }
+      if (action.type === 'rate') {
+        return state.map((item) => 
+          item.id === action.id ? { ...item, userRating: action.rating, watchedAt: Date.now() } : item
+        );
+      }
+      return state;
+    }
   );
+
+  const handleRate = async (e: React.MouseEvent, item: WatchHistoryItem, rating: 1 | -1) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (item.userRating === rating) {
+      startTransition(() => setOptimisticHistory({ type: 'remove', id: item.id }));
+      removeFromHistory(item.id);
+      await removeWatchedMedia(item.id);
+    } else {
+      startTransition(() => setOptimisticHistory({ type: 'rate', id: item.id, rating }));
+      const newItem = { ...item, watchedAt: Date.now(), userRating: rating };
+      rateMediaStore(newItem);
+      await rateMedia(item, rating);
+    }
+  };
 
   const handleCardClick = (item: any) => {
     setSelectedMedia(item);
@@ -29,7 +55,7 @@ export function HistoryGrid({ initialHistory }: { initialHistory: WatchHistoryIt
     
     // 1. Optimistic UI update (Component Level)
     startTransition(() => {
-      setOptimisticHistory(id);
+      setOptimisticHistory({ type: 'remove', id });
     });
     
     // 2. Global Store update (so other pages know it's gone without re-fetching)
@@ -88,16 +114,16 @@ export function HistoryGrid({ initialHistory }: { initialHistory: WatchHistoryIt
                 actionButtons={
                   <div className="flex w-full items-center justify-center gap-3">
                     <button 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // Liked functionality can be wired here
-                      }}
-                      className={`flex items-center justify-center gap-1.5 ${item.userRating === 1 ? 'px-3.5 py-2' : 'p-3'} bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] rounded-full hover:brightness-110 hover:scale-105 transition-all shadow-[var(--shadow-m3-elevation-2)]`}
-                      title="Like"
+                      onClick={(e) => handleRate(e, item, item.userRating === -1 ? -1 : 1)}
+                      className={`flex items-center justify-center gap-1.5 ${(item.userRating === 1 || item.userRating === -1) ? 'px-3.5 py-2' : 'p-3'} ${item.userRating === -1 ? 'bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)]' : 'bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]'} rounded-full hover:brightness-110 hover:scale-105 transition-all shadow-[var(--shadow-m3-elevation-2)]`}
+                      title={item.userRating === -1 ? "Dislike" : "Like"}
                     >
-                      <ThumbsUp className={`w-4 h-4 ${item.userRating === 1 ? 'fill-current' : ''}`} />
-                      {item.userRating === 1 && (
+                      {item.userRating === -1 ? (
+                        <ThumbsDown className="w-4 h-4 fill-current" />
+                      ) : (
+                        <ThumbsUp className={`w-4 h-4 ${item.userRating === 1 ? 'fill-current' : ''}`} />
+                      )}
+                      {(item.userRating === 1 || item.userRating === -1) && (
                         <span className="text-xs font-semibold tracking-wider leading-none pt-[1px]">
                           {new Date(item.watchedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                         </span>
