@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition, use } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { searchMedia } from "@/lib/api/tmdb";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
@@ -130,6 +130,43 @@ export default function SearchPage({ searchParams }: PageProps) {
                   {...item}
                   href={`/media/${item.type}/${item.id}`} 
                   onClick={() => handleCardClick(item)}
+                  actionButtons={
+                    <div className="flex w-full items-center justify-center gap-3">
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Like functionality can be wired here
+                        }}
+                        className="flex items-center justify-center p-3 bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                        title="Like"
+                      >
+                        <ThumbsUp className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Dislike functionality can be wired here
+                        }}
+                        className="flex items-center justify-center p-3 bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                        title="Dislike"
+                      >
+                        <ThumbsDown className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Watch Later functionality can be wired here
+                        }}
+                        className="flex items-center justify-center p-3 bg-[var(--color-m3-tertiary)] text-[var(--color-m3-on-tertiary)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                        title="Watch Later"
+                      >
+                        <BookmarkPlus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  }
                 />
               </motion.div>
             ))}
