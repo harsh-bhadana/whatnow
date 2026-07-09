@@ -2,7 +2,7 @@
 
 import { useOptimistic, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bookmark, Inbox, Trash2 } from "lucide-react";
+import { Bookmark, Inbox, Trash2, ThumbsUp } from "lucide-react";
 import { MediaCard } from "@/components/ui/MediaCard";
 import { removeFromWatchlist } from "@/app/actions/user";
 import { MediaCardProps } from "@/components/ui/MediaCard";
@@ -92,13 +92,32 @@ export function WatchlistGrid({ initialWatchlist }: { initialWatchlist: MediaCar
                   {...item} 
                   href={`/media/${item.type}/${item.id}`}
                   onClick={() => handleCardClick(item)}
+                  actionButtons={
+                    <div className="flex w-full items-center justify-center gap-3">
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Liked functionality can be wired here
+                        }}
+                        className="flex items-center justify-center p-3 bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                        title="Like"
+                      >
+                        <ThumbsUp className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleDelete(e, item.id);
+                        }}
+                        className="flex items-center justify-center p-3 bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                        title="Remove"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  }
                 />
-                <button 
-                  onClick={(e) => handleDelete(e, item.id)}
-                  className="absolute top-2 right-2 p-2 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 z-10"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
               </motion.div>
             ))}
           </AnimatePresence>

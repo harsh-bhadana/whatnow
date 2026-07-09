@@ -85,21 +85,37 @@ export function HistoryGrid({ initialHistory }: { initialHistory: WatchHistoryIt
                 shape="default" 
                 href={`/media/${item.type}/${item.id}`}
                 onClick={() => handleCardClick(item)} 
+                actionButtons={
+                  <div className="flex w-full items-center justify-center gap-3">
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Liked functionality can be wired here
+                      }}
+                      className={`flex items-center justify-center gap-1.5 ${item.userRating === 1 ? 'px-3.5 py-2' : 'p-3'} bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] rounded-full hover:brightness-110 hover:scale-105 transition-all shadow-[var(--shadow-m3-elevation-2)]`}
+                      title="Like"
+                    >
+                      <ThumbsUp className={`w-4 h-4 ${item.userRating === 1 ? 'fill-current' : ''}`} />
+                      {item.userRating === 1 && (
+                        <span className="text-xs font-semibold tracking-wider leading-none pt-[1px]">
+                          {new Date(item.watchedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                        </span>
+                      )}
+                    </button>
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleDelete(e, item.id);
+                      }}
+                      className="flex items-center justify-center p-3 bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                      title="Remove"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                }
               />
-              <button 
-                onClick={(e) => handleDelete(e, item.id)}
-                className="absolute top-2 right-2 p-2 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 text-white text-xs rounded-full backdrop-blur-sm flex items-center gap-1.5 shadow-sm">
-                {item.userRating === 1 ? (
-                  <ThumbsUp className="w-3 h-3 text-green-400 fill-current" />
-                ) : item.userRating === -1 ? (
-                  <ThumbsDown className="w-3 h-3 text-red-400 fill-current" />
-                ) : null}
-                <span>{new Date(item.watchedAt).toLocaleDateString()}</span>
-              </div>
             </motion.div>
           ))}
         </div>
