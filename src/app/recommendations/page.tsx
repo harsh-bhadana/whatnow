@@ -6,6 +6,7 @@ import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
 import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
+import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
@@ -20,8 +21,42 @@ export default function Recommendations() {
   const { 
     availableTime, selectedMoods, watchHistory, 
     cachedRecommendations, setCachedRecommendations, setSelectedMedia,
-    mediaType, selectedLikedMediaIds, userDataLoaded
+    mediaType, selectedLikedMediaIds, userDataLoaded,
+    rateMediaStore, removeFromHistory, watchlist, addToWatchlistStore, removeFromWatchlistStore
   } = useAppStore();
+
+  const handleRate = async (e: React.MouseEvent, item: MediaCardProps, rating: 1 | -1) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const historyItem = watchHistory.find(h => h.id === item.id);
+    if (historyItem?.userRating === rating) {
+      removeFromHistory(item.id);
+      await removeWatchedMedia(item.id);
+    } else {
+      const newItem = {
+        ...item,
+        watchedAt: Date.now(),
+        userRating: rating,
+      };
+      rateMediaStore(newItem);
+      await rateMedia(item, rating);
+    }
+  };
+
+  const handleWatchlist = async (e: React.MouseEvent, item: MediaCardProps) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (watchlist.some(w => w.id === item.id)) {
+      removeFromWatchlistStore(item.id);
+      await removeFromWatchlist(item.id);
+    } else {
+      addToWatchlistStore(item);
+      await addToWatchlist(item);
+    }
+  };
+
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
   
@@ -164,7 +199,7 @@ export default function Recommendations() {
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTime, selectedMoods, router, watchHistory, userDataLoaded, isMounted, mediaType, selectedLikedMediaIds]);
+  }, [availableTime, selectedMoods, router, userDataLoaded, isMounted, mediaType, selectedLikedMediaIds]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
@@ -227,6 +262,10 @@ export default function Recommendations() {
         ) : (
           <>
             {results.flatMap((item, index) => {
+              const historyItem = watchHistory.find(h => h.id === item.id);
+              const userRating = historyItem?.userRating || 0;
+              const isWatchlisted = watchlist.some(w => w.id === item.id);
+
               const nodes = [];
               nodes.push(
                 <motion.div
@@ -244,37 +283,25 @@ export default function Recommendations() {
                     actionButtons={
                       <div className="flex w-full items-center justify-center gap-3">
                         <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            // Like functionality can be wired here
-                          }}
-                          className="flex items-center justify-center p-3 bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                          onClick={(e) => handleRate(e, item, 1)}
+                          className={`flex items-center justify-center p-3 rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)] ${userRating === 1 ? 'bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]' : 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)]'}`}
                           title="Like"
                         >
-                          <ThumbsUp className="w-4 h-4" />
+                          <ThumbsUp className={`w-4 h-4 ${userRating === 1 ? 'fill-current' : ''}`} />
                         </button>
                         <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            // Dislike functionality can be wired here
-                          }}
-                          className="flex items-center justify-center p-3 bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                          onClick={(e) => handleRate(e, item, -1)}
+                          className={`flex items-center justify-center p-3 rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)] ${userRating === -1 ? 'bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)]' : 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)]'}`}
                           title="Dislike"
                         >
-                          <ThumbsDown className="w-4 h-4" />
+                          <ThumbsDown className={`w-4 h-4 ${userRating === -1 ? 'fill-current' : ''}`} />
                         </button>
                         <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            // Watch Later functionality can be wired here
-                          }}
-                          className="flex items-center justify-center p-3 bg-[var(--color-m3-tertiary)] text-[var(--color-m3-on-tertiary)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                          onClick={(e) => handleWatchlist(e, item)}
+                          className={`flex items-center justify-center p-3 rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)] ${isWatchlisted ? 'bg-[var(--color-m3-tertiary)] text-[var(--color-m3-on-tertiary)]' : 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)]'}`}
                           title="Watch Later"
                         >
-                          <BookmarkPlus className="w-4 h-4" />
+                          <BookmarkPlus className={`w-4 h-4 ${isWatchlisted ? 'fill-current' : ''}`} />
                         </button>
                       </div>
                     }

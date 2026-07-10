@@ -5,6 +5,7 @@ import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Search, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
+import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { searchMedia } from "@/lib/api/tmdb";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
 import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
@@ -17,7 +18,39 @@ export default function SearchPage({ searchParams }: PageProps) {
   const resolvedParams = use(searchParams);
   const query = resolvedParams.q || "";
   const router = useRouter();
-  const { setSelectedMedia } = useAppStore();
+  const { setSelectedMedia, watchHistory, rateMediaStore, removeFromHistory, watchlist, addToWatchlistStore, removeFromWatchlistStore } = useAppStore();
+
+  const handleRate = async (e: React.MouseEvent, item: MediaCardProps, rating: 1 | -1) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const historyItem = watchHistory.find(h => h.id === item.id);
+    if (historyItem?.userRating === rating) {
+      removeFromHistory(item.id);
+      await removeWatchedMedia(item.id);
+    } else {
+      const newItem = {
+        ...item,
+        watchedAt: Date.now(),
+        userRating: rating,
+      };
+      rateMediaStore(newItem);
+      await rateMedia(item, rating);
+    }
+  };
+
+  const handleWatchlist = async (e: React.MouseEvent, item: MediaCardProps) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (watchlist.some(w => w.id === item.id)) {
+      removeFromWatchlistStore(item.id);
+      await removeFromWatchlist(item.id);
+    } else {
+      addToWatchlistStore(item);
+      await addToWatchlist(item);
+    }
+  };
   const [results, setResults] = useState<MediaCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [inputValue, setInputValue] = useState(query);
@@ -119,7 +152,12 @@ export default function SearchPage({ searchParams }: PageProps) {
             animate={{ opacity: 1, y: 0 }}
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 w-full"
           >
-            {results.map((item, index) => (
+            {results.map((item, index) => {
+              const historyItem = watchHistory.find(h => h.id === item.id);
+              const userRating = historyItem?.userRating || 0;
+              const isWatchlisted = watchlist.some(w => w.id === item.id);
+              
+              return (
               <motion.div
                 key={item.id}
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -133,43 +171,31 @@ export default function SearchPage({ searchParams }: PageProps) {
                   actionButtons={
                     <div className="flex w-full items-center justify-center gap-3">
                       <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // Like functionality can be wired here
-                        }}
-                        className="flex items-center justify-center p-3 bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                        onClick={(e) => handleRate(e, item, 1)}
+                        className={`flex items-center justify-center p-3 rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)] ${userRating === 1 ? 'bg-[var(--color-m3-primary)] text-[var(--color-m3-on-primary)]' : 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)]'}`}
                         title="Like"
                       >
-                        <ThumbsUp className="w-4 h-4" />
+                        <ThumbsUp className={`w-4 h-4 ${userRating === 1 ? 'fill-current' : ''}`} />
                       </button>
                       <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // Dislike functionality can be wired here
-                        }}
-                        className="flex items-center justify-center p-3 bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                        onClick={(e) => handleRate(e, item, -1)}
+                        className={`flex items-center justify-center p-3 rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)] ${userRating === -1 ? 'bg-[var(--color-m3-error)] text-[var(--color-m3-on-error)]' : 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)]'}`}
                         title="Dislike"
                       >
-                        <ThumbsDown className="w-4 h-4" />
+                        <ThumbsDown className={`w-4 h-4 ${userRating === -1 ? 'fill-current' : ''}`} />
                       </button>
                       <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // Watch Later functionality can be wired here
-                        }}
-                        className="flex items-center justify-center p-3 bg-[var(--color-m3-tertiary)] text-[var(--color-m3-on-tertiary)] rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)]"
+                        onClick={(e) => handleWatchlist(e, item)}
+                        className={`flex items-center justify-center p-3 rounded-full hover:brightness-110 hover:scale-110 transition-all shadow-[var(--shadow-m3-elevation-2)] ${isWatchlisted ? 'bg-[var(--color-m3-tertiary)] text-[var(--color-m3-on-tertiary)]' : 'bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)]'}`}
                         title="Watch Later"
                       >
-                        <BookmarkPlus className="w-4 h-4" />
+                        <BookmarkPlus className={`w-4 h-4 ${isWatchlisted ? 'fill-current' : ''}`} />
                       </button>
                     </div>
                   }
                 />
               </motion.div>
-            ))}
+            )})}
           </motion.div>
         )}
       </AnimatePresence>
