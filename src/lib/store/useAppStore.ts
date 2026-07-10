@@ -42,6 +42,10 @@ interface AppState {
   selectedLikedMediaIds: number[];
   toggleLikedMedia: (id: number) => void;
   resetSession: () => void;
+
+  // Theming
+  activePalette: string;
+  setActivePalette: (palette: string) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -118,6 +122,9 @@ export const useAppStore = create<AppState>()(
         mediaType: "all",
         selectedLikedMediaIds: [],
       }),
+
+      activePalette: "default",
+      setActivePalette: (palette) => set({ activePalette: palette }),
     }),
     {
       name: "media-recommender-storage",
