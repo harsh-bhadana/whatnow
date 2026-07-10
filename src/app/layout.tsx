@@ -20,12 +20,12 @@ export const metadata: Metadata = {
 };
 
 import { ViewTransitions } from 'next-view-transitions';
-import { Link } from 'next-view-transitions';
 import Script from "next/script";
 import { auth, signOut } from "@/auth";
 import { LogOut } from "lucide-react";
 import { AppHeader } from "@/components/ui/AppHeader";
 import { StoreInitializer } from "@/components/ui/StoreInitializer";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default async function RootLayout({
   children,
@@ -39,33 +39,36 @@ export default async function RootLayout({
       <html
         lang="en"
         className={`${roboto.variable} ${plusJakarta.variable} min-h-screen antialiased`}
+        suppressHydrationWarning
       >
         <body className="h-[100dvh] overflow-hidden flex flex-col font-sans">
-          {session && (
-            <>
-              <StoreInitializer />
-              <AppHeader session={session}>
-              <form
-                action={async () => {
-                  "use server";
-                  await signOut({ redirectTo: "/auth/signin" });
-                }}
-              >
-                <button
-                  type="submit"
-                  className="w-full flex items-center justify-start px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors rounded-lg group"
-                  title="Sign Out"
-                >
-                  <LogOut size={18} className="mr-3" />
-                  <span>Sign Out</span>
-                </button>
-              </form>
-              </AppHeader>
-            </>
-          )}
-          <div id="main-scroll-container" className="flex-1 overflow-y-auto w-full relative">
-            {children}
-          </div>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            {session && (
+              <>
+                <StoreInitializer />
+                <AppHeader session={session}>
+                  <form
+                    action={async () => {
+                      "use server";
+                      await signOut({ redirectTo: "/auth/signin" });
+                    }}
+                  >
+                    <button
+                      type="submit"
+                      className="w-full flex items-center justify-start px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors rounded-lg group"
+                      title="Sign Out"
+                    >
+                      <LogOut size={18} className="mr-3" />
+                      <span>Sign Out</span>
+                    </button>
+                  </form>
+                </AppHeader>
+              </>
+            )}
+            <div id="main-scroll-container" className="flex-1 overflow-y-auto overflow-x-hidden relative scroll-smooth flex flex-col items-center">
+              {children}
+            </div>
+          </ThemeProvider>
           <Script
             id="register-sw"
             strategy="afterInteractive"
