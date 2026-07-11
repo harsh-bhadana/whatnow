@@ -36,6 +36,7 @@ export default function Recommendations() {
     } else {
       const newItem = {
         ...item,
+        // eslint-disable-next-line react-hooks/purity
         watchedAt: Date.now(),
         userRating: rating,
       };

@@ -40,13 +40,14 @@ export function HistoryGrid({ initialHistory }: { initialHistory: WatchHistoryIt
       await removeWatchedMedia(item.id);
     } else {
       startTransition(() => setOptimisticHistory({ type: 'rate', id: item.id, rating }));
+      // eslint-disable-next-line react-hooks/purity
       const newItem = { ...item, watchedAt: Date.now(), userRating: rating };
       rateMediaStore(newItem);
       await rateMedia(item, rating);
     }
   };
 
-  const handleCardClick = (item: any) => {
+  const handleCardClick = (item: WatchHistoryItem) => {
     setSelectedMedia(item);
   };
 
