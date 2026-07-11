@@ -62,7 +62,7 @@ export function MediaCard({
       <Wrapper 
         href={href as string}
         className={cn(
-          "absolute inset-x-0 bottom-0 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col bg-zinc-900 z-20",
+          "absolute inset-x-0 bottom-0 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col bg-[var(--color-m3-surface)] z-20",
           actionButtons ? "top-0 group-hover:top-14" : "top-0 hover:-translate-y-1"
         )}
         onClick={onClick}
@@ -91,7 +91,7 @@ export function MediaCard({
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
           ) : (
-            <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-zinc-800 text-zinc-500">
+            <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-[var(--color-m3-surface-container)] text-[var(--color-m3-on-surface-variant)]">
               <span className="text-xs font-bold text-center px-4 leading-tight">{title}</span>
             </div>
           )}
@@ -112,7 +112,7 @@ export function MediaCard({
           {/* Top Right Badge: Rating */}
           <div 
             style={{ viewTransitionName: `card-rating-${type}-${id}` }}
-            className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-yellow-400 text-xs font-bold shadow-sm border border-white/10"
+            className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-yellow-400 text-xs font-bold shadow-sm border border-[var(--color-m3-outline-variant)]"
           >
             <Star className="w-3.5 h-3.5 fill-current" />
             <span>{rating.toFixed(1)}</span>
@@ -120,23 +120,23 @@ export function MediaCard({
 
           {/* Bottom Left Badge: Based on your likes */}
           {isBasedOnLikes && (
-            <div className="absolute bottom-2 left-2 right-2 z-20 flex justify-center items-center gap-1.5 bg-gradient-to-r from-pink-500/80 to-purple-500/80 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-white/20 shadow-[0_0_15px_rgba(236,72,153,0.5)]">
-              <Star className="w-3.5 h-3.5 text-white fill-white animate-pulse" />
-              <span className="text-[10px] font-bold text-white uppercase tracking-wider drop-shadow-md text-center leading-tight">Based on likes</span>
+            <div className="absolute bottom-2 left-2 right-2 z-20 flex justify-center items-center gap-1.5 bg-gradient-to-r from-pink-500/80 to-purple-500/80 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-[var(--color-m3-outline-variant)] shadow-[0_0_15px_rgba(236,72,153,0.5)]">
+              <Star className="w-3.5 h-3.5 text-[var(--color-m3-on-background)] fill-white animate-pulse" />
+              <span className="text-[10px] font-bold text-[var(--color-m3-on-background)] uppercase tracking-wider drop-shadow-md text-center leading-tight">Based on likes</span>
             </div>
           )}
         </div>
         
         {/* Small Text Section Below the Image */}
-        <div className="relative z-10 p-3 min-h-[4rem] shrink-0 flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10">
+        <div className="relative z-10 p-3 min-h-[4rem] shrink-0 flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-[var(--color-m3-outline-variant)]">
           <h3 
             style={{ viewTransitionName: `card-title-${type}-${id}` }}
-            className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md w-fit"
+            className="font-heading font-bold text-sm text-[var(--color-m3-on-background)] leading-tight line-clamp-2 drop-shadow-md w-fit"
           >
             {title}
           </h3>
           {runtime && (
-            <span className="text-[11px] font-medium text-white/70 mt-0.5">{runtime}m</span>
+            <span className="text-[11px] font-medium text-[var(--color-m3-on-background)]/70 mt-0.5">{runtime}m</span>
           )}
         </div>
       </Wrapper>
