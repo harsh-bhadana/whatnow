@@ -12,12 +12,12 @@ async function SignInInner() {
   }
   
   return (
-    <div className="bg-zinc-900/40 backdrop-blur-[32px] p-8 rounded-[28px] w-full shadow-2xl border border-white/10 text-center">
+    <div className="bg-[var(--color-m3-surface)]/40 backdrop-blur-[32px] p-8 rounded-[28px] w-full shadow-2xl border border-[var(--color-m3-outline-variant)] text-center">
       <div className="w-16 h-16 bg-[var(--color-m3-primary-container)] text-[var(--color-m3-on-primary-container)] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
         <LogIn size={32} />
       </div>
       
-      <p className="text-white/90 font-medium mb-8">
+      <p className="text-[var(--color-m3-on-background)]/90 font-medium mb-8">
         Sign in to save your watch history across all your devices.
       </p>
       
@@ -65,13 +65,13 @@ export default function SignInPage() {
       <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-24">
         {/* Slogan - Middle Left */}
         <div className="flex-1 text-left drop-shadow-2xl">
-          <h1 className="text-5xl md:text-7xl font-heading font-extrabold text-white tracking-tight mb-8">
+          <h1 className="text-5xl md:text-7xl font-heading font-extrabold text-[var(--color-m3-on-background)] tracking-tight mb-8">
             WhatNow?
           </h1>
-          <p className="text-4xl md:text-6xl font-bold text-white leading-tight mb-6">
+          <p className="text-4xl md:text-6xl font-bold text-[var(--color-m3-on-background)] leading-tight mb-6">
             Stop scrolling. <br /> Start watching.
           </p>
-          <p className="text-lg md:text-xl font-medium text-zinc-300 max-w-md">
+          <p className="text-lg md:text-xl font-medium text-[var(--color-m3-on-surface)] max-w-md">
             Find the perfect movie, show, or anime for any mood.
           </p>
         </div>
