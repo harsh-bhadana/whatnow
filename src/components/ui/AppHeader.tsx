@@ -2,15 +2,14 @@
 
 import { Link, useTransitionRouter as useRouter } from 'next-view-transitions';
 import { usePathname } from 'next/navigation';
-import { useAppStore } from "@/lib/store/useAppStore";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Search, X, Bookmark, History } from "lucide-react";
 import { SearchBar } from "./SearchBar";
+import { ThemeCustomizer } from "./ThemeCustomizer";
 import { motion, AnimatePresence } from "framer-motion";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AppHeader({ session, children }: { session: any, children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [mobileSearchQuery, setMobileSearchQuery] = useState("");
@@ -23,8 +22,6 @@ export function AppHeader({ session, children }: { session: any, children: React
   const closeMenu = useCallback(() => setIsMenuOpen(false), []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
     
     // Close menu when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
@@ -76,9 +73,11 @@ export function AppHeader({ session, children }: { session: any, children: React
       }, 400);
     }
 
+    const header = headerRef.current;
+
     // Blur all sibling elements after the header (i.e. the page content)
-    if (headerRef.current) {
-      let sibling = headerRef.current.nextElementSibling as HTMLElement | null;
+    if (header) {
+      let sibling = header.nextElementSibling as HTMLElement | null;
       while (sibling) {
         sibling.style.transition = "filter 0.35s ease, transform 0.35s ease";
         if (isMenuOpen && isMobile) {
@@ -99,8 +98,8 @@ export function AppHeader({ session, children }: { session: any, children: React
       if (scrollContainer) scrollContainer.style.overflow = "";
       document.documentElement.style.backgroundColor = "";
       document.body.style.backgroundColor = "";
-      if (headerRef.current) {
-        let sibling = headerRef.current.nextElementSibling as HTMLElement | null;
+      if (header) {
+        let sibling = header.nextElementSibling as HTMLElement | null;
         while (sibling) {
           sibling.style.filter = "";
           sibling.style.transform = "";
@@ -253,6 +252,11 @@ export function AppHeader({ session, children }: { session: any, children: React
                             </div>
                           </div>
                           
+                          {/* Theme Customizer in Mobile Menu */}
+                          <div className="p-4 border-b border-[var(--color-m3-outline)]/10">
+                            <ThemeCustomizer />
+                          </div>
+
                           {/* Nav links with icons */}
                           <div className="flex-1 flex flex-col py-1 border-b border-[var(--color-m3-outline)]/10">
                             <Link 
@@ -319,6 +323,11 @@ export function AppHeader({ session, children }: { session: any, children: React
                         <p className="text-sm font-bold text-[var(--color-m3-on-surface)] truncate">{session.user.name}</p>
                         <p className="text-xs text-[var(--color-m3-on-surface-variant)] truncate mt-1">{session.user.email}</p>
                       </div>
+                      
+                      <div className="p-4 border-b border-[var(--color-m3-outline)]/10">
+                        <ThemeCustomizer />
+                      </div>
+
                       <div className="p-2 shrink-0">
                         {children}
                       </div>
@@ -338,7 +347,7 @@ export function AppHeader({ session, children }: { session: any, children: React
             {/* Backdrop */}
             <motion.div 
               key="mobile-search-backdrop"
-              className="fixed inset-0 top-[64px] bg-black/40 backdrop-blur-sm sm:hidden z-[-1]"
+              className="fixed inset-0 top-[64px] bg-[var(--color-m3-surface-container-highest)]/80 backdrop-blur-sm sm:hidden z-[-1]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
