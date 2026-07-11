@@ -23,9 +23,9 @@ import { ViewTransitions } from 'next-view-transitions';
 import Script from "next/script";
 import { auth, signOut } from "@/auth";
 import { LogOut } from "lucide-react";
-import { AppHeader } from "@/components/ui/AppHeader";
-import { StoreInitializer } from "@/components/ui/StoreInitializer";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { StoreInitializer } from "@/components/providers/StoreInitializer";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 
 export default async function RootLayout({
   children,

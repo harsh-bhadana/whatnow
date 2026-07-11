@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
 import { RotateCcw } from "lucide-react";
-import { MoodSelector } from "@/components/ui/MoodSelector";
-import { TimeSlider } from "@/components/ui/TimeSlider";
+import { MoodSelector } from "@/components/filters/MoodSelector";
+import { TimeSlider } from "@/components/filters/TimeSlider";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { cn } from "@/lib/utils";
 

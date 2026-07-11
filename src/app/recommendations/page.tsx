@@ -8,10 +8,10 @@ import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { fetchRecommendations } from "@/lib/api/tmdb";
-import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
-import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
-import { TouchGrassCard } from "@/components/ui/TouchGrassCard";
-import { MasonryGrid } from "@/components/ui/MasonryGrid";
+import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
+import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
+import { TouchGrassCard } from "@/components/media/TouchGrassCard";
+import { MasonryGrid } from "@/components/common/MasonryGrid";
 
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : useEffect;

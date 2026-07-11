@@ -2,7 +2,7 @@
 
 import clientPromise from "@/lib/mongodb";
 import { ObjectId, Document } from "mongodb";
-import { MediaCardProps } from "@/components/ui/MediaCard";
+import { MediaCardProps } from "@/components/media/MediaCard";
 import { WatchHistoryItem } from "@/lib/store/useAppStore";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";

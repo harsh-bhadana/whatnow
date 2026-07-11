@@ -7,8 +7,8 @@ import { ArrowLeft, Search, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide-re
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { searchMedia } from "@/lib/api/tmdb";
-import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
-import { MediaCardSkeleton } from "@/components/ui/MediaCardSkeleton";
+import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
+import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
 
 interface PageProps {
   searchParams: Promise<{ q?: string }>;

@@ -4,7 +4,7 @@ import { useOptimistic, useTransition } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trash2, ThumbsUp, ThumbsDown } from "lucide-react";
-import { MediaCard } from "@/components/ui/MediaCard";
+import { MediaCard } from "@/components/media/MediaCard";
 import { removeWatchedMedia, rateMedia } from "@/app/actions/user";
 import { WatchHistoryItem } from "@/lib/store/useAppStore";
 import { useAppStore } from "@/lib/store/useAppStore";

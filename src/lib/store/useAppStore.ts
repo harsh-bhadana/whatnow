@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { MediaCardProps } from "@/components/ui/MediaCard";
+import { MediaCardProps } from "@/components/media/MediaCard";
 
 export interface WatchHistoryItem extends MediaCardProps {
   watchedAt: number;

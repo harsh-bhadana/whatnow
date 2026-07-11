@@ -3,9 +3,9 @@
 import { useOptimistic, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bookmark, Inbox, Trash2, ThumbsUp } from "lucide-react";
-import { MediaCard } from "@/components/ui/MediaCard";
+import { MediaCard } from "@/components/media/MediaCard";
 import { removeFromWatchlist, rateMedia, removeWatchedMedia } from "@/app/actions/user";
-import { MediaCardProps } from "@/components/ui/MediaCard";
+import { MediaCardProps } from "@/components/media/MediaCard";
 import { useAppStore } from "@/lib/store/useAppStore";
 
 export function WatchlistGrid({ initialWatchlist }: { initialWatchlist: MediaCardProps[] }) {

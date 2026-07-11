@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { useTransitionRouter as useRouter, Link } from "next-view-transitions";
 import { searchMedia } from "@/lib/api/tmdb";
-import { MediaCardProps } from "./MediaCard";
+import { MediaCardProps } from "../media/MediaCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppStore } from "@/lib/store/useAppStore";
 

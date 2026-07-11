@@ -4,8 +4,8 @@ import { Link, useTransitionRouter as useRouter } from 'next-view-transitions';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Search, X, Bookmark, History } from "lucide-react";
-import { SearchBar } from "./SearchBar";
-import { ThemeCustomizer } from "./ThemeCustomizer";
+import { SearchBar } from "../search/SearchBar";
+import { ThemeCustomizer } from "../theme/ThemeCustomizer";
 import { motion, AnimatePresence } from "framer-motion";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

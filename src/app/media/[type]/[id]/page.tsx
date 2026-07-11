@@ -7,7 +7,7 @@ import { ArrowLeft, Star, Clock, ThumbsUp, ThumbsDown, Bookmark, BookmarkCheck, 
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
-import { MediaCardProps } from "@/components/ui/MediaCard";
+import { MediaCardProps } from "@/components/media/MediaCard";
 
 interface PageProps {
   params: Promise<{ type: string; id: string }>;
