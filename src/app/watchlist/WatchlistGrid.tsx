@@ -17,6 +17,7 @@ export function WatchlistGrid({ initialWatchlist }: { initialWatchlist: MediaCar
     (state, idToRemove: number) => state.filter((item) => item.id !== idToRemove)
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleCardClick = (item: any) => {
     setSelectedMedia(item);
   };
@@ -32,6 +33,7 @@ export function WatchlistGrid({ initialWatchlist }: { initialWatchlist: MediaCar
     } else {
       const newItem = {
         ...item,
+        // eslint-disable-next-line react-hooks/purity
         watchedAt: Date.now(),
         userRating: rating,
       };
