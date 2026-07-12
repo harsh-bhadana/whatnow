@@ -16,7 +16,7 @@ export function TouchGrassCard() {
         The rabbit hole goes deeper...
       </h3>
       <p className="text-xs sm:text-sm text-green-600/90 dark:text-green-400/80">
-        You've been scrolling for a while! It might be time to touch some grass. 🌱
+        You&apos;ve been scrolling for a while! It might be time to touch some grass. 🌱
       </p>
     </motion.div>
   );
