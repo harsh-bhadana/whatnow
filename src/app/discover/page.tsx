@@ -45,7 +45,7 @@ export default function Discover() {
   };
 
   return (
-    <main className="relative flex-1 flex flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 w-full overflow-x-hidden">
+    <main className="relative flex-1 flex flex-col items-center px-4 py-8 sm:px-6 sm:py-12 w-full overflow-x-hidden">
       {/* Organic Background Blobs (Pixel UI Aesthetic) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <motion.div 
@@ -81,7 +81,7 @@ export default function Discover() {
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.2, 0, 0, 1] }}
-        className="relative z-10 w-full max-w-2xl flex flex-col justify-center max-h-full"
+        className="relative z-10 w-full max-w-2xl flex flex-col"
       >
         <div className="text-center mb-4 sm:mb-6 shrink-0">
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold tracking-tight text-[var(--color-m3-on-background)] leading-tight">

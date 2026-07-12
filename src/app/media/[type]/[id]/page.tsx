@@ -105,13 +105,13 @@ export default function MediaDetailPage({ params }: PageProps) {
     }
   };
   return (
-    <main className="flex-1 md:flex-none relative flex flex-col md:flex-row bg-[var(--color-m3-background)] md:h-[calc(100dvh-64px)] md:max-h-[calc(100dvh-64px)] md:min-h-0 md:overflow-hidden">
+    <main className="flex-1 w-full relative flex flex-col md:flex-row bg-[var(--color-m3-background)] md:h-full md:overflow-hidden">
       
       {/* LEFT SIDE: Bleed Poster Image */}
-      <div className="relative flex flex-col w-full h-[90vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 shadow-[20px_0_50px_rgba(0,0,0,0.8)] bg-[var(--color-m3-surface)] overflow-hidden">
+      <div className="relative flex flex-col w-full h-[55vh] sm:h-[60vh] md:h-full md:w-[35vw] lg:w-[30vw] xl:w-[25vw] shrink-0 z-10 md:border-r md:border-[var(--color-m3-outline-variant)] md:shadow-2xl bg-[var(--color-m3-surface)] overflow-hidden">
         <button 
           onClick={() => router.back()}
-          className="absolute top-6 left-6 z-30 p-3 rounded-full bg-[var(--color-m3-surface-container-highest)]/80 hover:bg-black/60 backdrop-blur-xl transition-colors text-[var(--color-m3-on-background)] border border-[var(--color-m3-outline-variant)]"
+          className="absolute top-4 left-4 md:top-6 md:left-6 z-30 p-3 rounded-full bg-[var(--color-m3-surface-container-highest)]/80 hover:bg-black/60 backdrop-blur-xl transition-colors text-[var(--color-m3-on-background)] border border-[var(--color-m3-outline-variant)]"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
@@ -157,7 +157,7 @@ export default function MediaDetailPage({ params }: PageProps) {
       </div>
 
       {/* RIGHT SIDE: Info Section */}
-      <div className="flex-1 relative z-20 md:overflow-y-auto scrollbar-hide flex flex-col bg-transparent md:bg-transparent -mt-[25vh] md:mt-0 min-h-0">
+      <div className="flex-1 relative z-20 md:overflow-y-auto scrollbar-hide flex flex-col bg-transparent md:bg-transparent -mt-[15vh] md:mt-0 min-h-0">
         
         {/* Immersive Ambient Background for right side on desktop */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none hidden md:block">
@@ -171,7 +171,7 @@ export default function MediaDetailPage({ params }: PageProps) {
           )}
         </div>
 
-        <div className="relative z-10 p-6 sm:p-10 lg:p-16 max-w-4xl w-full flex flex-col min-h-full md:pt-16">
+        <div className="relative z-10 p-6 sm:p-10 lg:p-16 max-w-4xl w-full flex flex-col min-h-full pb-24 md:pt-16">
           <div className="shrink-0 mb-6 md:mb-0 relative pr-12 md:pr-0">
             <h1 
               style={{ viewTransitionName: `card-title-${mediaContext.type}-${mediaContext.id}` }}
