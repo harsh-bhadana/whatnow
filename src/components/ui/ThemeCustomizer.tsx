@@ -57,55 +57,56 @@ export function ThemeCustomizer() {
 
   return (
     <div className="w-full">
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Mode Selector */}
-        <div className="space-y-3">
-          <span className="text-xs font-semibold text-[var(--color-m3-on-surface-variant)] uppercase tracking-wider">Appearance</span>
-          <div className="flex bg-[var(--color-m3-surface-container-highest)] p-1 rounded-xl">
+        <div className="space-y-4">
+          <span className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] tracking-wide">Appearance</span>
+          <div className="flex border border-[var(--color-m3-outline)] rounded-full h-10 overflow-hidden">
             <button
               onClick={() => handleThemeChange("light")}
-              className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+              className={`flex-1 flex items-center justify-center gap-2 transition-colors relative ${
                 theme === "light"
-                  ? "bg-[var(--color-m3-surface)] shadow-sm text-[var(--color-m3-primary)]"
-                  : "text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-on-surface)]"
+                  ? "bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)]"
+                  : "bg-transparent text-[var(--color-m3-on-surface)] hover:bg-[var(--color-m3-surface-variant)]/50"
               }`}
             >
-              <Sun className="w-4 h-4" />
+              {theme === "light" ? <Check className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
               <span className="font-medium text-sm">Light</span>
             </button>
+            <div className="w-px bg-[var(--color-m3-outline)]" />
             <button
               onClick={() => handleThemeChange("dark")}
-              className={`flex-1 py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+              className={`flex-1 flex items-center justify-center gap-2 transition-colors relative ${
                 theme === "dark"
-                  ? "bg-[var(--color-m3-surface)] shadow-sm text-[var(--color-m3-primary)]"
-                  : "text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-on-surface)]"
+                  ? "bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)]"
+                  : "bg-transparent text-[var(--color-m3-on-surface)] hover:bg-[var(--color-m3-surface-variant)]/50"
               }`}
             >
-              <Moon className="w-4 h-4" />
+              {theme === "dark" ? <Check className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               <span className="font-medium text-sm">Dark</span>
             </button>
           </div>
         </div>
 
         {/* Palette Selector */}
-        <div className="space-y-3">
-          <span className="text-xs font-semibold text-[var(--color-m3-on-surface-variant)] uppercase tracking-wider">Color Palette</span>
-          <div className="flex gap-3">
+        <div className="space-y-4">
+          <span className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] tracking-wide">Color Palette</span>
+          <div className="flex gap-4">
             {palettes.map((p) => (
               <button
                 key={p.id}
                 onClick={() => handlePaletteChange(p.id)}
-                className={`group relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm border-2 ${
+                className={`group relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-m3-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-m3-surface)] ${
                   activePalette === p.id 
-                    ? "border-[var(--color-m3-primary)] scale-110" 
-                    : "border-transparent"
+                    ? "ring-2 ring-[var(--color-m3-primary)] ring-offset-2 ring-offset-[var(--color-m3-surface)]" 
+                    : "hover:scale-105 active:scale-95 shadow-sm border border-black/10 dark:border-white/10"
                 }`}
                 style={{ backgroundColor: p.color }}
                 title={p.name}
               >
                 {activePalette === p.id && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute inset-0 flex items-center justify-center">
-                    <Check className="w-5 h-5 text-white drop-shadow-md" />
+                    <Check className="w-6 h-6 text-white drop-shadow-sm" />
                   </motion.div>
                 )}
               </button>

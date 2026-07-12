@@ -55,11 +55,11 @@ export default async function RootLayout({
                   >
                     <button
                       type="submit"
-                      className="w-full flex items-center justify-start px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors rounded-lg group"
+                      className="w-full flex items-center gap-4 px-6 py-4 text-base font-medium text-[var(--color-m3-error)] hover:bg-[var(--color-m3-surface-variant)] transition-colors group"
                       title="Sign Out"
                     >
-                      <LogOut size={18} className="mr-3" />
-                      <span>Sign Out</span>
+                      <LogOut className="w-6 h-6 shrink-0 group-hover:-translate-x-1 transition-transform" />
+                      Sign Out
                     </button>
                   </form>
                 </AppHeader>

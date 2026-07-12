@@ -201,7 +201,8 @@ export function AppHeader({ session, children }: { session: any, children: React
                           opacity: 0.6,
                         }}
                         animate={{ 
-                          height: "50dvh",
+                          height: "auto",
+                          maxHeight: "85dvh",
                           opacity: 1,
                         }}
                         exit={{ 
@@ -217,7 +218,7 @@ export function AppHeader({ session, children }: { session: any, children: React
                       >
                         {/* Mobile Header — WhatNow? branding + close */}
                         <motion.div 
-                          className="flex items-center justify-between px-5 h-16 border-b border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface)] shrink-0"
+                          className="flex items-center justify-between px-6 h-16 bg-[var(--color-m3-surface-container)] shrink-0"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.1, duration: 0.2 }}
@@ -230,81 +231,77 @@ export function AppHeader({ session, children }: { session: any, children: React
 
                         {/* Content that fades/slides in after panel expands */}
                         <motion.div
-                          className="flex-1 flex flex-col overflow-y-auto"
+                          className="flex flex-col overflow-y-auto"
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
                           transition={{ delay: 0.12, duration: 0.25 }}
                         >
                           {/* User info with shared-element profile image */}
-                          <div className="px-5 py-5 border-b border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface-container-high)] shrink-0 flex items-center gap-4">
+                          <div className="px-6 py-6 shrink-0 flex items-center gap-4">
                             {session.user.image ? (
                                
-                              <motion.img layoutId="profile-avatar" src={session.user.image} alt={session.user.name || "User"} className="w-14 h-14 rounded-full border-2 border-[var(--color-m3-outline)]/20 object-cover shrink-0 shadow-md" />
+                              <motion.img layoutId="profile-avatar" src={session.user.image} alt={session.user.name || "User"} className="w-14 h-14 rounded-full object-cover shrink-0" />
                             ) : (
-                              <motion.div layoutId="profile-avatar" className="w-14 h-14 rounded-full bg-[var(--color-m3-primary)] flex items-center justify-center text-[var(--color-m3-on-primary)] text-xl font-bold uppercase shrink-0 shadow-md">
+                              <motion.div layoutId="profile-avatar" className="w-14 h-14 rounded-full bg-[var(--color-m3-primary)] flex items-center justify-center text-[var(--color-m3-on-primary)] text-xl font-bold uppercase shrink-0">
                                 {session.user.name?.charAt(0) || "U"}
                               </motion.div>
                             )}
                             <div className="flex flex-col min-w-0">
-                              <p className="text-base font-bold text-[var(--color-m3-on-surface)] truncate">{session.user.name}</p>
-                              <p className="text-sm text-[var(--color-m3-on-surface-variant)] truncate mt-0.5">{session.user.email}</p>
+                              <p className="text-lg font-bold text-[var(--color-m3-on-surface)] truncate">{session.user.name}</p>
+                              <p className="text-sm text-[var(--color-m3-on-surface-variant)] truncate">{session.user.email}</p>
                             </div>
                           </div>
                           
+                          <div className="h-px bg-[var(--color-m3-outline-variant)]/50 w-full" />
+                          
                           {/* Theme Customizer in Mobile Menu */}
-                          <div className="p-4 border-b border-[var(--color-m3-outline)]/10">
+                          <div className="px-6 py-6">
                             <ThemeCustomizer />
                           </div>
 
+                          <div className="h-px bg-[var(--color-m3-outline-variant)]/50 w-full" />
+
                           {/* Nav links with icons */}
-                          <div className="flex-1 flex flex-col py-1 border-b border-[var(--color-m3-outline)]/10">
+                          <div className="flex-1 flex flex-col py-2">
                             <Link 
                               href="/watchlist" 
                               onClick={closeMenu} 
-                              className={`px-5 py-3.5 flex items-start gap-4 transition-colors ${
+                              className={`px-6 py-4 flex items-center gap-4 transition-colors ${
                                 pathname === '/watchlist'
                                   ? 'bg-[var(--color-m3-secondary-container)]'
                                   : 'hover:bg-[var(--color-m3-surface-variant)] active:bg-[var(--color-m3-surface-variant)]'
                               }`}
                             >
-                              <Bookmark className={`w-5 h-5 mt-0.5 shrink-0 ${
+                              <Bookmark className={`w-6 h-6 shrink-0 ${
                                 pathname === '/watchlist' ? 'fill-current text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface-variant)]'
                               }`} />
-                              <div className="flex flex-col">
-                                <span className={`text-base font-medium ${
-                                  pathname === '/watchlist' ? 'text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface)]'
-                                }`}>Watch Later</span>
-                                <span className={`text-xs mt-0.5 ${
-                                  pathname === '/watchlist' ? 'text-[var(--color-m3-on-secondary-container)]/80' : 'text-[var(--color-m3-on-surface-variant)]'
-                                }`}>Saved for your next binge</span>
-                              </div>
+                              <span className={`text-base font-medium ${
+                                pathname === '/watchlist' ? 'text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface)]'
+                              }`}>Watch Later</span>
                             </Link>
                             <Link 
                               href="/history" 
                               onClick={closeMenu} 
-                              className={`px-5 py-3.5 flex items-start gap-4 transition-colors ${
+                              className={`px-6 py-4 flex items-center gap-4 transition-colors ${
                                 pathname === '/history'
                                   ? 'bg-[var(--color-m3-secondary-container)]'
                                   : 'hover:bg-[var(--color-m3-surface-variant)] active:bg-[var(--color-m3-surface-variant)]'
                               }`}
                             >
-                              <History className={`w-5 h-5 mt-0.5 shrink-0 ${
+                              <History className={`w-6 h-6 shrink-0 ${
                                 pathname === '/history' ? 'text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface-variant)]'
                               }`} />
-                              <div className="flex flex-col">
-                                <span className={`text-base font-medium ${
-                                  pathname === '/history' ? 'text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface)]'
-                                }`}>Watch History</span>
-                                <span className={`text-xs mt-0.5 ${
-                                  pathname === '/history' ? 'text-[var(--color-m3-on-secondary-container)]/80' : 'text-[var(--color-m3-on-surface-variant)]'
-                                }`}>Everything you&apos;ve watched so far</span>
-                              </div>
+                              <span className={`text-base font-medium ${
+                                pathname === '/history' ? 'text-[var(--color-m3-on-secondary-container)]' : 'text-[var(--color-m3-on-surface)]'
+                              }`}>Watch History</span>
                             </Link>
                           </div>
                           
+                          <div className="h-px bg-[var(--color-m3-outline-variant)]/50 w-full" />
+                          
                           {/* Sign out / children */}
-                          <div className="p-4 shrink-0">
+                          <div className="py-2 shrink-0">
                             {children}
                           </div>
                         </motion.div>
@@ -313,22 +310,35 @@ export function AppHeader({ session, children }: { session: any, children: React
 
                     {/* Desktop: Small dropdown (unchanged behavior) */}
                     <motion.div
-                      className="hidden sm:flex absolute right-0 top-full mt-3 w-72 bg-[var(--color-m3-surface-container)] border border-[var(--color-m3-outline)]/20 rounded-2xl shadow-xl overflow-hidden z-50 flex-col"
+                      className="hidden sm:flex absolute right-0 top-full mt-3 w-80 bg-[var(--color-m3-surface-container)] rounded-[28px] shadow-xl overflow-hidden z-50 flex-col py-2 border border-[var(--color-m3-outline-variant)]/30"
                       initial={{ opacity: 0, y: -8, scale: 0.96 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.96 }}
                       transition={{ type: "spring", damping: 24, stiffness: 400 }}
                     >
-                      <div className="px-5 py-4 border-b border-[var(--color-m3-outline)]/10 bg-[var(--color-m3-surface-container-high)] shrink-0">
-                        <p className="text-sm font-bold text-[var(--color-m3-on-surface)] truncate">{session.user.name}</p>
-                        <p className="text-xs text-[var(--color-m3-on-surface-variant)] truncate mt-1">{session.user.email}</p>
+                      <div className="px-6 py-4 shrink-0 flex items-center gap-4">
+                        {session.user.image ? (
+                          <img src={session.user.image} alt="User" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[var(--color-m3-primary)] flex items-center justify-center text-[var(--color-m3-on-primary)] text-sm font-bold uppercase shrink-0">
+                            {session.user.name?.charAt(0) || "U"}
+                          </div>
+                        )}
+                        <div className="flex flex-col min-w-0">
+                          <p className="text-base font-bold text-[var(--color-m3-on-surface)] truncate">{session.user.name}</p>
+                          <p className="text-xs text-[var(--color-m3-on-surface-variant)] truncate">{session.user.email}</p>
+                        </div>
                       </div>
                       
-                      <div className="p-4 border-b border-[var(--color-m3-outline)]/10">
+                      <div className="h-px bg-[var(--color-m3-outline-variant)]/50 w-full" />
+                      
+                      <div className="px-6 py-5">
                         <ThemeCustomizer />
                       </div>
 
-                      <div className="p-2 shrink-0">
+                      <div className="h-px bg-[var(--color-m3-outline-variant)]/50 w-full" />
+
+                      <div className="py-2 shrink-0">
                         {children}
                       </div>
                     </motion.div>
