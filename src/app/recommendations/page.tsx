@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useAppStore, WatchHistoryItem } from "@/lib/store/useAppStore";
+import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
@@ -13,13 +12,14 @@ import { addWatchedMedia } from "@/app/actions/profiles";
 
 export default function Recommendations() {
   const router = useRouter();
-  const { availableTime, selectedMoods, addToHistory, watchHistory, activeProfileId, cachedRecommendations, setCachedRecommendations, selectedMedia, setSelectedMedia } = useAppStore();
+  const { availableTime, selectedMoods, addToHistory, watchHistory, activeProfileId, cachedRecommendations, setCachedRecommendations, setSelectedMedia } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
 
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line
     setIsMounted(true);
   }, []);
 
@@ -37,9 +37,13 @@ export default function Recommendations() {
     }
 
     async function loadData() {
-      if (cachedRecommendations.length === 0) {
-        setLoading(true);
+      if (cachedRecommendations.length > 0) {
+        setResults(cachedRecommendations);
+        setLoading(false);
+        return;
       }
+
+      setLoading(true);
       const watchedIds = watchHistory.map(item => item.id);
 
       // Fetch concurrently
@@ -56,29 +60,11 @@ export default function Recommendations() {
     }
 
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableTime, selectedMoods, router, watchHistory, activeProfileId, isMounted]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
-  };
-
-  const handleMarkAsWatched = async (item: MediaCardProps) => {
-    const historyItem = {
-      ...item,
-      watchedAt: Date.now(),
-      userRating: 0,
-    };
-    
-    // Update local state for fast UI response
-    addToHistory(historyItem);
-    
-    // Sync with MongoDB backend
-    if (activeProfileId) {
-      await addWatchedMedia(activeProfileId, item);
-    }
-    
-    setSelectedMedia(null);
-    router.push("/history");
   };
 
   return (

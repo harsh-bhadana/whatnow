@@ -37,11 +37,12 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       availableTime: 120,
-      setAvailableTime: (time) => set({ availableTime: time }),
+      setAvailableTime: (time) => set({ availableTime: time, cachedRecommendations: [] }),
       
       selectedMoods: [],
       toggleMood: (mood) =>
         set((state) => ({
+          cachedRecommendations: [],
           selectedMoods: state.selectedMoods.includes(mood)
             ? state.selectedMoods.filter((m) => m !== mood)
             : [...state.selectedMoods, mood],
