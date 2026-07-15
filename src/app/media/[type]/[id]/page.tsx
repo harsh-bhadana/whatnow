@@ -106,12 +106,14 @@ export default function MediaDetailPage({ params }: PageProps) {
           
           {/* Poster Image */}
           <div className="w-full md:w-1/3 lg:w-1/4 shrink-0 relative group perspective-1000">
-            <div className="aspect-[2/3] w-full rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] ring-1 ring-white/10 transition-transform duration-500 ease-out group-hover:scale-[1.02]">
+            <div 
+              style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
+              className="aspect-[2/3] w-full rounded-3xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] ring-1 ring-white/10 transition-transform duration-500 ease-out group-hover:scale-[1.02]"
+            >
               {mediaContext.imageUrl ? (
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
                     src={mediaContext.imageUrl}
                     alt={mediaContext.title}
                     className="w-full h-full object-cover"
@@ -125,13 +127,8 @@ export default function MediaDetailPage({ params }: PageProps) {
           
           {/* Info Section */}
           <div className="flex-1 flex flex-col pt-2 md:pt-4">
-            <div 
-              style={{ viewTransitionName: `card-text-container-${mediaContext.type}-${mediaContext.id}` }}
-            >
-              <h1 
-                style={{ viewTransitionName: `card-title-${mediaContext.type}-${mediaContext.id}` }}
-                className="text-4xl sm:text-5xl lg:text-7xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg"
-              >
+            <div>
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
                 {mediaContext.title || (details as any)?.title || (details as any)?.name}
               </h1>
             </div>
