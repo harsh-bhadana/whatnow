@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +11,7 @@ export interface MediaCardProps {
   type: "movie" | "tv" | "anime";
   runtime?: number;
   shape?: "rock1" | "rock2" | "rock3" | "rock4" | "default" | string;
+  isSelected?: boolean;
   onClick?: () => void;
 }
 
@@ -22,6 +22,7 @@ export function MediaCard({
   rating,
   type,
   runtime,
+  isSelected,
   onClick,
 }: MediaCardProps) {
   
@@ -35,26 +36,25 @@ export function MediaCard({
   };
 
   return (
-    <motion.div 
-      layoutId={`card-container-${id}`}
+    <div 
+      style={{ viewTransitionName: isSelected ? 'none' : `card-container-${id}` }}
       className="group cursor-pointer relative w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col bg-zinc-900"
       onClick={onClick}
     >
       {/* Ambient Blurred Background for the entire card */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <motion.img
-        layoutId={`card-ambient-${id}`}
+      <img
         src={imageUrl}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover opacity-30 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
+        className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
         aria-hidden="true"
       />
 
       {/* The fully visible poster image on top */}
       <div className="relative z-10 w-full aspect-[2/3] overflow-hidden bg-black/20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <motion.img
-          layoutId={`card-image-${id}`}
+        <img
+          style={{ viewTransitionName: isSelected ? 'none' : `card-image-${id}` }}
           src={imageUrl}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -79,20 +79,20 @@ export function MediaCard({
       </div>
       
       {/* Small Text Section Below the Image (Shows the ambient blur behind it) */}
-      <motion.div 
-        layoutId={`card-text-container-${id}`}
-        className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-zinc-900/90 border-t border-white/10"
+      <div 
+        style={{ viewTransitionName: isSelected ? 'none' : `card-text-container-${id}` }}
+        className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10"
       >
-        <motion.h3 
-          layoutId={`card-title-${id}`}
+        <h3 
+          style={{ viewTransitionName: isSelected ? 'none' : `card-title-${id}` }}
           className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md"
         >
           {title}
-        </motion.h3>
+        </h3>
         {runtime && (
           <span className="text-[11px] font-medium text-white/70 mt-0.5">{runtime}m</span>
         )}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 }
