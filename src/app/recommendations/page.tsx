@@ -13,10 +13,9 @@ import { addWatchedMedia } from "@/app/actions/profiles";
 
 export default function Recommendations() {
   const router = useRouter();
-  const { availableTime, selectedMoods, addToHistory, watchHistory, activeProfileId } = useAppStore();
-  const [results, setResults] = useState<MediaCardProps[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { selectedMedia, setSelectedMedia } = useAppStore();
+  const { availableTime, selectedMoods, addToHistory, watchHistory, activeProfileId, cachedRecommendations, setCachedRecommendations, selectedMedia, setSelectedMedia } = useAppStore();
+  const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
+  const [loading, setLoading] = useState(cachedRecommendations.length === 0);
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -38,7 +37,9 @@ export default function Recommendations() {
     }
 
     async function loadData() {
-      setLoading(true);
+      if (cachedRecommendations.length === 0) {
+        setLoading(true);
+      }
       const watchedIds = watchHistory.map(item => item.id);
 
       // Fetch concurrently
@@ -50,6 +51,7 @@ export default function Recommendations() {
       // Combine and shuffle
       const combined = [...moviesAndTv, ...anime].sort(() => Math.random() - 0.5);
       setResults(combined);
+      setCachedRecommendations(combined);
       setLoading(false);
     }
 

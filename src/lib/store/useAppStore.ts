@@ -29,6 +29,8 @@ interface AppState {
   // Transition State
   selectedMedia: MediaCardProps | null;
   setSelectedMedia: (media: MediaCardProps | null) => void;
+  cachedRecommendations: MediaCardProps[];
+  setCachedRecommendations: (recommendations: MediaCardProps[]) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -71,6 +73,8 @@ export const useAppStore = create<AppState>()(
         
       selectedMedia: null,
       setSelectedMedia: (media) => set({ selectedMedia: media }),
+      cachedRecommendations: [],
+      setCachedRecommendations: (recommendations) => set({ cachedRecommendations: recommendations }),
     }),
     {
       name: "media-recommender-storage",
