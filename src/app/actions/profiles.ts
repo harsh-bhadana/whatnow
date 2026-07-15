@@ -65,7 +65,6 @@ export async function addWatchedMedia(profileId: string, media: MediaCardProps):
       { 
         // @ts-expect-error
         $push: { 
-          // @ts-expect-error
           watchHistory: {
             ...media,
             watchedAt: Date.now()
