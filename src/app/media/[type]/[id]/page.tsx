@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition, use } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { ArrowLeft, Star, Clock, Trash2, Check } from "lucide-react";
+import { Link } from 'next-view-transitions';
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
 import { addWatchedMedia, removeWatchedMedia } from "@/app/actions/profiles";
@@ -92,12 +93,12 @@ export default function MediaDetailPage({ params }: PageProps) {
       <div className="relative z-10 flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
         {/* Navigation */}
         <div className="flex items-center gap-4 mb-8 sm:mb-16">
-          <button 
-            onClick={() => router.back()}
+          <Link 
+            href="/recommendations"
             className="p-3 rounded-full bg-white/5 hover:bg-white/10 backdrop-blur-md transition-colors text-white border border-white/10"
           >
             <ArrowLeft className="w-6 h-6" />
-          </button>
+          </Link>
         </div>
 
         {/* Hero Section */}
@@ -205,7 +206,7 @@ export default function MediaDetailPage({ params }: PageProps) {
             )}
 
             {(() => {
-              const usProviders = details?.["watch/providers"]?.results?.US;
+              const usProviders = (details as any)?.["watch/providers"]?.results?.US;
               if (!usProviders) return null;
               
               const allProviders = [

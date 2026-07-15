@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -14,6 +14,7 @@ export default function Recommendations() {
   const { availableTime, selectedMoods, watchHistory, activeProfileId, cachedRecommendations, setCachedRecommendations, setSelectedMedia } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
+  const isInitialLoad = useRef(cachedRecommendations.length === 0);
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -99,16 +100,16 @@ export default function Recommendations() {
         ) : (
           <motion.div 
             key="results"
-            initial={{ opacity: 0, y: 20 }}
+            initial={isInitialLoad.current ? { opacity: 0, y: 20 } : false}
             animate={{ opacity: 1, y: 0 }}
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6"
           >
             {results.map((item, index) => (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={isInitialLoad.current ? { opacity: 0, scale: 0.9 } : false}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: isInitialLoad.current ? index * 0.05 : 0 }}
               >
                 <MediaCard 
                   {...item}
