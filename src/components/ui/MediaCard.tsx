@@ -41,7 +41,7 @@ export function MediaCard({
   return (
     <Wrapper 
       href={href as any}
-      style={{ viewTransitionName: `card-container-${id}`, display: 'block' }}
+      style={{ viewTransitionName: `card-container-${type}-${id}`, display: 'block' }}
       className="group cursor-pointer relative w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col bg-zinc-900"
       onClick={onClick}
     >
@@ -58,7 +58,7 @@ export function MediaCard({
       <div className="relative z-10 w-full aspect-[2/3] overflow-hidden bg-black/20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          style={{ viewTransitionName: `card-image-${id}` }}
+          style={{ viewTransitionName: `card-image-${type}-${id}` }}
           src={imageUrl}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -84,11 +84,11 @@ export function MediaCard({
       
       {/* Small Text Section Below the Image (Shows the ambient blur behind it) */}
       <div 
-        style={{ viewTransitionName: `card-text-container-${id}` }}
+        style={{ viewTransitionName: `card-text-container-${type}-${id}` }}
         className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10"
       >
         <h3 
-          style={{ viewTransitionName: `card-title-${id}` }}
+          style={{ viewTransitionName: `card-title-${type}-${id}` }}
           className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md"
         >
           {title}
