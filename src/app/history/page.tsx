@@ -14,7 +14,6 @@ export default function History() {
 
   const handleCardClick = (item: any) => {
     setSelectedMedia(item);
-    router.push(`/media/${item.type}/${item.id}`);
   };
 
   const [isMounted, setIsMounted] = useState(false);
@@ -76,6 +75,7 @@ export default function History() {
               <MediaCard 
                 {...item} 
                 shape="default" 
+                href={`/media/${item.type}/${item.id}`}
                 onClick={() => handleCardClick(item)} 
               />
               <button 

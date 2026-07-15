@@ -58,7 +58,6 @@ export default function Recommendations() {
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
-    router.push(`/media/${item.type}/${item.id}`);
   };
 
   const handleMarkAsWatched = async (item: MediaCardProps) => {
@@ -125,8 +124,8 @@ export default function Recommendations() {
                 transition={{ delay: index * 0.05 }}
               >
                 <MediaCard 
-                  {...item} 
-                  isSelected={selectedMedia?.id === item.id}
+                  {...item}
+                  href={`/media/${item.type}/${item.id}`} 
                   onClick={() => handleCardClick(item)}
                 />
               </motion.div>
