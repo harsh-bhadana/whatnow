@@ -20,12 +20,6 @@ export default function MediaDetailPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
 
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
   const isWatched = watchHistory.some((item) => item.id === Number(resolvedParams.id));
 
   // If a user hits this page directly without going through the flow, 
@@ -41,7 +35,6 @@ export default function MediaDetailPage({ params }: PageProps) {
   };
 
   useEffect(() => {
-    if (!isMounted) return;
     async function load() {
       if (resolvedParams.type !== "anime") { // Only TMDB for now
         setLoading(true);
@@ -58,7 +51,7 @@ export default function MediaDetailPage({ params }: PageProps) {
       }
     }
     load();
-  }, [resolvedParams.id, resolvedParams.type, isMounted]);
+  }, [resolvedParams.id, resolvedParams.type]);
 
   const handleToggleWatch = async () => {
     if (!selectedMedia) return;
@@ -80,8 +73,6 @@ export default function MediaDetailPage({ params }: PageProps) {
       }
     }
   };
-
-  if (!isMounted) return null;
 
   return (
     <main className="min-h-screen relative flex flex-col">
@@ -119,7 +110,7 @@ export default function MediaDetailPage({ params }: PageProps) {
                 <>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    style={{ viewTransitionName: `card-image-${mediaContext.id}` }}
+                    style={{ viewTransitionName: `card-image-${mediaContext.type}-${mediaContext.id}` }}
                     src={mediaContext.imageUrl}
                     alt={mediaContext.title}
                     className="w-full h-full object-cover"
@@ -134,10 +125,10 @@ export default function MediaDetailPage({ params }: PageProps) {
           {/* Info Section */}
           <div className="flex-1 flex flex-col pt-2 md:pt-4">
             <div 
-              style={{ viewTransitionName: `card-text-container-${mediaContext.id}` }}
+              style={{ viewTransitionName: `card-text-container-${mediaContext.type}-${mediaContext.id}` }}
             >
               <h1 
-                style={{ viewTransitionName: `card-title-${mediaContext.id}` }}
+                style={{ viewTransitionName: `card-title-${mediaContext.type}-${mediaContext.id}` }}
                 className="text-4xl sm:text-5xl lg:text-7xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg"
               >
                 {mediaContext.title || details?.title || details?.name}

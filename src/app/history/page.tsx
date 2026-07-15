@@ -29,8 +29,6 @@ export default function History() {
     }
   }, [isMounted, activeProfileId, router]);
 
-  if (!isMounted) return null;
-
   return (
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
       <div className="flex items-center justify-between mb-8">
