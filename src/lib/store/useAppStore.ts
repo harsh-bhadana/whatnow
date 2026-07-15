@@ -25,6 +25,10 @@ interface AppState {
   
   preferredGenres: string[];
   addPreferredGenre: (genre: string) => void;
+  
+  // Transition State
+  selectedMedia: MediaCardProps | null;
+  setSelectedMedia: (media: MediaCardProps | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -64,6 +68,9 @@ export const useAppStore = create<AppState>()(
             ? state.preferredGenres
             : [...state.preferredGenres, genre],
         })),
+        
+      selectedMedia: null,
+      setSelectedMedia: (media) => set({ selectedMedia: media }),
     }),
     {
       name: "media-recommender-storage",
