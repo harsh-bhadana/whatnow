@@ -41,7 +41,6 @@ export function MediaCard({
   return (
     <Wrapper 
       href={href as string}
-      style={{ viewTransitionName: `card-image-${type}-${id}`, display: 'block' }}
       className="group cursor-pointer relative w-full rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col bg-zinc-900"
       onClick={onClick}
     >
@@ -55,7 +54,10 @@ export function MediaCard({
       />
 
       {/* The fully visible poster image on top */}
-      <div className="relative z-10 w-full aspect-[2/3] overflow-hidden bg-black/20">
+      <div 
+        style={{ viewTransitionName: `card-image-${type}-${id}` }}
+        className="relative z-10 w-full aspect-[2/3] overflow-hidden rounded-t-2xl bg-black/20"
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
