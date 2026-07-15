@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition, use } from "react";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { ArrowLeft, Star, Clock, Trash2, Check } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
@@ -16,9 +16,9 @@ export default function MediaDetailPage({ params }: PageProps) {
   const router = useRouter();
   const { selectedMedia, watchHistory, addToHistory, removeFromHistory, activeProfileId } = useAppStore();
   
-  const [details, setDetails] = useState<any>(null);
+  const [details, setDetails] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const isWatched = watchHistory.some((item) => item.id === Number(resolvedParams.id));
 
@@ -41,7 +41,7 @@ export default function MediaDetailPage({ params }: PageProps) {
         try {
           const data = await fetchMediaDetails(Number(resolvedParams.id), resolvedParams.type as any);
           startTransition(() => {
-            setDetails(data);
+            setDetails(data as unknown);
             setLoading(false);
           });
         } catch (e) {
@@ -131,7 +131,7 @@ export default function MediaDetailPage({ params }: PageProps) {
                 style={{ viewTransitionName: `card-title-${mediaContext.type}-${mediaContext.id}` }}
                 className="text-4xl sm:text-5xl lg:text-7xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg"
               >
-                {mediaContext.title || details?.title || details?.name}
+                {mediaContext.title || (details as any)?.title || (details as any)?.name}
               </h1>
             </div>
             <div className="flex flex-wrap items-center gap-4 mt-6 text-sm sm:text-base font-medium text-zinc-300">
@@ -140,12 +140,12 @@ export default function MediaDetailPage({ params }: PageProps) {
               </span>
               <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 rounded-full border border-white/5">
                 <Star className="w-5 h-5 text-yellow-400 fill-current drop-shadow-md" />
-                <span className="text-white font-semibold">{mediaContext.rating?.toFixed(1) || details?.vote_average?.toFixed(1)}</span>
+                <span className="text-white font-semibold">{mediaContext.rating?.toFixed(1) || (details as any)?.vote_average?.toFixed(1)}</span>
               </div>
-              {(mediaContext.runtime || details?.runtime) && (
+              {(mediaContext.runtime || (details as any)?.runtime) && (
                 <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 rounded-full border border-white/5">
                   <Clock className="w-5 h-5 text-zinc-400" />
-                  <span>{mediaContext.runtime || details?.runtime}m</span>
+                  <span>{mediaContext.runtime || (details as any)?.runtime}m</span>
                 </div>
               )}
             </div>
@@ -157,8 +157,8 @@ export default function MediaDetailPage({ params }: PageProps) {
                   <div className="h-5 bg-white/10 rounded-full w-5/6"></div>
                   <div className="h-5 bg-white/10 rounded-full w-4/6"></div>
                 </div>
-              ) : details?.overview ? (
-                <p className="text-zinc-200 drop-shadow-sm">{details.overview}</p>
+              ) : (details as any)?.overview ? (
+                <p className="text-sm text-[var(--color-m3-outline)] leading-relaxed">{(details as { overview?: string })?.overview}</p>
               ) : mediaContext.type === "anime" ? (
                 <p>Details for anime are not fetched yet, but it&apos;s a great choice!</p>
               ) : (
@@ -191,11 +191,11 @@ export default function MediaDetailPage({ params }: PageProps) {
               </button>
             </div>
             
-            {details?.credits?.cast && details.credits.cast.length > 0 && (
+            {(details as any)?.credits?.cast && (details as any).credits.cast.length > 0 && (
               <div className="mt-12 sm:mt-16 border-t border-white/10 pt-8">
                 <h3 className="text-xl font-heading font-semibold text-white mb-6">Top Cast</h3>
                 <div className="flex flex-wrap gap-3">
-                  {details.credits.cast.slice(0, 8).map((c: any) => (
+                  {(details as any).credits.cast.slice(0, 8).map((c: any) => (
                     <span key={c.id} className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-sm text-zinc-300 hover:bg-white/10 transition-colors cursor-default">
                       {c.name}
                     </span>

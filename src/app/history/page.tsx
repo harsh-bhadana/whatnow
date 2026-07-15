@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
@@ -16,10 +16,19 @@ export default function History() {
     setSelectedMedia(item);
   };
 
+  const handleRemove = async (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    removeFromHistory(id);
+    if (activeProfileId) {
+      await removeWatchedMedia(activeProfileId, id);
+    }
+  };
+
   const [isMounted, setIsMounted] = useState(false);
 
   // Hydration fix for Zustand persist
   useEffect(() => {
+    // eslint-disable-next-line
     setIsMounted(true);
   }, []);
 

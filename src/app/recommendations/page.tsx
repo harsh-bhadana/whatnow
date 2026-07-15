@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
-import { addWatchedMedia } from "@/app/actions/profiles";
 
 export default function Recommendations() {
   const router = useRouter();
-  const { availableTime, selectedMoods, addToHistory, watchHistory, activeProfileId, cachedRecommendations, setCachedRecommendations, setSelectedMedia } = useAppStore();
+  const { availableTime, selectedMoods, watchHistory, activeProfileId, cachedRecommendations, setCachedRecommendations, setSelectedMedia } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>(cachedRecommendations);
   const [loading, setLoading] = useState(cachedRecommendations.length === 0);
 

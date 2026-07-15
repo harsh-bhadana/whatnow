@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import { getProfiles, createProfile, Profile } from "@/app/actions/profiles";

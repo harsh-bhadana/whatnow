@@ -2,7 +2,7 @@
 
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import { Link } from 'next-view-transitions';
 
 export interface MediaCardProps {
   id: number;

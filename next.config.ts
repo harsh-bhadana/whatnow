@@ -13,9 +13,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    viewTransition: true,
-  },
   output: "standalone",
   async headers() {
     return [

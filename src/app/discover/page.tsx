@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
 import { MoodSelector } from "@/components/ui/MoodSelector";
 import { TimeSlider } from "@/components/ui/TimeSlider";
@@ -20,6 +20,7 @@ export default function Discover() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line
     setIsMounted(true);
   }, []);
 
@@ -49,7 +50,7 @@ export default function Discover() {
             What are you in the mood for?
           </h1>
           <p className="text-lg text-[var(--color-m3-outline)] max-w-xl mx-auto">
-            Tell us how much time you have and what you want to feel. We'll find the perfect movie, show, or anime for you.
+            Tell us how much time you have and what you want to feel. We&apos;ll find the perfect movie, show, or anime for you.
           </p>
         </div>
 
