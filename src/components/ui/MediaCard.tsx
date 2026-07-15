@@ -71,13 +71,19 @@ export function MediaCard({
 
         {/* Top Left Badge: Type */}
         <div className="absolute top-3 left-3 z-20">
-          <span className={cn("text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm", getTypeColor())}>
+          <span 
+            style={{ viewTransitionName: `card-tag-${type}-${id}` }}
+            className={cn("text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm", getTypeColor())}
+          >
             {type}
           </span>
         </div>
 
         {/* Top Right Badge: Rating */}
-        <div className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-yellow-400 text-xs font-bold shadow-sm border border-white/10">
+        <div 
+          style={{ viewTransitionName: `card-rating-${type}-${id}` }}
+          className="absolute top-3 right-3 z-20 flex items-center gap-1 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full text-yellow-400 text-xs font-bold shadow-sm border border-white/10"
+        >
           <Star className="w-3.5 h-3.5 fill-current" />
           <span>{rating.toFixed(1)}</span>
         </div>
@@ -85,7 +91,10 @@ export function MediaCard({
       
       {/* Small Text Section Below the Image (Shows the ambient blur behind it) */}
       <div className="relative z-10 p-3 min-h-[4rem] flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-white/10">
-        <h3 className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md">
+        <h3 
+          style={{ viewTransitionName: `card-title-${type}-${id}` }}
+          className="font-heading font-bold text-sm text-white leading-tight line-clamp-2 drop-shadow-md w-fit"
+        >
           {title}
         </h3>
         {runtime && (

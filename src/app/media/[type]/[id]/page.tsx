@@ -128,15 +128,24 @@ export default function MediaDetailPage({ params }: PageProps) {
           {/* Info Section */}
           <div className="flex-1 flex flex-col pt-2 md:pt-4">
             <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
+              <h1 
+                style={{ viewTransitionName: `card-title-${mediaContext.type}-${mediaContext.id}` }}
+                className="text-4xl sm:text-5xl lg:text-7xl font-heading font-extrabold text-white leading-tight tracking-tight drop-shadow-lg w-fit"
+              >
                 {mediaContext.title || (details as any)?.title || (details as any)?.name}
               </h1>
             </div>
             <div className="flex flex-wrap items-center gap-4 mt-6 text-sm sm:text-base font-medium text-zinc-300">
-              <span className="uppercase tracking-wider px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white shadow-sm">
+              <span 
+                style={{ viewTransitionName: `card-tag-${mediaContext.type}-${mediaContext.id}` }}
+                className="uppercase tracking-wider px-4 py-1.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white shadow-sm"
+              >
                 {mediaContext.type}
               </span>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 rounded-full border border-white/5">
+              <div 
+                style={{ viewTransitionName: `card-rating-${mediaContext.type}-${mediaContext.id}` }}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-black/40 rounded-full border border-white/5"
+              >
                 <Star className="w-5 h-5 text-yellow-400 fill-current drop-shadow-md" />
                 <span className="text-white font-semibold">{mediaContext.rating?.toFixed(1) || (details as any)?.vote_average?.toFixed(1)}</span>
               </div>
