@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  cacheComponents: true,
+  experimental: {
+    viewTransition: true,
+  },
 };
 
 export default nextConfig;
