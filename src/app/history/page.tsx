@@ -10,7 +10,12 @@ import { removeWatchedMedia } from "@/app/actions/profiles";
 
 export default function History() {
   const router = useRouter();
-  const { watchHistory, removeFromHistory, activeProfileId } = useAppStore();
+  const { watchHistory, removeFromHistory, activeProfileId, setSelectedMedia } = useAppStore();
+
+  const handleCardClick = (item: any) => {
+    setSelectedMedia(item);
+    router.push(`/media/${item.type}/${item.id}`);
+  };
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -68,7 +73,11 @@ export default function History() {
               transition={{ delay: index * 0.05 }}
               className="relative group"
             >
-              <MediaCard {...item} shape="default" />
+              <MediaCard 
+                {...item} 
+                shape="default" 
+                onClick={() => handleCardClick(item)} 
+              />
               <button 
                 onClick={async (e) => {
                   e.stopPropagation();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Loader2 } from "lucide-react";
@@ -8,7 +9,6 @@ import { useAppStore, WatchHistoryItem } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
 import { MediaCard, MediaCardProps } from "@/components/ui/MediaCard";
-import { MediaDetailModal } from "@/components/ui/MediaDetailModal";
 import { addWatchedMedia } from "@/app/actions/profiles";
 
 export default function Recommendations() {
@@ -16,7 +16,7 @@ export default function Recommendations() {
   const { availableTime, selectedMoods, addToHistory, watchHistory, activeProfileId } = useAppStore();
   const [results, setResults] = useState<MediaCardProps[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMedia, setSelectedMedia] = useState<MediaCardProps | null>(null);
+  const { selectedMedia, setSelectedMedia } = useAppStore();
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -58,6 +58,7 @@ export default function Recommendations() {
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
+    router.push(`/media/${item.type}/${item.id}`);
   };
 
   const handleMarkAsWatched = async (item: MediaCardProps) => {
@@ -125,6 +126,7 @@ export default function Recommendations() {
               >
                 <MediaCard 
                   {...item} 
+                  isSelected={selectedMedia?.id === item.id}
                   onClick={() => handleCardClick(item)}
                 />
               </motion.div>
@@ -144,13 +146,6 @@ export default function Recommendations() {
           </button>
         </div>
       )}
-
-      <MediaDetailModal 
-        media={selectedMedia}
-        isOpen={selectedMedia !== null}
-        onClose={() => setSelectedMedia(null)}
-        onMarkAsWatched={handleMarkAsWatched}
-      />
     </main>
   );
 }
