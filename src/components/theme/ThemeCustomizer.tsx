@@ -7,9 +7,9 @@ import { Moon, Sun, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const palettes = [
-  { id: "default", name: "Purple", color: "#6750A4" },
-  { id: "mint", name: "Mint", color: "#006C4C" },
-  { id: "sunset", name: "Sunset", color: "#A23F16" },
+  { id: "default", name: "Purple", primary: "#6750A4", secondary: "#625B71", tertiary: "#7D5260" },
+  { id: "mint", name: "Mint", primary: "#006C4C", secondary: "#4C6357", tertiary: "#3D6373" },
+  { id: "sunset", name: "Sunset", primary: "#A23F16", secondary: "#77574E", tertiary: "#6C5D2F" },
 ];
 
 export function ThemeCustomizer() {
@@ -59,27 +59,26 @@ export function ThemeCustomizer() {
     <div className="w-full">
       <div className="space-y-8">
         {/* Mode Selector */}
-        <div className="space-y-4">
-          <span className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] tracking-wide">Appearance</span>
-          <div className="flex border border-[var(--color-m3-outline)] rounded-full h-10 overflow-hidden">
+        <div className="flex flex-col gap-3">
+          <h3 className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] tracking-wide">Appearance</h3>
+          <div className="flex w-full bg-[var(--color-m3-surface-container-high)] rounded-full p-1 h-12">
             <button
               onClick={() => handleThemeChange("light")}
-              className={`flex-1 flex items-center justify-center gap-2 transition-colors relative ${
+              className={`flex-1 flex items-center justify-center gap-2 transition-all rounded-full ${
                 theme === "light"
-                  ? "bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)]"
-                  : "bg-transparent text-[var(--color-m3-on-surface)] hover:bg-[var(--color-m3-surface-variant)]/50"
+                  ? "bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)] shadow-sm"
+                  : "bg-transparent text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-on-surface)]"
               }`}
             >
               {theme === "light" ? <Check className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
               <span className="font-medium text-sm">Light</span>
             </button>
-            <div className="w-px bg-[var(--color-m3-outline)]" />
             <button
               onClick={() => handleThemeChange("dark")}
-              className={`flex-1 flex items-center justify-center gap-2 transition-colors relative ${
+              className={`flex-1 flex items-center justify-center gap-2 transition-all rounded-full ${
                 theme === "dark"
-                  ? "bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)]"
-                  : "bg-transparent text-[var(--color-m3-on-surface)] hover:bg-[var(--color-m3-surface-variant)]/50"
+                  ? "bg-[var(--color-m3-secondary-container)] text-[var(--color-m3-on-secondary-container)] shadow-sm"
+                  : "bg-transparent text-[var(--color-m3-on-surface-variant)] hover:text-[var(--color-m3-on-surface)]"
               }`}
             >
               {theme === "dark" ? <Check className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -89,8 +88,8 @@ export function ThemeCustomizer() {
         </div>
 
         {/* Palette Selector */}
-        <div className="space-y-4">
-          <span className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] tracking-wide">Color Palette</span>
+        <div className="flex flex-col gap-3">
+          <h3 className="text-sm font-medium text-[var(--color-m3-on-surface-variant)] tracking-wide">Color Palette</h3>
           <div className="flex gap-4">
             {palettes.map((p) => (
               <button
@@ -98,14 +97,16 @@ export function ThemeCustomizer() {
                 onClick={() => handlePaletteChange(p.id)}
                 className={`group relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-m3-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-m3-surface)] ${
                   activePalette === p.id 
-                    ? "ring-2 ring-[var(--color-m3-primary)] ring-offset-2 ring-offset-[var(--color-m3-surface)]" 
+                    ? "ring-2 ring-[var(--color-m3-primary)] ring-offset-2 ring-offset-[var(--color-m3-surface)] scale-110 shadow-md" 
                     : "hover:scale-105 active:scale-95 shadow-sm border border-black/10 dark:border-white/10"
                 }`}
-                style={{ backgroundColor: p.color }}
+                style={{ 
+                  background: `conic-gradient(${p.primary} 0deg 180deg, ${p.secondary} 180deg 270deg, ${p.tertiary} 270deg 360deg)` 
+                }}
                 title={p.name}
               >
                 {activePalette === p.id && (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute inset-0 flex items-center justify-center">
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-full">
                     <Check className="w-6 h-6 text-white drop-shadow-sm" />
                   </motion.div>
                 )}
@@ -119,10 +120,10 @@ export function ThemeCustomizer() {
       <AnimatePresence>
         {showOverlay && (
           <motion.div
-            initial={{ clipPath: 'circle(0% at 50% 50%)' }}
-            animate={{ clipPath: 'circle(150% at 50% 50%)' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
             className="fixed inset-0 z-[100] pointer-events-none flex items-center justify-center bg-[var(--color-m3-background)]"
           >
             <div className="flex flex-col items-center gap-6">
