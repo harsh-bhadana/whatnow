@@ -22,7 +22,6 @@ export default function Discover() {
     userDataLoaded, 
     watchHistory,
     mediaType, setMediaType,
-    selectedLikedMediaIds, toggleLikedMedia,
     resetSession
   } = useAppStore();
 
@@ -134,32 +133,6 @@ export default function Discover() {
             />
           </div>
 
-          {watchHistory.length > 0 && (
-            <div className="flex flex-col gap-2">
-              <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--color-m3-outline)] px-2">
-                Based on what I liked...
-              </span>
-              <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
-                {watchHistory.map((item) => {
-                  const isSelected = selectedLikedMediaIds.includes(item.id);
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => toggleLikedMedia(item.id)}
-                      className={cn(
-                        "whitespace-nowrap px-4 py-2 rounded-[16px] text-sm font-medium transition-all shrink-0",
-                        isSelected
-                          ? "bg-[var(--color-m3-tertiary)] text-[var(--color-m3-on-tertiary)] shadow-md scale-105"
-                          : "bg-[var(--color-m3-surface-container-highest)] text-[var(--color-m3-on-surface)] opacity-70 hover:opacity-100"
-                      )}
-                    >
-                      {item.title}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           <div className="flex gap-2 sm:gap-3 w-full mt-1 sm:mt-2 shrink-0">
             <motion.button

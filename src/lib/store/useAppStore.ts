@@ -39,8 +39,6 @@ interface AppState {
   // Advanced Filters
   mediaType: "all" | "movie" | "tv" | "anime";
   setMediaType: (type: "all" | "movie" | "tv" | "anime") => void;
-  selectedLikedMediaIds: number[];
-  toggleLikedMedia: (id: number) => void;
   resetSession: () => void;
 
   // Theming
@@ -106,21 +104,12 @@ export const useAppStore = create<AppState>()(
       
       mediaType: "all",
       setMediaType: (type) => set({ mediaType: type, cachedRecommendations: [] }),
-      selectedLikedMediaIds: [],
-      toggleLikedMedia: (id) =>
-        set((state) => ({
-          cachedRecommendations: [],
-          selectedLikedMediaIds: state.selectedLikedMediaIds.includes(id)
-            ? state.selectedLikedMediaIds.filter((mid) => mid !== id)
-            : [...state.selectedLikedMediaIds, id],
-        })),
       resetSession: () => set({
         availableTime: 120,
         selectedMoods: [],
         cachedRecommendations: [],
         selectedMedia: null,
         mediaType: "all",
-        selectedLikedMediaIds: [],
       }),
 
       activePalette: "default",
