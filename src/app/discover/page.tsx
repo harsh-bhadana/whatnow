@@ -92,7 +92,10 @@ export default function Discover() {
           </p>
         </div>
 
-        <div className="bg-[var(--color-m3-surface-container)] p-4 sm:p-6 rounded-[28px] sm:rounded-[40px] shadow-sm border border-[var(--color-m3-outline)]/5 flex flex-col gap-4 sm:gap-6 shrink">
+        <div 
+          className="bg-[var(--color-m3-surface-container)] p-4 sm:p-6 rounded-[28px] sm:rounded-[40px] shadow-sm border border-[var(--color-m3-outline)]/5 flex flex-col gap-4 sm:gap-6 shrink"
+          style={{ viewTransitionName: 'mood-container' }}
+        >
           <TimeSlider 
             value={availableTime} 
             onChange={setAvailableTime} 
