@@ -16,6 +16,8 @@ export interface MediaCardProps {
   href?: string;
   onClick?: (e?: any) => void;
   isBasedOnLikes?: boolean;
+  basedOnLikeTitle?: string;
+  genreIds?: number[];
   actionButtons?: React.ReactNode;
   reason?: string;
   overview?: string;
@@ -31,6 +33,7 @@ export function MediaCard({
   href,
   onClick,
   isBasedOnLikes,
+  basedOnLikeTitle,
   actionButtons,
   reason,
 }: MediaCardProps) {
@@ -124,8 +127,10 @@ export function MediaCard({
           {/* Bottom Left Badge: Based on your likes */}
           {isBasedOnLikes && (
             <div className="absolute bottom-2 left-2 right-2 z-20 flex justify-center items-center gap-1.5 bg-gradient-to-r from-pink-500/80 to-purple-500/80 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-[var(--color-m3-outline-variant)] shadow-[0_0_15px_rgba(236,72,153,0.5)]">
-              <Star className="w-3.5 h-3.5 text-[var(--color-m3-on-background)] fill-white animate-pulse" />
-              <span className="text-[10px] font-bold text-[var(--color-m3-on-background)] uppercase tracking-wider drop-shadow-md text-center leading-tight">Based on likes</span>
+              <Star className="w-3.5 h-3.5 text-[var(--color-m3-on-background)] fill-white shrink-0 animate-pulse" />
+              <span className="text-[10px] font-bold text-[var(--color-m3-on-background)] uppercase tracking-wider drop-shadow-md text-center leading-tight truncate">
+                {basedOnLikeTitle ? `Because you liked ${basedOnLikeTitle}` : "Based on likes"}
+              </span>
             </div>
           )}
         </div>

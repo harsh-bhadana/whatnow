@@ -8,7 +8,7 @@ const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
 // Mood to TMDB Genre IDs mapping
-const MOOD_TO_TMDB_GENRE: Record<string, number[]> = {
+export const MOOD_TO_TMDB_GENRE: Record<string, number[]> = {
   "Cozy": [10751, 10749, 35], // Family, Romance, Comedy
   "Adrenaline": [28, 53, 12], // Action, Thriller, Adventure
   "Laughs": [35], // Comedy
@@ -26,7 +26,7 @@ export async function fetchRecommendations(
   moods: string[], 
   watchedHistoryIds: number[] = [],
   mediaType: "all" | "movie" | "tv" | "anime" = "all",
-  likedMediaIds: { id: number, type: "movie" | "tv" }[] = [],
+  likedMediaIds: { id: number, type: "movie" | "tv", title?: string }[] = [],
   includeAdult: boolean = false,
   page: number = 1
 ): Promise<MediaCardProps[]> {
@@ -48,7 +48,7 @@ export async function fetchRecommendations(
            console.error(`TMDB API Error (Liked Media ${media.id}):`, data.status_message);
            return [];
         }
-        return (data.results || []).map((item: any) => ({ ...item, media_type: media.type, isBasedOnLikes: true }));
+        return (data.results || []).map((item: any) => ({ ...item, media_type: media.type, isBasedOnLikes: true, basedOnLikeTitle: media.title }));
       });
       allPromises.push(...fetchPromises);
     }
@@ -113,6 +113,7 @@ export async function fetchRecommendations(
         imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
         rating: item.vote_average,
         type: item.media_type || "movie",
+        genreIds: item.genre_ids || [],
         shape: Math.random() > 0.6 ? "asymmetric" : (Math.random() > 0.5 ? "pill" : "default"),
       }));
   } catch (error) {
@@ -152,6 +153,7 @@ export async function searchMedia(query: string, includeAdult: boolean = false):
         imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
         rating: item.vote_average,
         type: item.media_type as "movie" | "tv",
+        genreIds: item.genre_ids || [],
         shape: Math.random() > 0.6 ? "pill" : "default",
       }));
   } catch (error) {
