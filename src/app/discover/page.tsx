@@ -18,7 +18,7 @@ export default function Discover() {
   const { 
     availableTime, setAvailableTime, 
     selectedMoods, toggleMood, 
-    activeProfileId, 
+    userDataLoaded, 
     watchHistory,
     mediaType, setMediaType,
     selectedLikedMediaIds, toggleLikedMedia
@@ -31,13 +31,11 @@ export default function Discover() {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (isMounted && !activeProfileId) {
-      router.push("/");
-    }
-  }, [isMounted, activeProfileId, router]);
-
-  if (!isMounted) return null;
+  if (!isMounted || !userDataLoaded) return (
+    <div className="flex-1 bg-[var(--color-m3-background)] flex items-center justify-center">
+      <div className="w-12 h-12 rounded-full border-4 border-zinc-800 border-t-[var(--color-m3-primary)] animate-spin" />
+    </div>
+  );
 
   const handleDiscover = () => {
     // Navigate to recommendations page with query params or rely on store

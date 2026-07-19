@@ -14,10 +14,9 @@ interface AppState {
   selectedMoods: string[];
   toggleMood: (mood: string) => void;
   
-  // Persistent Data
-  activeProfileId: string | null;
-  activeProfile: { name: string; color: string; includeAdult?: boolean } | null;
-  setActiveProfile: (id: string | null, profile?: { name: string; color: string; includeAdult?: boolean }) => void;
+  // Persistent Data (Now loaded from User collection)
+  userDataLoaded: boolean;
+  setUserDataLoaded: (loaded: boolean) => void;
   
   watchHistory: WatchHistoryItem[];
   setWatchHistory: (history: WatchHistoryItem[]) => void;
@@ -42,6 +41,9 @@ interface AppState {
   setMediaType: (type: "all" | "movie" | "tv" | "anime") => void;
   selectedLikedMediaIds: number[];
   toggleLikedMedia: (id: number) => void;
+  
+  // Session Management
+  resetSession: () => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -59,9 +61,8 @@ export const useAppStore = create<AppState>()(
             : [...state.selectedMoods, mood],
         })),
         
-      activeProfileId: null,
-      activeProfile: null,
-      setActiveProfile: (id, profile) => set({ activeProfileId: id, activeProfile: profile || null }),
+      userDataLoaded: false,
+      setUserDataLoaded: (loaded) => set({ userDataLoaded: loaded }),
       watchHistory: [],
       setWatchHistory: (history) => set({ watchHistory: history }),
       addToHistory: (item) =>
@@ -105,14 +106,22 @@ export const useAppStore = create<AppState>()(
             ? state.selectedLikedMediaIds.filter((mid) => mid !== id)
             : [...state.selectedLikedMediaIds, id],
         })),
+        
+      resetSession: () => set({
+        availableTime: 120,
+        selectedMoods: [],
+        cachedRecommendations: [],
+        selectedMedia: null,
+        mediaType: "all",
+        selectedLikedMediaIds: [],
+      }),
     }),
     {
       name: "media-recommender-storage",
       partialize: (state) => ({
-        watchHistory: state.watchHistory,
-        watchlist: state.watchlist,
-        activeProfileId: state.activeProfileId,
-        activeProfile: state.activeProfile,
+        // We only persist session inputs. Watch history and watchlist are fetched from the server.
+        availableTime: state.availableTime,
+        selectedMoods: state.selectedMoods,
       }),
     }
   )
