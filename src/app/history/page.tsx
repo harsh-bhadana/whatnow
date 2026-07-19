@@ -2,6 +2,8 @@ import { getUserData } from "@/app/actions/user";
 import { HistoryGrid } from "./HistoryGrid";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function HistoryPage() {
   const data = await getUserData();
   
