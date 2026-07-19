@@ -7,13 +7,13 @@ import { WatchHistoryItem } from "@/lib/store/useAppStore";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
-export interface UserData {
+export type UserData = {
   watchHistory: WatchHistoryItem[];
   watchlist: MediaCardProps[];
   settings?: {
     includeAdult?: boolean;
   };
-}
+};
 
 export async function getUserData(): Promise<UserData | null> {
   try {
