@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
-import { fetchRecommendations } from "@/lib/api/tmdb";
+import { fetchRecommendations, MOOD_TO_TMDB_GENRE } from "@/lib/api/tmdb";
 import { generateInsights } from "@/lib/api/ai";
 import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
 import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
@@ -22,7 +22,7 @@ export default function Recommendations() {
   const { 
     availableTime, selectedMoods, watchHistory, 
     cachedRecommendations, setCachedRecommendations, setSelectedMedia,
-    mediaType, selectedLikedMediaIds, userDataLoaded,
+    mediaType, userDataLoaded,
     rateMediaStore, removeFromHistory, watchlist, addToWatchlistStore, removeFromWatchlistStore
   } = useAppStore();
 
@@ -44,6 +44,35 @@ export default function Recommendations() {
       rateMediaStore(newItem);
       await rateMedia(item, rating);
     }
+  };
+
+  const getLikedMediaData = () => {
+    const likedHistory = watchHistory.filter(item => item.userRating === 1);
+    let candidateLikes = [];
+
+    if (selectedMoods.length > 0) {
+      const targetGenreIds = new Set<number>();
+      selectedMoods.forEach(mood => {
+        if (MOOD_TO_TMDB_GENRE[mood]) {
+          MOOD_TO_TMDB_GENRE[mood].forEach(id => targetGenreIds.add(id));
+        }
+      });
+      candidateLikes = likedHistory.filter(item => {
+        if (item.genreIds && item.genreIds.length > 0) {
+          return item.genreIds.some(id => targetGenreIds.has(id));
+        }
+        return false;
+      });
+    } else {
+      candidateLikes = likedHistory;
+    }
+
+    const shuffled = [...candidateLikes].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 2).map(item => ({ 
+      id: item.id, 
+      type: item.type as "movie" | "tv", 
+      title: item.title 
+    }));
   };
 
   const handleWatchlist = async (e: React.MouseEvent, item: MediaCardProps) => {
@@ -87,9 +116,7 @@ export default function Recommendations() {
     isFetchingRef.current = true;
     setLoading(true);
     const watchedIds = watchHistory.map(item => item.id);
-    const likedMediaData = watchHistory
-      .filter(item => selectedLikedMediaIds.includes(item.id))
-      .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
+    const likedMediaData = getLikedMediaData();
 
     currentPage.current += 1;
 
@@ -109,7 +136,7 @@ export default function Recommendations() {
     // Step 2: AI Insights
     if (newResults.length > 0) {
       try {
-        const likedTitles = watchHistory.filter(item => selectedLikedMediaIds.includes(item.id)).map(item => item.title);
+        const likedTitles = likedMediaData.map(item => item.title || "");
         newResults = await generateInsights(newResults, selectedMoods, likedTitles);
       } catch (error) {
         console.error("AI Insight generation failed:", error);
@@ -180,11 +207,6 @@ export default function Recommendations() {
 
   useEffect(() => {
     if (!isMounted || !userDataLoaded) return;
-    
-    if (selectedMoods.length === 0 && selectedLikedMediaIds.length === 0) {
-      router.push("/discover");
-      return;
-    }
 
     async function loadData() {
       // If we already have the cache for this page, just use it on initial mount
@@ -199,9 +221,7 @@ export default function Recommendations() {
       setLoading(true);
 
       const watchedIds = watchHistory.map(item => item.id);
-      const likedMediaData = watchHistory
-        .filter(item => selectedLikedMediaIds.includes(item.id))
-        .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
+      const likedMediaData = getLikedMediaData();
 
       // Step 1: TMDB Discovery
       let newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
@@ -209,7 +229,7 @@ export default function Recommendations() {
       // Step 2: AI Insights
       if (newResults.length > 0) {
         try {
-          const likedTitles = watchHistory.filter(item => selectedLikedMediaIds.includes(item.id)).map(item => item.title);
+          const likedTitles = likedMediaData.map(item => item.title || "");
           newResults = await generateInsights(newResults, selectedMoods, likedTitles);
         } catch (error) {
           console.error("AI Insight generation failed:", error);
@@ -223,7 +243,7 @@ export default function Recommendations() {
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTime, selectedMoods, router, userDataLoaded, isMounted, mediaType, selectedLikedMediaIds]);
+  }, [availableTime, selectedMoods, router, userDataLoaded, isMounted, mediaType, watchHistory]);
 
   const handleCardClick = (item: MediaCardProps) => {
     setSelectedMedia(item);
