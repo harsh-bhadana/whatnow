@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { fetchAnimeRecommendations } from "@/lib/api/anilist";
@@ -94,73 +94,38 @@ export default function Recommendations() {
         </button>
       </div>
 
-      <AnimatePresence mode="wait">
-        {loading ? (
-            <motion.div 
-              key="loading"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 sm:gap-6 space-y-4 sm:space-y-6 w-full"
-            >
-              {/* Mobile button inside the columns to cause shift */}
-              <div className="sm:hidden break-inside-avoid">
-                <button 
-                  onClick={() => router.push("/discover")}
-                  style={{ viewTransitionName: 'mood-container' }}
-                  className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
-                >
-                  {/* Decorative background glow */}
-                  <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-m3-primary)]/10 rounded-full blur-2xl group-hover:bg-[var(--color-m3-primary)]/20 transition-colors" />
-                  
-                  <div className="p-2.5 bg-[var(--color-m3-surface)] rounded-full shadow-sm z-10">
-                    <ArrowLeft className="w-5 h-5 text-[var(--color-m3-primary)]" />
-                  </div>
-                  
-                  <div className="mt-6 relative z-10">
-                    <span className="block text-base font-bold mb-1">Mood change</span>
-                    <span className="block text-xs text-[var(--color-m3-outline)] font-medium leading-tight">
-                      Not feeling these? Refine your vibes and time.
-                    </span>
-                  </div>
-                </button>
-              </div>
-
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="break-inside-avoid">
-                  <MediaCardSkeleton />
-                </div>
-              ))}
-            </motion.div>
-        ) : (
-          <motion.div 
-            key="results"
-            initial={isInitialLoad ? { opacity: 0, y: 20 } : false}
-            animate={{ opacity: 1, y: 0 }}
-            className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 sm:gap-6 space-y-4 sm:space-y-6"
+      <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6 gap-4 sm:gap-6 space-y-4 sm:space-y-6 w-full">
+        {/* Mobile button inside the columns to cause shift, kept outside conditional so it doesn't unmount */}
+        <div className="sm:hidden break-inside-avoid">
+          <button 
+            onClick={() => router.push("/discover")}
+            style={{ viewTransitionName: 'mood-container' }}
+            className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
           >
-            {/* Mobile button inside the columns to cause shift */}
-            <div className="sm:hidden break-inside-avoid">
-              <button 
-                onClick={() => router.push("/discover")}
-                style={{ viewTransitionName: 'mood-container' }}
-                className="w-full h-full min-h-[140px] flex flex-col items-start justify-between p-5 text-left text-[var(--color-m3-on-surface)] transition-all hover:scale-[0.98] active:scale-95 bg-gradient-to-br from-[var(--color-m3-surface-container-high)] to-[var(--color-m3-surface-container)] rounded-3xl border border-[var(--color-m3-outline-variant)]/30 overflow-hidden relative group shadow-sm"
-              >
-                {/* Decorative background glow */}
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-m3-primary)]/10 rounded-full blur-2xl group-hover:bg-[var(--color-m3-primary)]/20 transition-colors" />
-                
-                <div className="p-2.5 bg-[var(--color-m3-surface)] rounded-full shadow-sm z-10">
-                  <ArrowLeft className="w-5 h-5 text-[var(--color-m3-primary)]" />
-                </div>
-                
-                <div className="mt-6 relative z-10">
-                  <span className="block text-base font-bold mb-1">Mood change</span>
-                  <span className="block text-xs text-[var(--color-m3-outline)] font-medium leading-tight">
-                    Not feeling these? Refine your vibes and time.
-                  </span>
-                </div>
-              </button>
+            {/* Decorative background glow */}
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-[var(--color-m3-primary)]/10 rounded-full blur-2xl group-hover:bg-[var(--color-m3-primary)]/20 transition-colors" />
+            
+            <div className="p-2.5 bg-[var(--color-m3-surface)] rounded-full shadow-sm z-10">
+              <ArrowLeft className="w-5 h-5 text-[var(--color-m3-primary)]" />
             </div>
+            
+            <div className="mt-6 relative z-10">
+              <span className="block text-base font-bold mb-1">Mood change</span>
+              <span className="block text-xs text-[var(--color-m3-outline)] font-medium leading-tight">
+                Not feeling these? Refine your vibes and time.
+              </span>
+            </div>
+          </button>
+        </div>
+
+        {loading ? (
+          Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="break-inside-avoid">
+              <MediaCardSkeleton />
+            </div>
+          ))
+        ) : (
+          <>
             {results.map((item, index) => (
               <motion.div
                 key={item.id}
@@ -180,15 +145,15 @@ export default function Recommendations() {
             {/* Mobile bottom space filler easter egg */}
             <div className="sm:hidden break-inside-avoid flex flex-col items-center justify-center p-5 text-center w-full h-full min-h-[140px] rounded-3xl border-2 border-dashed border-green-500/40 bg-green-500/5 transition-all hover:bg-green-500/10 hover:border-green-500/60 group">
               <span className="block text-sm font-bold text-green-700 dark:text-green-400 mb-1 font-serif italic tracking-wide">
-                Don't like anything?
+                Don&apos;t like anything?
               </span>
               <span className="block text-xs text-green-600/90 dark:text-green-400/80 font-medium">
                 Maybe try touching some grass 🌿
               </span>
             </div>
-          </motion.div>
+          </>
         )}
-      </AnimatePresence>
+      </div>
 
       {!loading && results.length === 0 && (
         <div className="flex-1 flex flex-col items-center justify-center text-[var(--color-m3-outline)] space-y-4">
