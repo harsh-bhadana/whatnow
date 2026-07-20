@@ -116,7 +116,8 @@ export function AppHeader({ session, children }: { session: any, children: React
       className="sticky top-0 z-50 w-full bg-[var(--color-m3-surface)]/80 backdrop-blur-md border-b border-[var(--color-m3-outline)]/20 shadow-sm shrink-0"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="font-heading font-bold text-xl text-[var(--color-m3-primary)] shrink-0">
+        <Link href="/" className="font-heading font-bold text-xl text-[var(--color-m3-primary)] shrink-0 flex items-center gap-2">
+          <img src="/icon.svg" alt="WhatNow?" className="w-8 h-8" />
           WhatNow?
         </Link>
         <SearchBar />
@@ -223,7 +224,10 @@ export function AppHeader({ session, children }: { session: any, children: React
                           animate={{ opacity: 1 }}
                           transition={{ delay: 0.1, duration: 0.2 }}
                         >
-                          <span className="font-heading font-bold text-xl text-[var(--color-m3-primary)]">WhatNow?</span>
+                          <span className="font-heading font-bold text-xl text-[var(--color-m3-primary)] flex items-center gap-2">
+                            <img src="/icon.svg" alt="WhatNow?" className="w-8 h-8" />
+                            WhatNow?
+                          </span>
                           <button onClick={closeMenu} className="p-2 -mr-2 text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-surface-variant)] rounded-full transition-colors">
                             <X className="w-6 h-6" />
                           </button>
