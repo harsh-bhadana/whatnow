@@ -41,7 +41,7 @@ export function MasonryGrid({ children, breakpoints, defaultCols = 2 }: MasonryG
       const flat: React.ReactNode[] = [];
       React.Children.forEach(nodes, (child) => {
         if (React.isValidElement(child) && child.type === React.Fragment) {
-          flat.push(...flattenChildren(child.props.children));
+          flat.push(...flattenChildren((child.props as any).children));
         } else if (child) {
           flat.push(child);
         }
