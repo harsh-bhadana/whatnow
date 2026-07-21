@@ -17,6 +17,8 @@ export interface MediaCardProps {
   onClick?: (e?: any) => void;
   isBasedOnLikes?: boolean;
   actionButtons?: React.ReactNode;
+  reason?: string;
+  overview?: string;
 }
 
 export function MediaCard({
@@ -30,6 +32,7 @@ export function MediaCard({
   onClick,
   isBasedOnLikes,
   actionButtons,
+  reason,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
@@ -137,6 +140,11 @@ export function MediaCard({
           </h3>
           {runtime && (
             <span className="text-[11px] font-medium text-[var(--color-m3-on-background)]/70 mt-0.5">{runtime}m</span>
+          )}
+          {reason && (
+            <p className="text-[11px] text-[var(--color-m3-on-background)]/80 mt-2 line-clamp-3 leading-snug opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="font-bold text-yellow-400">Why: </span>{reason}
+            </p>
           )}
         </div>
       </Wrapper>

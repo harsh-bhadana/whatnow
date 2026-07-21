@@ -159,3 +159,4 @@ export async function searchMedia(query: string, includeAdult: boolean = false):
     return [];
   }
 }
+

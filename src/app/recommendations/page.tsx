@@ -8,6 +8,7 @@ import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { fetchRecommendations } from "@/lib/api/tmdb";
+import { generateInsights } from "@/lib/api/ai";
 import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
 import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/media/TouchGrassCard";
@@ -92,6 +93,7 @@ export default function Recommendations() {
 
     currentPage.current += 1;
 
+    // Step 1: TMDB Discovery
     let newResults = await fetchRecommendations(
       availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, currentPage.current
     );
@@ -102,6 +104,16 @@ export default function Recommendations() {
       newResults = await fetchRecommendations(
         availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1
       );
+    }
+
+    // Step 2: AI Insights
+    if (newResults.length > 0) {
+      try {
+        const likedTitles = watchHistory.filter(item => selectedLikedMediaIds.includes(item.id)).map(item => item.title);
+        newResults = await generateInsights(newResults, selectedMoods, likedTitles);
+      } catch (error) {
+        console.error("AI Insight generation failed:", error);
+      }
     }
 
     setResults(newResults);
@@ -191,7 +203,18 @@ export default function Recommendations() {
         .filter(item => selectedLikedMediaIds.includes(item.id))
         .map(item => ({ id: item.id, type: item.type as "movie" | "tv" }));
 
-      const newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
+      // Step 1: TMDB Discovery
+      let newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
+
+      // Step 2: AI Insights
+      if (newResults.length > 0) {
+        try {
+          const likedTitles = watchHistory.filter(item => selectedLikedMediaIds.includes(item.id)).map(item => item.title);
+          newResults = await generateInsights(newResults, selectedMoods, likedTitles);
+        } catch (error) {
+          console.error("AI Insight generation failed:", error);
+        }
+      }
 
       setResults(newResults);
       setCachedRecommendations(newResults);
