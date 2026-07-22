@@ -14,12 +14,14 @@ import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
 import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/media/TouchGrassCard";
 import { MasonryGrid } from "@/components/common/MasonryGrid";
+import { PreferenceTunerModal } from "@/components/modals/PreferenceTunerModal";
 
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : useEffect;
 
 export default function Recommendations() {
   const router = useRouter();
+  const [isTunerOpen, setIsTunerOpen] = useState(false);
   const { 
     availableTime, selectedMoods, watchHistory, 
     cachedRecommendations, setCachedRecommendations, setSelectedMedia,
@@ -259,17 +261,25 @@ export default function Recommendations() {
   return (
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
       {/* Title outside the columns so it spans full width */}
-      <div className="mb-6 sm:mb-8 flex flex-row items-center justify-between">
+      <div className="mb-6 sm:mb-8 flex flex-row items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[var(--color-m3-primary)] leading-tight">
           Your Recommendation
         </h1>
-        {/* Desktop Header Button */}
-        <button 
-          onClick={() => router.push("/discover")}
-          className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-primary)] hover:text-[var(--color-m3-on-primary)] transition-colors font-bold text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" /> Mood change
-        </button>
+        {/* Desktop Header Buttons */}
+        <div className="hidden sm:flex items-center gap-2">
+          <button 
+            onClick={() => setIsTunerOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/10 text-pink-300 border border-pink-500/20 hover:bg-pink-500/20 transition-all font-bold text-sm shadow-sm backdrop-blur-md"
+          >
+            <Sparkles className="w-4 h-4 fill-pink-400 text-pink-400" /> Tune Suggestions
+          </button>
+          <button 
+            onClick={() => router.push("/discover")}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-primary)] hover:text-[var(--color-m3-on-primary)] transition-colors font-bold text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" /> Mood change
+          </button>
+        </div>
       </div>
 
       <MasonryGrid
@@ -415,6 +425,16 @@ export default function Recommendations() {
           </button>
         </div>
       )}
+
+      {/* Preference Tuner Modal */}
+      <PreferenceTunerModal
+        isOpen={isTunerOpen}
+        onClose={() => setIsTunerOpen(false)}
+        onFinished={() => {
+          setIsTunerOpen(false);
+          window.location.reload();
+        }}
+      />
     </main>
   );
 }

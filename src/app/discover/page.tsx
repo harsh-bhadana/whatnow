@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Sparkles } from "lucide-react";
 import { MoodSelector } from "@/components/filters/MoodSelector";
 import { TimeSlider } from "@/components/filters/TimeSlider";
 import { useAppStore } from "@/lib/store/useAppStore";
+import { PreferenceTunerModal } from "@/components/modals/PreferenceTunerModal";
 import { cn } from "@/lib/utils";
 
 const MOODS = [
@@ -26,11 +27,20 @@ export default function Discover() {
   } = useAppStore();
 
   const [isMounted, setIsMounted] = useState(false);
+  const [isTunerOpen, setIsTunerOpen] = useState(false);
+  const hasAutoOpened = useRef(false);
 
   useEffect(() => {
     // eslint-disable-next-line
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (userDataLoaded && watchHistory.length === 0 && !hasAutoOpened.current) {
+      hasAutoOpened.current = true;
+      setIsTunerOpen(true);
+    }
+  }, [userDataLoaded, watchHistory]);
 
   if (!isMounted || !userDataLoaded) return (
     <div className="flex-1 bg-[var(--color-m3-background)] flex items-center justify-center">
@@ -83,6 +93,15 @@ export default function Discover() {
         className="relative z-10 w-full max-w-2xl flex flex-col"
       >
         <div className="text-center mb-4 sm:mb-6 shrink-0">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <button
+              onClick={() => setIsTunerOpen(true)}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 hover:bg-pink-500/20 text-xs font-bold transition-all shadow-sm backdrop-blur-md"
+            >
+              <Sparkles className="w-3.5 h-3.5 fill-pink-400 text-pink-400" />
+              <span>Tune Suggestions</span>
+            </button>
+          </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold tracking-tight text-[var(--color-m3-on-background)] leading-tight">
             What are you in the mood for?
           </h1>
@@ -159,6 +178,14 @@ export default function Discover() {
           </div>
         </div>
       </motion.div>
+
+      {/* Preference Tuner Modal */}
+      <PreferenceTunerModal
+        isOpen={isTunerOpen}
+        onClose={() => setIsTunerOpen(false)}
+        onFinished={() => router.push("/recommendations")}
+      />
     </main>
   );
 }
+
