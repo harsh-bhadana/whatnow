@@ -32,18 +32,15 @@ export function MediaCard({
   runtime,
   href,
   onClick,
-  isBasedOnLikes,
-  basedOnLikeTitle,
   actionButtons,
-  reason,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
     switch (type) {
-      case "movie": return "bg-blue-100 text-blue-800";
-      case "tv": return "bg-green-100 text-green-800";
-      case "anime": return "bg-purple-100 text-purple-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "movie": return "bg-blue-500/90 text-blue-50 border border-blue-400/40 backdrop-blur-md";
+      case "tv": return "bg-emerald-500/90 text-emerald-50 border border-emerald-400/40 backdrop-blur-md";
+      case "anime": return "bg-purple-500/90 text-purple-50 border border-purple-400/40 backdrop-blur-md";
+      default: return "bg-gray-500/90 text-gray-50 border border-gray-400/40 backdrop-blur-md";
     }
   };
 
@@ -54,7 +51,7 @@ export function MediaCard({
       {/* 1. Placeholder to keep layout size static */}
       <div className="w-full flex flex-col opacity-0 pointer-events-none select-none" aria-hidden="true">
         <div className="w-full aspect-[2/3]" />
-        <div className="p-3 min-h-[4rem]" />
+        <div className="p-3 min-h-[3.5rem]" />
       </div>
 
       {/* 2. Action Buttons in the transparent space that will be revealed */}
@@ -109,7 +106,7 @@ export function MediaCard({
           <div className="absolute top-3 left-3 z-20">
             <span 
               style={{ viewTransitionName: `card-tag-${type}-${id}` }}
-              className={cn("text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm", getTypeColor())}
+              className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md", getTypeColor())}
             >
               {type}
             </span>
@@ -123,33 +120,18 @@ export function MediaCard({
             <Star className="w-3.5 h-3.5 fill-current" />
             <span>{rating.toFixed(1)}</span>
           </div>
-
-          {/* Bottom Left Badge: Based on your likes */}
-          {isBasedOnLikes && (
-            <div className="absolute bottom-2 left-2 right-2 z-20 flex justify-center items-center gap-1.5 bg-gradient-to-r from-pink-500/80 to-purple-500/80 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-[var(--color-m3-outline-variant)] shadow-[0_0_15px_rgba(236,72,153,0.5)]">
-              <Star className="w-3.5 h-3.5 text-[var(--color-m3-on-background)] fill-white shrink-0 animate-pulse" />
-              <span className="text-[10px] font-bold text-[var(--color-m3-on-background)] uppercase tracking-wider drop-shadow-md text-center leading-tight truncate">
-                {basedOnLikeTitle ? `Because you liked ${basedOnLikeTitle}` : "Based on likes"}
-              </span>
-            </div>
-          )}
         </div>
         
-        {/* Small Text Section Below the Image */}
-        <div className="relative z-10 p-3 min-h-[4rem] shrink-0 flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-[var(--color-m3-outline-variant)]">
+        {/* Compact Text Section Below the Image */}
+        <div className="relative z-10 p-3 shrink-0 flex flex-col justify-end bg-black/60 backdrop-blur-md border-t border-[var(--color-m3-outline-variant)]">
           <h3 
             style={{ viewTransitionName: `card-title-${type}-${id}` }}
-            className="font-heading font-bold text-sm text-[var(--color-m3-on-background)] leading-tight line-clamp-2 drop-shadow-md w-fit"
+            className="font-heading font-bold text-xs sm:text-sm text-[var(--color-m3-on-background)] leading-tight line-clamp-2 drop-shadow-md"
           >
             {title}
           </h3>
           {runtime && (
-            <span className="text-[11px] font-medium text-[var(--color-m3-on-background)]/70 mt-0.5">{runtime}m</span>
-          )}
-          {reason && (
-            <p className="text-[11px] text-[var(--color-m3-on-background)]/80 mt-2 line-clamp-3 leading-snug opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <span className="font-bold text-yellow-400">Why: </span>{reason}
-            </p>
+            <span className="text-[10px] font-medium text-[var(--color-m3-on-background)]/70 mt-1 block">{runtime}m</span>
           )}
         </div>
       </Wrapper>
