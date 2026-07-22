@@ -9,7 +9,8 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { MOOD_TO_TMDB_GENRE } from "@/lib/constants";
-import { generateInsights } from "@/lib/api/ai";
+import { scoreAndRank } from "@/lib/api/ai";
+import { buildTasteProfile } from "@/app/actions/user";
 import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
 import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/media/TouchGrassCard";
@@ -77,7 +78,7 @@ export default function Recommendations() {
     }
 
     const shuffled = [...candidateLikes].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 2).map(item => ({ 
+    return shuffled.slice(0, 5).map(item => ({ 
       id: item.id, 
       type: item.type, 
       title: item.title 
@@ -142,13 +143,13 @@ export default function Recommendations() {
       );
     }
 
-    // Step 2: AI Insights
+    // Step 2: AI Scoring & Ranking
     if (newResults.length > 0) {
       try {
-        const likedTitles = likedMediaData.map(item => item.title || "");
-        newResults = await generateInsights(newResults, selectedMoods, likedTitles, mediaType);
+        const tasteProfile = buildTasteProfile(watchHistory);
+        newResults = await scoreAndRank(newResults, selectedMoods, tasteProfile.likedTitles, tasteProfile.dislikedTitles, mediaType);
       } catch (error) {
-        console.error("AI Insight generation failed:", error);
+        console.error("AI scoring failed:", error);
       }
     }
 
@@ -235,13 +236,13 @@ export default function Recommendations() {
       // Step 1: TMDB Discovery
       let newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
 
-      // Step 2: AI Insights
+      // Step 2: AI Scoring & Ranking
       if (newResults.length > 0) {
         try {
-          const likedTitles = likedMediaData.map(item => item.title || "");
-          newResults = await generateInsights(newResults, selectedMoods, likedTitles, mediaType);
+          const tasteProfile = buildTasteProfile(watchHistory);
+          newResults = await scoreAndRank(newResults, selectedMoods, tasteProfile.likedTitles, tasteProfile.dislikedTitles, mediaType);
         } catch (error) {
-          console.error("AI Insight generation failed:", error);
+          console.error("AI scoring failed:", error);
         }
       }
 

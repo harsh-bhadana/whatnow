@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Star } from "lucide-react";
+import { Star, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from 'next-view-transitions';
 
@@ -33,6 +33,9 @@ export function MediaCard({
   href,
   onClick,
   actionButtons,
+  reason,
+  isBasedOnLikes,
+  basedOnLikeTitle,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
@@ -120,6 +123,16 @@ export function MediaCard({
             <Star className="w-3.5 h-3.5 fill-current" />
             <span>{rating.toFixed(1)}</span>
           </div>
+
+          {/* Bottom Badge: Based on Likes */}
+          {isBasedOnLikes && basedOnLikeTitle && (
+            <div className="absolute bottom-3 left-3 right-3 z-20">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 bg-[var(--color-m3-tertiary)]/90 text-[var(--color-m3-on-tertiary)] backdrop-blur-md rounded-full shadow-md truncate max-w-full">
+                <Sparkles className="w-3 h-3 shrink-0" />
+                Because you liked {basedOnLikeTitle}
+              </span>
+            </div>
+          )}
         </div>
         
         {/* Compact Text Section Below the Image */}
@@ -130,6 +143,11 @@ export function MediaCard({
           >
             {title}
           </h3>
+          {reason && (
+            <p className="text-[10px] sm:text-[11px] text-[var(--color-m3-on-background)]/60 mt-1.5 leading-snug line-clamp-2 font-medium">
+              {reason}
+            </p>
+          )}
           {runtime && (
             <span className="text-[10px] font-medium text-[var(--color-m3-on-background)]/70 mt-1 block">{runtime}m</span>
           )}
