@@ -55,20 +55,15 @@ export default function MediaDetailPage({ params }: PageProps) {
 
   useEffect(() => {
     async function load() {
-      if (resolvedParams.type !== "anime") { // Only TMDB for now
-        setLoading(true);
-        try {
-          const data = await fetchMediaDetails(Number(resolvedParams.id), resolvedParams.type as any);
-          startTransition(() => {
-            setDetails(data as unknown);
-            setLoading(false);
-          });
-        } catch (e) {
-          console.error(e);
+      setLoading(true);
+      try {
+        const data = await fetchMediaDetails(Number(resolvedParams.id), resolvedParams.type as any);
+        startTransition(() => {
+          setDetails(data as unknown);
           setLoading(false);
-        }
-      } else {
-        // If it's anime, we don't fetch TMDB details yet, so immediately stop loading
+        });
+      } catch (e) {
+        console.error(e);
         setLoading(false);
       }
     }
