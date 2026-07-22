@@ -10,7 +10,7 @@ import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } fr
 import { fetchRecommendations } from "@/lib/api/tmdb";
 import { MOOD_TO_TMDB_GENRE } from "@/lib/constants";
 import { scoreAndRank } from "@/lib/api/ai";
-import { buildTasteProfile } from "@/app/actions/user";
+import { buildTasteProfile } from "@/lib/utils";
 import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
 import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/media/TouchGrassCard";
