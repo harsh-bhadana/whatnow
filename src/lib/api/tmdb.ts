@@ -172,4 +172,50 @@ export async function searchMedia(query: string, includeAdult: boolean = false):
   }
 }
 
+export async function fetchTrendingMedia(
+  mediaType: "all" | "movie" | "tv" | "anime" = "all",
+  page: number = 1
+): Promise<MediaCardProps[]> {
+  if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") {
+    return [];
+  }
+
+  try {
+    let endpoint = `${BASE_URL}/trending/all/day?api_key=${TMDB_API_KEY}&page=${page}&language=en-US`;
+    if (mediaType === "movie") {
+      endpoint = `${BASE_URL}/trending/movie/day?api_key=${TMDB_API_KEY}&page=${page}&language=en-US`;
+    } else if (mediaType === "tv") {
+      endpoint = `${BASE_URL}/trending/tv/day?api_key=${TMDB_API_KEY}&page=${page}&language=en-US`;
+    } else if (mediaType === "anime") {
+      endpoint = `${BASE_URL}/discover/tv?api_key=${TMDB_API_KEY}&page=${page}&with_genres=16&with_original_language=ja&sort_by=popularity.desc&vote_count.gte=50`;
+    }
+
+    const res = await fetch(endpoint);
+    const data = await res.json();
+    if (!data.results) return [];
+
+    return data.results
+      .filter((item: any) => item.poster_path && (item.title || item.name))
+      .map((item: any): MediaCardProps => {
+        let itemType: "movie" | "tv" | "anime" = (item.media_type || (mediaType === "movie" ? "movie" : "tv")) as "movie" | "tv";
+        if (mediaType === "anime" || (itemType === "tv" && (item.genre_ids || []).includes(16) && item.original_language === "ja")) {
+          itemType = "anime";
+        }
+        return {
+          id: item.id,
+          title: item.title || item.name,
+          imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
+          rating: item.vote_average || 0,
+          type: itemType,
+          genreIds: item.genre_ids || [],
+          overview: item.overview || "",
+        };
+      });
+  } catch (error) {
+    console.error("Failed to fetch trending media:", error);
+    return [];
+  }
+}
+
+
 
