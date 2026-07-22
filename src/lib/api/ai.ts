@@ -10,21 +10,18 @@ const ai = process.env.GEMINI_API_KEY
 
 import { TMDB_GENRE_MAP } from "@/lib/constants";
 
-export async function generateInsights(
+export async function scoreAndRank(
   candidates: MediaCardProps[],
   moods: string[],
   likedTitles: string[],
-  mediaType: "all" | "movie" | "tv" | "anime" = "all"
+  dislikedTitles: string[],
+  mediaType: "all" | "movie" | "tv" | "anime"
 ): Promise<Array<MediaCardProps>> {
   if (!ai || candidates.length === 0) {
-    return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
+    return candidates.slice(0, 12).map(c => ({ ...c, reason: "A great match based on your preferences." }));
   }
 
-  // We only want to generate insights for the top 15 to save tokens
-  const candidatesToEnrich = candidates.slice(0, 15);
-  const remainingCandidates = candidates.slice(15);
-
-  const candidatesJson = candidatesToEnrich.map(c => ({
+  const candidatesJson = candidates.map(c => ({
     id: c.id,
     title: c.title,
     type: c.type,
@@ -36,11 +33,17 @@ You are an expert ${mediaType === "all" ? "movie/TV" : mediaType} recommender.
 Media Type Selected by User: ${mediaType.toUpperCase()}.
 The user is in the mood for: ${moods.length > 0 ? moods.join(" + ") : "anything"}.
 They liked: ${likedTitles.length > 0 ? likedTitles.join(", ") : "nothing specific yet"}.
-Here are ${candidatesToEnrich.length} candidates from TMDB:
+They disliked: ${dislikedTitles.length > 0 ? dislikedTitles.join(", ") : "nothing specific yet"}.
+Here are ${candidates.length} candidates from TMDB:
 ${JSON.stringify(candidatesJson, null, 2)}
 
-For each candidate, provide a personalized 1-2 sentence reason ("Why you'll like this") explaining why it fits their current mood, media preference, and past likes.
-Output a JSON array of objects with 'id' (number) and 'reason' (string).
+For each candidate, provide a relevance score from 1-10 and a personalized 1-2 sentence reason ("Why you'll like this") explaining why it fits their current mood, media preference, and past likes.
+Penalize titles similar to disliked items.
+Boost titles sharing DNA with liked items (beyond genre).
+Cross-reference mood selection.
+Be bold about low scores.
+
+Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason' (string).
 `;
 
   const insightSchema: Schema = {
@@ -49,9 +52,10 @@ Output a JSON array of objects with 'id' (number) and 'reason' (string).
       type: Type.OBJECT,
       properties: {
         id: { type: Type.INTEGER },
+        score: { type: Type.INTEGER },
         reason: { type: Type.STRING },
       },
-      required: ["id", "reason"]
+      required: ["id", "score", "reason"]
     }
   };
 
@@ -67,25 +71,39 @@ Output a JSON array of objects with 'id' (number) and 'reason' (string).
 
     if (insightResponse.text) {
       const insights = JSON.parse(insightResponse.text);
-      const insightMap = new Map<number, string>();
-      insights.forEach((i: any) => insightMap.set(i.id, i.reason));
+      const insightMap = new Map<number, {score: number, reason: string}>();
+      insights.forEach((i: any) => insightMap.set(i.id, { score: i.score, reason: i.reason }));
 
-      const enrichedTop = candidatesToEnrich.map(c => ({
-        ...c,
-        reason: insightMap.get(c.id) || "It perfectly matches your current mood!"
-      }));
-      
-      const enrichedRemaining = remainingCandidates.map(c => ({
-        ...c,
-        reason: "A great match based on your preferences."
-      }));
+      const enriched = candidates
+        .map(c => {
+          const insight = insightMap.get(c.id);
+          return {
+            ...c,
+            score: insight?.score ?? 5,
+            reason: insight?.reason || "It perfectly matches your current mood!"
+          };
+        })
+        .filter((c: any) => c.score >= 5)
+        .sort((a: any, b: any) => b.score - a.score);
 
-      return [...enrichedTop, ...enrichedRemaining];
+      return enriched.slice(0, 12).map((c: any) => {
+        const { score, ...rest } = c;
+        return rest as MediaCardProps;
+      });
     }
   } catch (e) {
     console.error("Insight generation failed", e);
   }
 
-  return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
+  return candidates.slice(0, 12).map(c => ({ ...c, reason: "A great match based on your preferences." }));
+}
+
+export async function generateInsights(
+  candidates: MediaCardProps[],
+  moods: string[],
+  likedTitles: string[],
+  mediaType: "all" | "movie" | "tv" | "anime" = "all"
+): Promise<Array<MediaCardProps>> {
+  return scoreAndRank(candidates, moods, likedTitles, [], mediaType);
 }
 

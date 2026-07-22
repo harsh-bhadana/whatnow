@@ -55,9 +55,6 @@ export async function fetchRecommendations(
       });
       
       const genreParam = Array.from(genreIds).join('|');
-      // Advanced Filters applied to Discover queries
-      const commonParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&page=${page}&vote_average.gte=6.5&vote_count.gte=100${genreParam ? `&with_genres=${genreParam}` : ''}&sort_by=popularity.desc`;
-
       const handleFetch = async (url: string, type: "movie" | "tv" | "anime") => {
         try {
           const res = await fetch(url);
@@ -73,15 +70,20 @@ export async function fetchRecommendations(
         }
       };
       
-      if (mediaType === "movie" || mediaType === "all") {
-        allPromises.push(handleFetch(`${BASE_URL}/discover/movie?with_runtime.lte=${timeLimit}${commonParams}`, "movie"));
-      }
-      if (mediaType === "tv" || mediaType === "all") {
-        allPromises.push(handleFetch(`${BASE_URL}/discover/tv?with_runtime.lte=${timeLimit}${commonParams}`, "tv"));
-      }
-      if (mediaType === "anime") {
-        allPromises.push(handleFetch(`${BASE_URL}/discover/tv?page=${page}&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.0&vote_count.gte=20&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "anime"));
-      }
+      const pagesToFetch = [page, page + 1];
+      pagesToFetch.forEach(p => {
+        const commonParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&page=${p}&vote_average.gte=6.5&vote_count.gte=100${genreParam ? `&with_genres=${genreParam}` : ''}&sort_by=popularity.desc`;
+        
+        if (mediaType === "movie" || mediaType === "all") {
+          allPromises.push(handleFetch(`${BASE_URL}/discover/movie?with_runtime.lte=${timeLimit}${commonParams}`, "movie"));
+        }
+        if (mediaType === "tv" || mediaType === "all") {
+          allPromises.push(handleFetch(`${BASE_URL}/discover/tv?${commonParams}`, "tv"));
+        }
+        if (mediaType === "anime") {
+          allPromises.push(handleFetch(`${BASE_URL}/discover/tv?page=${p}&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.0&vote_count.gte=20&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "anime"));
+        }
+      });
     }
 
     const nestedResults = await Promise.all(allPromises);
@@ -107,18 +109,23 @@ export async function fetchRecommendations(
       .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
 
     return rawResults
-      .slice(0, 12)
-      .map((item: any): MediaCardProps => ({
-        id: item.id,
-        title: item.title || item.name,
-        imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
-        rating: item.vote_average,
-        type: item.media_type || "movie",
-        genreIds: item.genre_ids || [],
-        shape: Math.random() > 0.6 ? "asymmetric" : (Math.random() > 0.5 ? "pill" : "default"),
-        isBasedOnLikes: item.isBasedOnLikes,
-        basedOnLikeTitle: item.basedOnLikeTitle,
-      }));
+      .slice(0, 40)
+      .map((item: any): MediaCardProps => {
+        const shapeMod = item.id % 3;
+        const shape = shapeMod === 0 ? "asymmetric" : (shapeMod === 1 ? "pill" : "default");
+        
+        return {
+          id: item.id,
+          title: item.title || item.name,
+          imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
+          rating: item.vote_average,
+          type: item.media_type || "movie",
+          genreIds: item.genre_ids || [],
+          shape,
+          isBasedOnLikes: item.isBasedOnLikes,
+          basedOnLikeTitle: item.basedOnLikeTitle,
+        };
+      });
   } catch (error) {
     console.error("Failed to fetch TMDB recommendations", error);
     return [];
