@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import React from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
-import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide-react";
+import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus, Sparkles } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { fetchRecommendations } from "@/lib/api/tmdb";
@@ -48,7 +48,13 @@ export default function Recommendations() {
   };
 
   const getLikedMediaData = () => {
-    const likedHistory = watchHistory.filter(item => item.userRating === 1);
+    const likedHistory = watchHistory.filter(item => {
+      if (item.userRating !== 1) return false;
+      if (mediaType === "movie") return item.type === "movie";
+      if (mediaType === "tv") return item.type === "tv";
+      if (mediaType === "anime") return item.type === "anime" || (item.type === "tv" && (item.genreIds || []).includes(16));
+      return true;
+    });
     let candidateLikes = [];
 
     if (selectedMoods.length > 0) {
@@ -71,7 +77,7 @@ export default function Recommendations() {
     const shuffled = [...candidateLikes].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 2).map(item => ({ 
       id: item.id, 
-      type: item.type as "movie" | "tv", 
+      type: item.type, 
       title: item.title 
     }));
   };
@@ -138,7 +144,7 @@ export default function Recommendations() {
     if (newResults.length > 0) {
       try {
         const likedTitles = likedMediaData.map(item => item.title || "");
-        newResults = await generateInsights(newResults, selectedMoods, likedTitles);
+        newResults = await generateInsights(newResults, selectedMoods, likedTitles, mediaType);
       } catch (error) {
         console.error("AI Insight generation failed:", error);
       }
@@ -231,7 +237,7 @@ export default function Recommendations() {
       if (newResults.length > 0) {
         try {
           const likedTitles = likedMediaData.map(item => item.title || "");
-          newResults = await generateInsights(newResults, selectedMoods, likedTitles);
+          newResults = await generateInsights(newResults, selectedMoods, likedTitles, mediaType);
         } catch (error) {
           console.error("AI Insight generation failed:", error);
         }

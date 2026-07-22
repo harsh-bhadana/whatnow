@@ -8,10 +8,13 @@ const ai = process.env.GEMINI_API_KEY
   ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
   : null;
 
+import { TMDB_GENRE_MAP } from "@/lib/constants";
+
 export async function generateInsights(
   candidates: MediaCardProps[],
   moods: string[],
-  likedTitles: string[]
+  likedTitles: string[],
+  mediaType: "all" | "movie" | "tv" | "anime" = "all"
 ): Promise<Array<MediaCardProps>> {
   if (!ai || candidates.length === 0) {
     return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
@@ -24,17 +27,19 @@ export async function generateInsights(
   const candidatesJson = candidatesToEnrich.map(c => ({
     id: c.id,
     title: c.title,
-    type: c.type
+    type: c.type,
+    genres: (c.genreIds || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean)
   }));
 
   const insightPrompt = `
-You are an expert movie/TV recommender.
+You are an expert ${mediaType === "all" ? "movie/TV" : mediaType} recommender.
+Media Type Selected by User: ${mediaType.toUpperCase()}.
 The user is in the mood for: ${moods.length > 0 ? moods.join(" + ") : "anything"}.
 They liked: ${likedTitles.length > 0 ? likedTitles.join(", ") : "nothing specific yet"}.
 Here are ${candidatesToEnrich.length} candidates from TMDB:
 ${JSON.stringify(candidatesJson, null, 2)}
 
-For each candidate, provide a personalized 1-2 sentence reason ("Why you'll like this") explaining why it fits their current mood and past likes.
+For each candidate, provide a personalized 1-2 sentence reason ("Why you'll like this") explaining why it fits their current mood, media preference, and past likes.
 Output a JSON array of objects with 'id' (number) and 'reason' (string).
 `;
 
@@ -83,3 +88,4 @@ Output a JSON array of objects with 'id' (number) and 'reason' (string).
 
   return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
 }
+
