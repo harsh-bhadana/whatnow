@@ -1,14 +1,14 @@
 export const MOOD_TO_TMDB_GENRE: Record<string, number[]> = {
-  "Cozy": [10751, 10749, 35], // Family, Romance, Comedy
-  "Adrenaline": [28, 53, 12], // Action, Thriller, Adventure
-  "Laughs": [35], // Comedy
-  "Tears": [18], // Drama
-  "Thought-provoking": [878, 9648], // Sci-Fi, Mystery
-  "Spooky": [27, 53], // Horror, Thriller
-  "Heartwarming": [10751, 10749], // Family, Romance
-  "Epic": [12, 14, 36], // Adventure, Fantasy, History
-  "Mind-bending": [878, 9648], // Sci-Fi, Mystery
-  "Nostalgic": [10751, 35] // Family, Comedy
+  "Cozy": [10751, 10749, 35, 16],          // Family, Romance, Comedy, Animation
+  "Adrenaline": [28, 53, 12, 10752],       // Action, Thriller, Adventure, War
+  "Laughs": [35, 10751],                    // Comedy, Family
+  "Tears": [18, 10749, 10752],             // Drama, Romance, War
+  "Thought-provoking": [878, 9648, 99, 18], // Sci-Fi, Mystery, Documentary, Drama
+  "Spooky": [27, 53, 9648],               // Horror, Thriller, Mystery
+  "Heartwarming": [10751, 10749, 18],      // Family, Romance, Drama
+  "Epic": [12, 14, 36, 10752, 878],        // Adventure, Fantasy, History, War, Sci-Fi
+  "Mind-bending": [878, 9648, 53],         // Sci-Fi, Mystery, Thriller
+  "Nostalgic": [10751, 35, 18, 36, 16]     // Family, Comedy, Drama, History, Animation
 };
 
 export const TMDB_GENRE_MAP: Record<number, string> = {
