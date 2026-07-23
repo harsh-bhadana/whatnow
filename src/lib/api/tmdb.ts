@@ -7,7 +7,7 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_AP
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-import { MOOD_TO_TMDB_GENRE } from "@/lib/constants";
+import { MOOD_TO_TMDB_GENRE, MOOD_PRIMARY_GENRES } from "@/lib/constants";
 export async function fetchRecommendations(
   timeLimit: number, 
   moods: string[], 
@@ -49,12 +49,17 @@ export async function fetchRecommendations(
     
     // DISCOVER FETCHES (if moods selected OR if nothing selected for wildcard)
     if (moods.length > 0 || likedMediaIds.length === 0) {
-      const genreIds = new Set<number>();
+      const primaryGenreIds = new Set<number>();
+      const allGenreIds = new Set<number>();
+
       moods.forEach(mood => {
-        if (MOOD_TO_TMDB_GENRE[mood]) MOOD_TO_TMDB_GENRE[mood].forEach(id => genreIds.add(id));
+        if (MOOD_PRIMARY_GENRES[mood]) MOOD_PRIMARY_GENRES[mood].forEach(id => primaryGenreIds.add(id));
+        if (MOOD_TO_TMDB_GENRE[mood]) MOOD_TO_TMDB_GENRE[mood].forEach(id => allGenreIds.add(id));
       });
       
-      const genreParam = Array.from(genreIds).join('|');
+      const strictGenreParam = Array.from(primaryGenreIds).join(','); // AND logic for primary genres
+      const looseGenreParam = Array.from(allGenreIds).join('|');    // OR logic for all mood genres
+
       const handleFetch = async (url: string, type: "movie" | "tv" | "anime") => {
         try {
           const res = await fetch(url);
@@ -72,13 +77,24 @@ export async function fetchRecommendations(
       
       const pagesToFetch = [page, page + 1];
       pagesToFetch.forEach(p => {
-        const commonParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&page=${p}&vote_average.gte=6.5&vote_count.gte=100${genreParam ? `&with_genres=${genreParam}` : ''}&sort_by=popularity.desc`;
-        
+        // High-precision strict fetch (primary genres)
+        if (strictGenreParam) {
+          const strictParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&page=${p}&vote_average.gte=6.5&vote_count.gte=100&with_genres=${strictGenreParam}&sort_by=popularity.desc`;
+          if (mediaType === "movie" || mediaType === "all") {
+            allPromises.push(handleFetch(`${BASE_URL}/discover/movie?with_runtime.lte=${timeLimit}${strictParams}`, "movie"));
+          }
+          if (mediaType === "tv" || mediaType === "all") {
+            allPromises.push(handleFetch(`${BASE_URL}/discover/tv?${strictParams}`, "tv"));
+          }
+        }
+
+        // High-variety loose fetch (all mood genres)
+        const looseParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&page=${p}&vote_average.gte=6.5&vote_count.gte=100${looseGenreParam ? `&with_genres=${looseGenreParam}` : ''}&sort_by=popularity.desc`;
         if (mediaType === "movie" || mediaType === "all") {
-          allPromises.push(handleFetch(`${BASE_URL}/discover/movie?with_runtime.lte=${timeLimit}${commonParams}`, "movie"));
+          allPromises.push(handleFetch(`${BASE_URL}/discover/movie?with_runtime.lte=${timeLimit}${looseParams}`, "movie"));
         }
         if (mediaType === "tv" || mediaType === "all") {
-          allPromises.push(handleFetch(`${BASE_URL}/discover/tv?${commonParams}`, "tv"));
+          allPromises.push(handleFetch(`${BASE_URL}/discover/tv?${looseParams}`, "tv"));
         }
         if (mediaType === "anime") {
           allPromises.push(handleFetch(`${BASE_URL}/discover/tv?page=${p}&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.0&vote_count.gte=20&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "anime"));
