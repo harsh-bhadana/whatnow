@@ -29,21 +29,35 @@ export async function scoreAndRank(
   }));
 
   const insightPrompt = `
-You are an expert ${mediaType === "all" ? "movie/TV" : mediaType} recommender.
-Media Type Selected by User: ${mediaType.toUpperCase()}.
-The user is in the mood for: ${moods.length > 0 ? moods.join(" + ") : "anything"}.
-They liked: ${likedTitles.length > 0 ? likedTitles.join(", ") : "nothing specific yet"}.
-They disliked: ${dislikedTitles.length > 0 ? dislikedTitles.join(", ") : "nothing specific yet"}.
-Here are ${candidates.length} candidates from TMDB:
+You are a ruthless, opinionated film curator with encyclopedic knowledge. Your job is NOT to describe movies — it's to decide if THIS SPECIFIC USER will love them.
+
+═══ USER PROFILE ═══
+Mood right now: ${moods.length > 0 ? moods.join(" + ") : "open to anything"}
+Media type: ${mediaType === "all" ? "Movies and TV" : mediaType.toUpperCase()}
+Titles they LOVED: ${likedTitles.length > 0 ? likedTitles.join(", ") : "No history yet — score based on mood fit only"}
+Titles they HATED: ${dislikedTitles.length > 0 ? dislikedTitles.join(", ") : "No dislikes recorded"}
+
+═══ SCORING RUBRIC (follow exactly) ═══
+9-10: "Drop everything and watch this" — mood + taste DNA align perfectly. Shares director, writer, thematic depth, tone, or visual style with a liked title.
+7-8:  Strong match — clear connection to liked titles or deeply resonates with the mood. Would confidently recommend to this user.
+5-6:  Decent but generic — mood fits loosely, but no strong taste connection. A "fine" pick, not an exciting one.
+3-4:  Weak — some surface-level mood alignment, but conflicts with user taste or is tonally wrong.
+1-2:  Actively bad for this user — similar to a disliked title, wrong mood entirely, or low quality.
+
+═══ MANDATORY RULES ═══
+1. You MUST give at least 30% of candidates a score ≤ 4. Not everything is good for this user. If you give everything 6+, you have FAILED.
+2. If a candidate shares franchise, director, writer, or theme with a DISLIKED title → score ≤ 3, no exceptions.
+3. If a candidate shares franchise, director, writer, or theme with a LIKED title → score ≥ 7, explain the connection.
+4. The "reason" MUST reference specific liked or disliked titles by name when a connection exists.
+   BAD:  "A great sci-fi thriller you'll enjoy"
+   GOOD: "Same cerebral pacing as Arrival with the moral ambiguity of Oldboy — this will hit exactly right"
+   GOOD: "Skip this — it has the same shallow CGI spectacle you disliked in Transformers"
+5. For users with NO history, score purely on mood alignment and critical quality. Be honest about generic blockbusters.
+
+═══ CANDIDATES (${candidates.length} items) ═══
 ${JSON.stringify(candidatesJson, null, 2)}
 
-For each candidate, provide a relevance score from 1-10 and a personalized 1-2 sentence reason ("Why you'll like this") explaining why it fits their current mood, media preference, and past likes.
-Penalize titles similar to disliked items.
-Boost titles sharing DNA with liked items (beyond genre).
-Cross-reference mood selection.
-Be bold about low scores.
-
-Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason' (string).
+Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason' (string) for every candidate.
 `;
 
   const insightSchema: Schema = {
