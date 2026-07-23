@@ -103,7 +103,10 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason
 
       return enriched.slice(0, 12).map((c: any) => {
         const { score, ...rest } = c;
-        return rest as MediaCardProps;
+        return {
+          ...rest,
+          matchScore: score,
+        } as MediaCardProps;
       });
     }
   } catch (e) {

@@ -21,6 +21,7 @@ export interface MediaCardProps {
   actionButtons?: React.ReactNode;
   reason?: string;
   overview?: string;
+  matchScore?: number;
 }
 
 export function MediaCard({
@@ -36,6 +37,7 @@ export function MediaCard({
   reason,
   isBasedOnLikes,
   basedOnLikeTitle,
+  matchScore,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
@@ -123,6 +125,13 @@ export function MediaCard({
             <Star className="w-3.5 h-3.5 fill-current" />
             <span>{rating.toFixed(1)}</span>
           </div>
+
+          {/* Top Right Badge: Match Score */}
+          {matchScore && (
+            <div className="absolute top-10 right-3 z-20 px-2 py-0.5 rounded-full bg-emerald-500/80 backdrop-blur-md text-white text-[10px] font-bold shadow-md border border-emerald-400/30">
+              {matchScore * 10}% match
+            </div>
+          )}
 
           {/* Bottom Badge: Based on Likes */}
           {isBasedOnLikes && basedOnLikeTitle && (
