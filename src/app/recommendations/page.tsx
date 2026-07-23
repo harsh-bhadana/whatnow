@@ -30,6 +30,8 @@ export default function Recommendations() {
     rateMediaStore, removeFromHistory, watchlist, addToWatchlistStore, removeFromWatchlistStore
   } = useAppStore();
 
+  const candidatePoolRef = useRef<MediaCardProps[]>([]);
+
   const handleRate = async (e: React.MouseEvent, item: MediaCardProps, rating: 1 | -1) => {
     e.preventDefault();
     e.stopPropagation();
@@ -47,6 +49,20 @@ export default function Recommendations() {
       };
       rateMediaStore(newItem);
       await rateMedia(item, rating);
+
+      // Candidate Pool Reserve: If user dislikes an item, swap in the next-best candidate from the pool
+      if (rating === -1) {
+        setResults(prevResults => {
+          const filtered = prevResults.filter(r => r.id !== item.id);
+          const displayedIds = new Set(filtered.map(r => r.id));
+          const replacement = candidatePoolRef.current.find(
+            c => !displayedIds.has(c.id) && c.id !== item.id
+          );
+          const updated = replacement ? [...filtered, replacement] : filtered;
+          setCachedRecommendations(updated);
+          return updated;
+        });
+      }
     }
   };
 
@@ -153,8 +169,10 @@ export default function Recommendations() {
       }
     }
 
-    setResults(newResults);
-    setCachedRecommendations(newResults);
+    candidatePoolRef.current = newResults;
+    const top12 = newResults.slice(0, 12);
+    setResults(top12);
+    setCachedRecommendations(top12);
     
     setLoading(false);
     setIsRefreshing(false);
@@ -246,8 +264,10 @@ export default function Recommendations() {
         }
       }
 
-      setResults(newResults);
-      setCachedRecommendations(newResults);
+      candidatePoolRef.current = newResults;
+      const top12 = newResults.slice(0, 12);
+      setResults(top12);
+      setCachedRecommendations(top12);
       setLoading(false);
     }
 

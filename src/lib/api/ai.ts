@@ -101,7 +101,7 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason
         .filter((c: any) => c.score >= 5)
         .sort((a: any, b: any) => b.score - a.score);
 
-      return enriched.slice(0, 12).map((c: any) => {
+      return enriched.map((c: any) => {
         const { score, ...rest } = c;
         return {
           ...rest,
@@ -113,7 +113,7 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason
     console.error("Insight generation failed", e);
   }
 
-  return candidates.slice(0, 12).map(c => ({ ...c, reason: "A great match based on your preferences." }));
+  return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
 }
 
 export async function generateInsights(
@@ -122,6 +122,7 @@ export async function generateInsights(
   likedTitles: string[],
   mediaType: "all" | "movie" | "tv" | "anime" = "all"
 ): Promise<Array<MediaCardProps>> {
-  return scoreAndRank(candidates, moods, likedTitles, [], mediaType);
+  const scored = await scoreAndRank(candidates, moods, likedTitles, [], mediaType);
+  return scored.slice(0, 12);
 }
 
