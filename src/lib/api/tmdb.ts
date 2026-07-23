@@ -117,6 +117,7 @@ export async function fetchRecommendations(
         return {
           id: item.id,
           title: item.title || item.name,
+          overview: item.overview || "",
           imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
           rating: item.vote_average,
           type: item.media_type || "movie",

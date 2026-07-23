@@ -25,7 +25,8 @@ export async function scoreAndRank(
     id: c.id,
     title: c.title,
     type: c.type,
-    genres: (c.genreIds || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean)
+    genres: (c.genreIds || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean),
+    synopsis: (c.overview || "").slice(0, 150)
   }));
 
   const insightPrompt = `
