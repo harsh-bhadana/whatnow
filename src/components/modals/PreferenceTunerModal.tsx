@@ -222,11 +222,23 @@ export function PreferenceTunerModal({
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentItem.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.25 }}
-                    className="relative flex flex-col sm:flex-row gap-4 bg-[var(--color-m3-surface)] border border-[var(--color-m3-outline-variant)]/30 rounded-2xl p-3 sm:p-4 shadow-md overflow-hidden"
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.8}
+                    whileDrag={{ scale: 1.05, cursor: "grabbing" }}
+                    onDragEnd={(e, info) => {
+                      const threshold = 80;
+                      if (info.offset.x > threshold) {
+                        handleRate(1);
+                      } else if (info.offset.x < -threshold) {
+                        handleRate(-1);
+                      }
+                    }}
+                    className="relative flex flex-col sm:flex-row gap-4 bg-[var(--color-m3-surface)] border border-[var(--color-m3-outline-variant)]/30 rounded-2xl p-3 sm:p-4 shadow-md overflow-hidden cursor-grab active:cursor-grabbing touch-pan-y"
                   >
                     {/* Poster */}
                     <div className="relative w-full sm:w-32 h-48 sm:h-44 shrink-0 rounded-xl overflow-hidden bg-black/40">
