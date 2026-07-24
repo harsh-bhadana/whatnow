@@ -8,6 +8,7 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { MediaCardProps } from "@/components/media/MediaCard";
+import { WatchProviders } from "@/components/media/WatchProviders";
 import { TMDB_GENRE_MAP } from "@/lib/constants";
 
 interface PageProps {
@@ -291,6 +292,9 @@ export default function MediaDetailPage({ params }: PageProps) {
               )}
             </button>
           </div>
+          
+          {/* Watch Providers Section */}
+          <WatchProviders providers={(details as any)?.['watch/providers']} />
           
           {/* Cast Section */}
           {(details as any)?.credits?.cast && (details as any).credits.cast.length > 0 && (
