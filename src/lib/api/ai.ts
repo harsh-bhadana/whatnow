@@ -49,9 +49,9 @@ Titles they HATED: ${dislikedTitles.length > 0 ? dislikedTitles.join(", ") : "No
 1. Score (1-10) based on how well it fits the User History AND current Moods. You MUST give at least 30% of candidates a score ≤ 4. Not everything is good for this user.
 2. If a candidate shares franchise, director, writer, or theme with a DISLIKED title → score ≤ 3, no exceptions.
 3. If a candidate shares franchise, director, writer, or theme with a LIKED title → score ≥ 7.
-4. Instead of a long reason, provide a "cleverTag". This MUST be a short, punchy 3-5 word phrase for a badge on the poster.
-   EXAMPLES: "For Marvel Fans", "Mind-bending Sci-Fi", "The Nun Returns", "Epic Worldbuilding".
-   If you don't have a very specific, clever connection based on their likes, return an empty string "".
+4. Instead of a long reason, provide a "cleverTag". STRICT MAXIMUM OF 5 WORDS. NO SENTENCES.
+   EXAMPLES: "For Marvel Fans", "Mind-bending Sci-Fi", "The Nun Returns".
+   If you cannot think of a punchy 2-5 word tag, return an empty string "".
 5. For users with NO history, score purely on mood alignment and critical quality. Be honest about generic blockbusters.
 
 ═══ CANDIDATES (${candidates.length} items) ═══
@@ -91,10 +91,17 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'clever
       const enriched = candidates
         .map(c => {
           const insight = insightMap.get(c.id);
+          
+          // Enforce hard 5-word limit in code
+          let tag = insight?.cleverTag || "";
+          if (tag.split(" ").length > 5) {
+            tag = "";
+          }
+
           return {
             ...c,
             score: insight?.score ?? 5,
-            reason: insight?.cleverTag || "" // Map cleverTag to reason prop
+            reason: tag
           };
         })
         .filter((c: any) => c.score >= 5)
