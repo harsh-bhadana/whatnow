@@ -8,34 +8,57 @@ const ai = process.env.GEMINI_API_KEY
   ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
   : null;
 
-export async function generateInsights(
+import { TMDB_GENRE_MAP } from "@/lib/constants";
+
+export async function scoreAndRank(
   candidates: MediaCardProps[],
   moods: string[],
-  likedTitles: string[]
+  likedTitles: string[],
+  dislikedTitles: string[],
+  mediaType: "all" | "movie" | "tv" | "anime"
 ): Promise<Array<MediaCardProps>> {
   if (!ai || candidates.length === 0) {
-    return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
+    return candidates.map(c => ({ ...c, reason: c.overview }));
   }
 
-  // We only want to generate insights for the top 15 to save tokens
-  const candidatesToEnrich = candidates.slice(0, 15);
-  const remainingCandidates = candidates.slice(15);
-
-  const candidatesJson = candidatesToEnrich.map(c => ({
+  const candidatesJson = candidates.map(c => ({
     id: c.id,
     title: c.title,
-    type: c.type
+    type: c.type,
+    genres: (c.genreIds || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean),
+    synopsis: (c.overview || "").slice(0, 150)
   }));
 
   const insightPrompt = `
-You are an expert movie/TV recommender.
-The user is in the mood for: ${moods.length > 0 ? moods.join(" + ") : "anything"}.
-They liked: ${likedTitles.length > 0 ? likedTitles.join(", ") : "nothing specific yet"}.
-Here are ${candidatesToEnrich.length} candidates from TMDB:
+You are a ruthless, opinionated film curator with encyclopedic knowledge. Your job is NOT to describe movies — it's to decide if THIS SPECIFIC USER will love them.
+
+═══ USER PROFILE ═══
+Mood right now: ${moods.length > 0 ? moods.join(" + ") : "open to anything"}
+Media type: ${mediaType === "all" ? "Movies and TV" : mediaType.toUpperCase()}
+Titles they LOVED: ${likedTitles.length > 0 ? likedTitles.join(", ") : "No history yet — score based on mood fit only"}
+Titles they HATED: ${dislikedTitles.length > 0 ? dislikedTitles.join(", ") : "No dislikes recorded"}
+
+═══ SCORING RUBRIC (follow exactly) ═══
+9-10: "Drop everything and watch this" — mood + taste DNA align perfectly. Shares director, writer, thematic depth, tone, or visual style with a liked title.
+7-8:  Strong match — clear connection to liked titles or deeply resonates with the mood. Would confidently recommend to this user.
+5-6:  Decent but generic — mood fits loosely, but no strong taste connection. A "fine" pick, not an exciting one.
+3-4:  Weak — some surface-level mood alignment, but conflicts with user taste or is tonally wrong.
+1-2:  Actively bad for this user — similar to a disliked title, wrong mood entirely, or low quality.
+
+═══ MANDATORY RULES ═══
+1. You MUST give at least 30% of candidates a score ≤ 4. Not everything is good for this user. If you give everything 6+, you have FAILED.
+2. If a candidate shares franchise, director, writer, or theme with a DISLIKED title → score ≤ 3, no exceptions.
+3. If a candidate shares franchise, director, writer, or theme with a LIKED title → score ≥ 7, explain the connection.
+4. The "reason" MUST reference specific liked or disliked titles by name when a connection exists.
+   BAD:  "A great sci-fi thriller you'll enjoy"
+   GOOD: "Same cerebral pacing as Arrival with the moral ambiguity of Oldboy — this will hit exactly right"
+   GOOD: "Skip this — it has the same shallow CGI spectacle you disliked in Transformers"
+5. For users with NO history, score purely on mood alignment and critical quality. Be honest about generic blockbusters.
+
+═══ CANDIDATES (${candidates.length} items) ═══
 ${JSON.stringify(candidatesJson, null, 2)}
 
-For each candidate, provide a personalized 1-2 sentence reason ("Why you'll like this") explaining why it fits their current mood and past likes.
-Output a JSON array of objects with 'id' (number) and 'reason' (string).
+Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason' (string) for every candidate.
 `;
 
   const insightSchema: Schema = {
@@ -44,9 +67,10 @@ Output a JSON array of objects with 'id' (number) and 'reason' (string).
       type: Type.OBJECT,
       properties: {
         id: { type: Type.INTEGER },
+        score: { type: Type.INTEGER },
         reason: { type: Type.STRING },
       },
-      required: ["id", "reason"]
+      required: ["id", "score", "reason"]
     }
   };
 
@@ -62,24 +86,43 @@ Output a JSON array of objects with 'id' (number) and 'reason' (string).
 
     if (insightResponse.text) {
       const insights = JSON.parse(insightResponse.text);
-      const insightMap = new Map<number, string>();
-      insights.forEach((i: any) => insightMap.set(i.id, i.reason));
+      const insightMap = new Map<number, {score: number, reason: string}>();
+      insights.forEach((i: any) => insightMap.set(i.id, { score: i.score, reason: i.reason }));
 
-      const enrichedTop = candidatesToEnrich.map(c => ({
-        ...c,
-        reason: insightMap.get(c.id) || "It perfectly matches your current mood!"
-      }));
-      
-      const enrichedRemaining = remainingCandidates.map(c => ({
-        ...c,
-        reason: "A great match based on your preferences."
-      }));
+      const enriched = candidates
+        .map(c => {
+          const insight = insightMap.get(c.id);
+          return {
+            ...c,
+            score: insight?.score ?? 5,
+            reason: insight?.reason || "It perfectly matches your current mood!"
+          };
+        })
+        .filter((c: any) => c.score >= 5)
+        .sort((a: any, b: any) => b.score - a.score);
 
-      return [...enrichedTop, ...enrichedRemaining];
+      return enriched.map((c: any) => {
+        const { score, ...rest } = c;
+        return {
+          ...rest,
+          matchScore: score,
+        } as MediaCardProps;
+      });
     }
   } catch (e) {
     console.error("Insight generation failed", e);
   }
 
-  return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
+  return candidates.map(c => ({ ...c, reason: c.overview }));
 }
+
+export async function generateInsights(
+  candidates: MediaCardProps[],
+  moods: string[],
+  likedTitles: string[],
+  mediaType: "all" | "movie" | "tv" | "anime" = "all"
+): Promise<Array<MediaCardProps>> {
+  const scored = await scoreAndRank(candidates, moods, likedTitles, [], mediaType);
+  return scored.slice(0, 12);
+}
+

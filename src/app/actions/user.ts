@@ -39,7 +39,7 @@ export async function getUserData(): Promise<UserData | null> {
   }
 }
 
-export async function rateMedia(media: MediaCardProps, rating: 1 | -1): Promise<boolean> {
+export async function rateMedia(media: MediaCardProps, rating: 1 | -1 | 0.5): Promise<boolean> {
   try {
     const session = await auth();
     if (!session?.user?.id) return false;
@@ -146,3 +146,4 @@ export async function removeFromWatchlist(mediaId: number): Promise<boolean> {
     return false;
   }
 }
+

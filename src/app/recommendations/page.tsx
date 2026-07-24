@@ -4,28 +4,36 @@ import { useEffect, useState, useRef } from "react";
 import React from "react";
 import { useTransitionRouter as useRouter } from "next-view-transitions";
 import { motion } from "framer-motion";
-import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus } from "lucide-react";
+import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus, Sparkles } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
-import { fetchRecommendations } from "@/lib/api/tmdb";
+import { getCollaborativeRecommendations } from "@/app/actions/discovery";
+import { fetchRecommendations, fetchMediaDetailsBulk } from "@/lib/api/tmdb";
 import { MOOD_TO_TMDB_GENRE } from "@/lib/constants";
-import { generateInsights } from "@/lib/api/ai";
+import { scoreAndRank } from "@/lib/api/ai";
+import { buildTasteProfile } from "@/lib/utils";
 import { MediaCard, MediaCardProps } from "@/components/media/MediaCard";
 import { MediaCardSkeleton } from "@/components/media/MediaCardSkeleton";
 import { TouchGrassCard } from "@/components/media/TouchGrassCard";
 import { MasonryGrid } from "@/components/common/MasonryGrid";
+import { PreferenceTunerModal } from "@/components/modals/PreferenceTunerModal";
 
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayoutEffect : useEffect;
 
 export default function Recommendations() {
   const router = useRouter();
+  const [isTunerOpen, setIsTunerOpen] = useState(false);
+  const [isScoring, setIsScoring] = useState(false);
   const { 
     availableTime, selectedMoods, watchHistory, 
     cachedRecommendations, setCachedRecommendations, setSelectedMedia,
     mediaType, userDataLoaded,
     rateMediaStore, removeFromHistory, watchlist, addToWatchlistStore, removeFromWatchlistStore
   } = useAppStore();
+
+  const candidatePoolRef = useRef<MediaCardProps[]>([]);
+  const dislikeCountRef = useRef(0);
 
   const handleRate = async (e: React.MouseEvent, item: MediaCardProps, rating: 1 | -1) => {
     e.preventDefault();
@@ -44,11 +52,56 @@ export default function Recommendations() {
       };
       rateMediaStore(newItem);
       await rateMedia(item, rating);
+
+      // Candidate Pool Reserve: If user dislikes an item, swap in the next-best candidate from the pool
+      if (rating === -1) {
+        dislikeCountRef.current += 1;
+
+        setResults(prevResults => {
+          const filtered = prevResults.filter(r => r.id !== item.id);
+          const displayedIds = new Set(filtered.map(r => r.id));
+          const replacement = candidatePoolRef.current.find(
+            c => !displayedIds.has(c.id) && c.id !== item.id
+          );
+          const updated = replacement ? [...filtered, replacement] : filtered;
+          setCachedRecommendations(updated);
+          return updated;
+        });
+
+        // After 2+ dislikes in this session, trigger a lightweight re-score of displayed cards
+        if (dislikeCountRef.current >= 2) {
+          dislikeCountRef.current = 0;
+          // Use setTimeout to let the state update settle before re-scoring
+          setTimeout(async () => {
+            try {
+              const freshProfile = buildTasteProfile(watchHistory);
+              const currentResults = useAppStore.getState().cachedRecommendations;
+              if (currentResults.length > 0) {
+                const rescored = await scoreAndRank(
+                  currentResults, selectedMoods,
+                  freshProfile.likedTitles, freshProfile.dislikedTitles, mediaType
+                );
+                const top12 = rescored.slice(0, 12);
+                setResults(top12);
+                setCachedRecommendations(top12);
+              }
+            } catch (error) {
+              console.error("Re-scoring failed:", error);
+            }
+          }, 100);
+        }
+      }
     }
   };
 
   const getLikedMediaData = () => {
-    const likedHistory = watchHistory.filter(item => item.userRating === 1);
+    const likedHistory = watchHistory.filter(item => {
+      if (item.userRating !== 1) return false;
+      if (mediaType === "movie") return item.type === "movie";
+      if (mediaType === "tv") return item.type === "tv";
+      if (mediaType === "anime") return item.type === "anime" || (item.type === "tv" && (item.genreIds || []).includes(16));
+      return true;
+    });
     let candidateLikes = [];
 
     if (selectedMoods.length > 0) {
@@ -69,9 +122,9 @@ export default function Recommendations() {
     }
 
     const shuffled = [...candidateLikes].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 2).map(item => ({ 
+    return shuffled.slice(0, 5).map(item => ({ 
       id: item.id, 
-      type: item.type as "movie" | "tv", 
+      type: item.type, 
       title: item.title 
     }));
   };
@@ -134,18 +187,20 @@ export default function Recommendations() {
       );
     }
 
-    // Step 2: AI Insights
+    // Step 2: AI Scoring & Ranking
     if (newResults.length > 0) {
       try {
-        const likedTitles = likedMediaData.map(item => item.title || "");
-        newResults = await generateInsights(newResults, selectedMoods, likedTitles);
+        const tasteProfile = buildTasteProfile(watchHistory);
+        newResults = await scoreAndRank(newResults, selectedMoods, tasteProfile.likedTitles, tasteProfile.dislikedTitles, mediaType);
       } catch (error) {
-        console.error("AI Insight generation failed:", error);
+        console.error("AI scoring failed:", error);
       }
     }
 
-    setResults(newResults);
-    setCachedRecommendations(newResults);
+    candidatePoolRef.current = newResults;
+    const top12 = newResults.slice(0, 12);
+    setResults(top12);
+    setCachedRecommendations(top12);
     
     setLoading(false);
     setIsRefreshing(false);
@@ -224,46 +279,100 @@ export default function Recommendations() {
       const watchedIds = watchHistory.map(item => item.id);
       const likedMediaData = getLikedMediaData();
 
-      // Step 1: TMDB Discovery
+      // Phase 1: Show TMDB candidates immediately (~500ms)
       let newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
 
-      // Step 2: AI Insights
-      if (newResults.length > 0) {
-        try {
-          const likedTitles = likedMediaData.map(item => item.title || "");
-          newResults = await generateInsights(newResults, selectedMoods, likedTitles);
-        } catch (error) {
-          console.error("AI Insight generation failed:", error);
+      // Inject Collaborative Filtering
+      try {
+        const collabIds = await getCollaborativeRecommendations(4);
+        if (collabIds.length > 0) {
+          const collabDetails = await fetchMediaDetailsBulk(collabIds);
+          // Mark them so UI knows
+          const markedCollab = collabDetails.map(c => ({
+            ...c,
+            isBasedOnLikes: true,
+            basedOnLikeTitle: "others with similar taste"
+          }));
+          
+          // Filter out duplicates and already watched
+          const uniqueCollab = markedCollab.filter(
+            c => !newResults.some(r => r.id === c.id) && !watchedIds.includes(c.id)
+          );
+          
+          if (uniqueCollab.length > 0) {
+            newResults = [...uniqueCollab, ...newResults];
+          }
         }
+      } catch (e) {
+        console.error("Collaborative filtering failed:", e);
       }
 
-      setResults(newResults);
-      setCachedRecommendations(newResults);
-      setLoading(false);
+      if (newResults.length > 0) {
+        setResults(newResults.slice(0, 12));
+        setLoading(false);
+
+        // Phase 2: AI Scoring & Reordering (runs in background ~2-3s)
+        try {
+          setIsScoring(true);
+          const tasteProfile = buildTasteProfile(watchHistory);
+          newResults = await scoreAndRank(newResults, selectedMoods, tasteProfile.likedTitles, tasteProfile.dislikedTitles, mediaType);
+        } catch (error) {
+          console.error("AI scoring failed:", error);
+        } finally {
+          setIsScoring(false);
+        }
+      } else {
+        setLoading(false);
+      }
+
+      candidatePoolRef.current = newResults;
+      const top12 = newResults.slice(0, 12);
+      setResults(top12);
+      setCachedRecommendations(top12);
     }
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTime, selectedMoods, router, userDataLoaded, isMounted, mediaType, watchHistory]);
+  }, [availableTime, selectedMoods, router, userDataLoaded, isMounted, mediaType]);
 
   const handleCardClick = (item: MediaCardProps) => {
+    // Treat click as implicit positive interest (rating 0.5) if not already explicitly rated
+    const historyItem = watchHistory.find(h => h.id === item.id);
+    if (!historyItem || (historyItem.userRating !== 1 && historyItem.userRating !== -1)) {
+      rateMediaStore({
+        ...item,
+        // eslint-disable-next-line react-hooks/purity
+        watchedAt: Date.now(),
+        userRating: 0.5
+      });
+      // Optionally sync to server in background
+      rateMedia(item, 0.5).catch(console.error);
+    }
     setSelectedMedia(item);
   };
 
   return (
     <main className="flex-1 flex flex-col p-6 sm:p-12 max-w-7xl mx-auto w-full">
       {/* Title outside the columns so it spans full width */}
-      <div className="mb-6 sm:mb-8 flex flex-row items-center justify-between">
+      <div className="mb-6 sm:mb-8 flex flex-row items-center justify-between gap-4">
         <h1 className="text-2xl sm:text-3xl font-heading font-bold text-[var(--color-m3-primary)] leading-tight">
           Your Recommendation
         </h1>
-        {/* Desktop Header Button */}
-        <button 
-          onClick={() => router.push("/discover")}
-          className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-primary)] hover:text-[var(--color-m3-on-primary)] transition-colors font-bold text-sm"
-        >
-          <ArrowLeft className="w-4 h-4" /> Mood change
-        </button>
+        {/* Desktop Header Buttons */}
+        <div className="hidden sm:flex items-center gap-2">
+          <button 
+            onClick={() => setIsTunerOpen(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-pink-500/10 text-pink-300 border border-pink-500/20 hover:bg-pink-500/20 transition-all font-bold text-sm shadow-sm backdrop-blur-md"
+          >
+            <Sparkles className="w-4 h-4 fill-pink-400 text-pink-400" /> Tune Suggestions
+          </button>
+          <button 
+            onClick={() => router.push("/discover")}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-m3-surface-variant)] text-[var(--color-m3-on-surface-variant)] hover:bg-[var(--color-m3-primary)] hover:text-[var(--color-m3-on-primary)] transition-colors font-bold text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" /> Mood change
+          </button>
+        </div>
       </div>
 
       <MasonryGrid
@@ -323,6 +432,7 @@ export default function Recommendations() {
                 >
                   <MediaCard 
                     {...item}
+                    isScoring={isScoring}
                     href={`/media/${item.type}/${item.id}`} 
                     onClick={() => handleCardClick(item)}
                     actionButtons={
@@ -409,6 +519,16 @@ export default function Recommendations() {
           </button>
         </div>
       )}
+
+      {/* Preference Tuner Modal */}
+      <PreferenceTunerModal
+        isOpen={isTunerOpen}
+        onClose={() => setIsTunerOpen(false)}
+        onFinished={() => {
+          setIsTunerOpen(false);
+          window.location.reload();
+        }}
+      />
     </main>
   );
 }

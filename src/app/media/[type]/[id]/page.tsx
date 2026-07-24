@@ -8,6 +8,8 @@ import { useAppStore } from "@/lib/store/useAppStore";
 import { fetchMediaDetails } from "@/lib/api/tmdb";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { MediaCardProps } from "@/components/media/MediaCard";
+import { WatchProviders } from "@/components/media/WatchProviders";
+import { TMDB_GENRE_MAP } from "@/lib/constants";
 
 interface PageProps {
   params: Promise<{ type: string; id: string }>;
@@ -54,20 +56,15 @@ export default function MediaDetailPage({ params }: PageProps) {
 
   useEffect(() => {
     async function load() {
-      if (resolvedParams.type !== "anime") { // Only TMDB for now
-        setLoading(true);
-        try {
-          const data = await fetchMediaDetails(Number(resolvedParams.id), resolvedParams.type as any);
-          startTransition(() => {
-            setDetails(data as unknown);
-            setLoading(false);
-          });
-        } catch (e) {
-          console.error(e);
+      setLoading(true);
+      try {
+        const data = await fetchMediaDetails(Number(resolvedParams.id), resolvedParams.type as any);
+        startTransition(() => {
+          setDetails(data as unknown);
           setLoading(false);
-        }
-      } else {
-        // If it's anime, we don't fetch TMDB details yet, so immediately stop loading
+        });
+      } catch (e) {
+        console.error(e);
         setLoading(false);
       }
     }
@@ -188,7 +185,11 @@ export default function MediaDetailPage({ params }: PageProps) {
             <div className="flex flex-wrap items-center gap-3 text-sm sm:text-base font-medium text-[var(--color-m3-on-surface)] shrink-0">
             <span 
               style={{ viewTransitionName: `card-tag-${mediaContext.type}-${mediaContext.id}` }}
-              className="uppercase tracking-wider px-4 py-1.5 bg-[var(--color-m3-surface-variant)] backdrop-blur-md border border-[var(--color-m3-outline-variant)] rounded-full text-[var(--color-m3-on-background)] shadow-sm"
+              className={`uppercase tracking-wider px-4 py-1.5 backdrop-blur-md border rounded-full font-bold shadow-sm ${
+                mediaContext.type === "movie" ? "bg-blue-500/20 text-blue-300 border-blue-400/40" :
+                mediaContext.type === "tv" ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/40" :
+                "bg-purple-500/20 text-purple-300 border-purple-400/40"
+              }`}
             >
               {mediaContext.type}
             </span>
@@ -205,6 +206,24 @@ export default function MediaDetailPage({ params }: PageProps) {
                 <span>{mediaContext.runtime || (details as any)?.runtime}m</span>
               </div>
             )}
+            {/* Genre Tags */}
+            {(() => {
+              const genreList: string[] = (details as any)?.genres
+                ? (details as any).genres.map((g: any) => g.name)
+                : (selectedMedia?.genreIds || []).map(id => TMDB_GENRE_MAP[id]).filter(Boolean);
+              
+              if (!genreList || genreList.length === 0) return null;
+              
+              return (
+                <div className="flex flex-wrap gap-2 items-center">
+                  {genreList.map((genreName, idx) => (
+                    <span key={idx} className="text-xs font-semibold px-3 py-1 bg-white/10 text-white/90 backdrop-blur-md rounded-full border border-white/10 shadow-sm">
+                      {genreName}
+                    </span>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
 
           <div className="mt-8 sm:mt-10 text-[var(--color-m3-on-surface)] text-base sm:text-lg leading-relaxed max-w-3xl shrink-0">
@@ -273,6 +292,9 @@ export default function MediaDetailPage({ params }: PageProps) {
               )}
             </button>
           </div>
+          
+          {/* Watch Providers Section */}
+          <WatchProviders providers={(details as any)?.['watch/providers']} />
           
           {/* Cast Section */}
           {(details as any)?.credits?.cast && (details as any).credits.cast.length > 0 && (

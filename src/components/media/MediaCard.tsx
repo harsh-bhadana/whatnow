@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Star } from "lucide-react";
+import { Star, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from 'next-view-transitions';
 
@@ -21,6 +21,9 @@ export interface MediaCardProps {
   actionButtons?: React.ReactNode;
   reason?: string;
   overview?: string;
+  matchScore?: number;
+  isScoring?: boolean;
+  isNewRelease?: boolean;
 }
 
 export function MediaCard({
@@ -32,18 +35,21 @@ export function MediaCard({
   runtime,
   href,
   onClick,
-  isBasedOnLikes,
-  basedOnLikeTitle,
   actionButtons,
   reason,
+  isBasedOnLikes,
+  basedOnLikeTitle,
+  matchScore,
+  isScoring,
+  isNewRelease,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
     switch (type) {
-      case "movie": return "bg-blue-100 text-blue-800";
-      case "tv": return "bg-green-100 text-green-800";
-      case "anime": return "bg-purple-100 text-purple-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "movie": return "bg-blue-500/90 text-blue-50 border border-blue-400/40 backdrop-blur-md";
+      case "tv": return "bg-emerald-500/90 text-emerald-50 border border-emerald-400/40 backdrop-blur-md";
+      case "anime": return "bg-purple-500/90 text-purple-50 border border-purple-400/40 backdrop-blur-md";
+      default: return "bg-gray-500/90 text-gray-50 border border-gray-400/40 backdrop-blur-md";
     }
   };
 
@@ -54,7 +60,7 @@ export function MediaCard({
       {/* 1. Placeholder to keep layout size static */}
       <div className="w-full flex flex-col opacity-0 pointer-events-none select-none" aria-hidden="true">
         <div className="w-full aspect-[2/3]" />
-        <div className="p-3 min-h-[4rem]" />
+        <div className="p-3 min-h-[3.5rem]" />
       </div>
 
       {/* 2. Action Buttons in the transparent space that will be revealed */}
@@ -68,8 +74,9 @@ export function MediaCard({
       <Wrapper 
         href={href as string}
         className={cn(
-          "absolute inset-x-0 bottom-0 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col bg-[var(--color-m3-surface)] z-20",
-          actionButtons ? "top-0 group-hover:top-14" : "top-0 hover:-translate-y-1"
+          "absolute inset-x-0 bottom-0 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col bg-[var(--color-m3-surface)] z-20",
+          actionButtons ? "top-0 group-hover:top-14" : "top-0 hover:-translate-y-1",
+          isNewRelease ? "ring-2 ring-pink-500/80 shadow-[0_0_15px_rgba(236,72,153,0.5)] hover:shadow-[0_0_25px_rgba(236,72,153,0.8)]" : "hover:shadow-xl"
         )}
         onClick={onClick}
       >
@@ -105,11 +112,13 @@ export function MediaCard({
           {/* Subtle top gradient for badges */}
           <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
 
+
+
           {/* Top Left Badge: Type */}
           <div className="absolute top-3 left-3 z-20">
             <span 
               style={{ viewTransitionName: `card-tag-${type}-${id}` }}
-              className={cn("text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm", getTypeColor())}
+              className={cn("text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-md", getTypeColor())}
             >
               {type}
             </span>
@@ -124,32 +133,50 @@ export function MediaCard({
             <span>{rating.toFixed(1)}</span>
           </div>
 
-          {/* Bottom Left Badge: Based on your likes */}
-          {isBasedOnLikes && (
-            <div className="absolute bottom-2 left-2 right-2 z-20 flex justify-center items-center gap-1.5 bg-gradient-to-r from-pink-500/80 to-purple-500/80 backdrop-blur-md px-2.5 py-1.5 rounded-full border border-[var(--color-m3-outline-variant)] shadow-[0_0_15px_rgba(236,72,153,0.5)]">
-              <Star className="w-3.5 h-3.5 text-[var(--color-m3-on-background)] fill-white shrink-0 animate-pulse" />
-              <span className="text-[10px] font-bold text-[var(--color-m3-on-background)] uppercase tracking-wider drop-shadow-md text-center leading-tight truncate">
-                {basedOnLikeTitle ? `Because you liked ${basedOnLikeTitle}` : "Based on likes"}
-              </span>
+          {/* Top Right Badge: Match Score */}
+          {matchScore && (
+            <div className="absolute top-10 right-3 z-20 px-2 py-0.5 rounded-full bg-emerald-500/80 backdrop-blur-md text-white text-[10px] font-bold shadow-md border border-emerald-400/30">
+              {matchScore * 10}% match
+            </div>
+          )}
+
+          {/* Bottom Badge: Based on Likes */}
+          {isBasedOnLikes && basedOnLikeTitle && (
+            <div className="absolute bottom-3 left-2 right-2 z-20">
+              <div className="flex items-start gap-1 text-[10px] font-bold px-2 py-1 bg-[var(--color-m3-tertiary)]/95 text-[var(--color-m3-on-tertiary)] backdrop-blur-md rounded-xl shadow-md w-fit max-w-full">
+                <Sparkles className="w-3 h-3 shrink-0 mt-0.5" />
+                <span className="line-clamp-2 leading-tight whitespace-normal break-words">
+                  {basedOnLikeTitle.startsWith("others") ? "Liked by similar users" : `Because you liked ${basedOnLikeTitle}`}
+                </span>
+              </div>
             </div>
           )}
         </div>
         
-        {/* Small Text Section Below the Image */}
-        <div className="relative z-10 p-3 min-h-[4rem] shrink-0 flex flex-col justify-center bg-black/20 backdrop-blur-lg border-t border-[var(--color-m3-outline-variant)]">
+        {/* Compact Text Section Below the Image */}
+        <div className="relative z-10 p-3 shrink-0 flex flex-col justify-end bg-black/60 backdrop-blur-md border-t border-[var(--color-m3-outline-variant)]">
+          {isNewRelease && (
+            <span className="text-[9px] w-fit font-bold px-2 py-0.5 mb-1.5 rounded-full uppercase tracking-wider shadow-md bg-pink-600/90 text-white border border-pink-400/50">
+              {type === "movie" ? "🎟️ In Theaters" : "🔥 Newly Added"}
+            </span>
+          )}
           <h3 
             style={{ viewTransitionName: `card-title-${type}-${id}` }}
-            className="font-heading font-bold text-sm text-[var(--color-m3-on-background)] leading-tight line-clamp-2 drop-shadow-md w-fit"
+            className="font-heading font-bold text-xs sm:text-sm text-[var(--color-m3-on-background)] leading-tight line-clamp-2 drop-shadow-md"
           >
             {title}
           </h3>
-          {runtime && (
-            <span className="text-[11px] font-medium text-[var(--color-m3-on-background)]/70 mt-0.5">{runtime}m</span>
-          )}
-          {reason && (
-            <p className="text-[11px] text-[var(--color-m3-on-background)]/80 mt-2 line-clamp-3 leading-snug opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <span className="font-bold text-yellow-400">Why: </span>{reason}
+          {isScoring ? (
+            <div className="mt-2 w-full h-8 bg-white/10 rounded-md overflow-hidden relative">
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.5s_infinite]" />
+            </div>
+          ) : reason ? (
+            <p className="text-[10px] sm:text-[11px] text-[var(--color-m3-on-background)]/60 mt-1.5 leading-snug line-clamp-2 font-medium">
+              {reason}
             </p>
+          ) : null}
+          {runtime && (
+            <span className="text-[10px] font-medium text-[var(--color-m3-on-background)]/70 mt-1 block">{runtime}m</span>
           )}
         </div>
       </Wrapper>
