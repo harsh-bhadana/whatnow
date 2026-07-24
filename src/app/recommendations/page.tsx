@@ -8,7 +8,7 @@ import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus, Sparkles } fr
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
 import { getCollaborativeRecommendations } from "@/app/actions/discovery";
-import { fetchRecommendations, fetchMediaDetailsBulk } from "@/lib/api/tmdb";
+import { fetchRecommendations, fetchMediaDetailsBulk, checkNewSeasons } from "@/lib/api/tmdb";
 import { MOOD_TO_TMDB_GENRE } from "@/lib/constants";
 import { scoreAndRank } from "@/lib/api/ai";
 import { buildTasteProfile } from "@/lib/utils";
@@ -281,6 +281,25 @@ export default function Recommendations() {
 
       // Phase 1: Show TMDB candidates immediately (~500ms)
       let newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
+
+      // Inject New Seasons for Liked TV Shows
+      try {
+        const likedTvIds = watchHistory
+          .filter(h => h.type === "tv" && h.userRating === 1)
+          .sort((a, b) => (b.watchedAt || 0) - (a.watchedAt || 0))
+          .slice(0, 5)
+          .map(h => h.id);
+          
+        if (likedTvIds.length > 0) {
+          const newSeasons = await checkNewSeasons(likedTvIds);
+          if (newSeasons.length > 0) {
+            const uniqueNewSeasons = newSeasons.filter(ns => !newResults.some(r => r.id === ns.id));
+            newResults = [...uniqueNewSeasons, ...newResults];
+          }
+        }
+      } catch (e) {
+        console.error("New season check failed:", e);
+      }
 
       // Inject Collaborative Filtering
       try {

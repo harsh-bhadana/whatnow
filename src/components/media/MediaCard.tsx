@@ -24,6 +24,8 @@ export interface MediaCardProps {
   matchScore?: number;
   isScoring?: boolean;
   isNewRelease?: boolean;
+  isNewSeason?: boolean;
+  streamingProvider?: string;
 }
 
 export function MediaCard({
@@ -42,6 +44,8 @@ export function MediaCard({
   matchScore,
   isScoring,
   isNewRelease,
+  isNewSeason,
+  streamingProvider,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
@@ -150,11 +154,17 @@ export function MediaCard({
         
         {/* Compact Text Section Below the Image */}
         <div className="relative z-10 p-3 shrink-0 flex flex-col justify-end bg-black/60 backdrop-blur-md border-t border-[var(--color-m3-outline-variant)]">
-          {isNewRelease && (
-            <span className="text-[9px] w-fit font-bold px-2 py-0.5 mb-1.5 rounded-full uppercase tracking-wider shadow-md bg-pink-600/90 text-white border border-pink-400/50">
-              {type === "movie" ? "🎟️ In Theaters" : "🔥 Newly Added"}
+          {isNewSeason ? (
+            <span className="text-[9px] w-fit font-bold px-2 py-0.5 mb-1.5 rounded-full uppercase tracking-wider shadow-md bg-indigo-600/90 text-white border border-indigo-400/50">
+              🍿 New Season
             </span>
-          )}
+          ) : isNewRelease ? (
+            <span className="text-[9px] w-fit font-bold px-2 py-0.5 mb-1.5 rounded-full uppercase tracking-wider shadow-md bg-pink-600/90 text-white border border-pink-400/50">
+              {type === "movie" 
+                ? (streamingProvider ? `🔥 New on ${streamingProvider}` : "🎟️ In Theaters") 
+                : "🔥 Newly Added"}
+            </span>
+          ) : null}
           <h3 
             style={{ viewTransitionName: `card-title-${type}-${id}` }}
             className="font-heading font-bold text-xs sm:text-sm text-[var(--color-m3-on-background)] leading-tight line-clamp-2 drop-shadow-md"
