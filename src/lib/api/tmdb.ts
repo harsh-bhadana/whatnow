@@ -259,5 +259,43 @@ export async function fetchTrendingMedia(
   }
 }
 
+export async function fetchMediaDetailsBulk(
+  mediaItems: { id: number, type: "movie" | "tv" | "anime" }[]
+): Promise<MediaCardProps[]> {
+  if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") {
+    return [];
+  }
 
+  try {
+    const fetchPromises = mediaItems.map(async (media) => {
+      const fetchType = media.type === "anime" ? "tv" : media.type;
+      const res = await fetch(`${BASE_URL}/${fetchType}/${media.id}?api_key=${TMDB_API_KEY}&language=en-US`);
+      const data = await res.json();
+      if (data.success === false) return null;
+      data.media_type = media.type;
+      return data;
+    });
 
+    const results = await Promise.all(fetchPromises);
+    const validResults = results.filter(r => r !== null && (r.title || r.name));
+    
+    return validResults.map((item: any): MediaCardProps => {
+      let itemType: "movie" | "tv" | "anime" = item.media_type as "movie" | "tv" | "anime";
+      if (itemType === "tv" && (item.genres || []).some((g: any) => g.id === 16) && item.original_language === "ja") {
+        itemType = "anime";
+      }
+      return {
+        id: item.id,
+        title: item.title || item.name,
+        imageUrl: item.poster_path ? `${IMAGE_BASE_URL}${item.poster_path}` : "",
+        rating: item.vote_average || 0,
+        type: itemType,
+        genreIds: (item.genres || []).map((g: any) => g.id),
+        overview: item.overview || "",
+      };
+    });
+  } catch (error) {
+    console.error("Failed to fetch bulk media details:", error);
+    return [];
+  }
+}

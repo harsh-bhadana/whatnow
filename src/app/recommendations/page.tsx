@@ -7,7 +7,8 @@ import { motion } from "framer-motion";
 import { ArrowLeft, RefreshCw, ThumbsUp, ThumbsDown, BookmarkPlus, Sparkles } from "lucide-react";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia, removeWatchedMedia, addToWatchlist, removeFromWatchlist } from "@/app/actions/user";
-import { fetchRecommendations } from "@/lib/api/tmdb";
+import { getCollaborativeRecommendations } from "@/app/actions/discovery";
+import { fetchRecommendations, fetchMediaDetailsBulk } from "@/lib/api/tmdb";
 import { MOOD_TO_TMDB_GENRE } from "@/lib/constants";
 import { scoreAndRank } from "@/lib/api/ai";
 import { buildTasteProfile } from "@/lib/utils";
@@ -280,6 +281,31 @@ export default function Recommendations() {
 
       // Phase 1: Show TMDB candidates immediately (~500ms)
       let newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
+
+      // Inject Collaborative Filtering
+      try {
+        const collabIds = await getCollaborativeRecommendations(4);
+        if (collabIds.length > 0) {
+          const collabDetails = await fetchMediaDetailsBulk(collabIds);
+          // Mark them so UI knows
+          const markedCollab = collabDetails.map(c => ({
+            ...c,
+            isBasedOnLikes: true,
+            basedOnLikeTitle: "others with similar taste"
+          }));
+          
+          // Filter out duplicates and already watched
+          const uniqueCollab = markedCollab.filter(
+            c => !newResults.some(r => r.id === c.id) && !watchedIds.includes(c.id)
+          );
+          
+          if (uniqueCollab.length > 0) {
+            newResults = [...uniqueCollab, ...newResults];
+          }
+        }
+      } catch (e) {
+        console.error("Collaborative filtering failed:", e);
+      }
 
       if (newResults.length > 0) {
         setResults(newResults.slice(0, 12));
