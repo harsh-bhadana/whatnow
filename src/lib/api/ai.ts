@@ -92,10 +92,11 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'clever
         .map(c => {
           const insight = insightMap.get(c.id);
           
-          // Enforce hard 5-word limit in code
+          // Enforce 5-word limit by truncating instead of discarding
           let tag = insight?.cleverTag || "";
-          if (tag.split(" ").length > 5) {
-            tag = "";
+          const words = tag.split(" ");
+          if (words.length > 5) {
+            tag = words.slice(0, 5).join(" ") + "...";
           }
 
           return {
