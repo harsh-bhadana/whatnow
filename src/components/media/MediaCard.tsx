@@ -112,14 +112,7 @@ export function MediaCard({
           {/* Subtle top gradient for badges */}
           <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
 
-          {/* Top Center Badge: New Release */}
-          {isNewRelease && (
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
-              <span className="text-[9px] whitespace-nowrap font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-md bg-pink-600/90 text-white border border-pink-400/50 backdrop-blur-md">
-                {type === "movie" ? "🎟️ In Theaters" : "🔥 Newly Added"}
-              </span>
-            </div>
-          )}
+
 
           {/* Top Left Badge: Type */}
           <div className="absolute top-3 left-3 z-20">
@@ -149,17 +142,24 @@ export function MediaCard({
 
           {/* Bottom Badge: Based on Likes */}
           {isBasedOnLikes && basedOnLikeTitle && (
-            <div className="absolute bottom-3 left-3 right-3 z-20">
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-1 bg-[var(--color-m3-tertiary)]/90 text-[var(--color-m3-on-tertiary)] backdrop-blur-md rounded-full shadow-md truncate max-w-full">
-                <Sparkles className="w-3 h-3 shrink-0" />
-                Because you liked {basedOnLikeTitle}
-              </span>
+            <div className="absolute bottom-3 left-2 right-2 z-20">
+              <div className="flex items-start gap-1 text-[10px] font-bold px-2 py-1 bg-[var(--color-m3-tertiary)]/95 text-[var(--color-m3-on-tertiary)] backdrop-blur-md rounded-xl shadow-md w-fit max-w-full">
+                <Sparkles className="w-3 h-3 shrink-0 mt-0.5" />
+                <span className="line-clamp-2 leading-tight whitespace-normal break-words">
+                  {basedOnLikeTitle.startsWith("others") ? "Liked by similar users" : `Because you liked ${basedOnLikeTitle}`}
+                </span>
+              </div>
             </div>
           )}
         </div>
         
         {/* Compact Text Section Below the Image */}
         <div className="relative z-10 p-3 shrink-0 flex flex-col justify-end bg-black/60 backdrop-blur-md border-t border-[var(--color-m3-outline-variant)]">
+          {isNewRelease && (
+            <span className="text-[9px] w-fit font-bold px-2 py-0.5 mb-1.5 rounded-full uppercase tracking-wider shadow-md bg-pink-600/90 text-white border border-pink-400/50">
+              {type === "movie" ? "🎟️ In Theaters" : "🔥 Newly Added"}
+            </span>
+          )}
           <h3 
             style={{ viewTransitionName: `card-title-${type}-${id}` }}
             className="font-heading font-bold text-xs sm:text-sm text-[var(--color-m3-on-background)] leading-tight line-clamp-2 drop-shadow-md"

@@ -18,7 +18,7 @@ export async function scoreAndRank(
   mediaType: "all" | "movie" | "tv" | "anime"
 ): Promise<Array<MediaCardProps>> {
   if (!ai || candidates.length === 0) {
-    return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
+    return candidates.map(c => ({ ...c, reason: c.overview }));
   }
 
   const candidatesJson = candidates.map(c => ({
@@ -113,7 +113,7 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason
     console.error("Insight generation failed", e);
   }
 
-  return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
+  return candidates.map(c => ({ ...c, reason: c.overview }));
 }
 
 export async function generateInsights(
