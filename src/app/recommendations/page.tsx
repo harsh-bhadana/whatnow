@@ -333,7 +333,7 @@ export default function Recommendations() {
 
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [availableTime, selectedMoods, router, userDataLoaded, isMounted, mediaType, watchHistory]);
+  }, [availableTime, selectedMoods, router, userDataLoaded, isMounted, mediaType]);
 
   const handleCardClick = (item: MediaCardProps) => {
     // Treat click as implicit positive interest (rating 0.5) if not already explicitly rated
