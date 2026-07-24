@@ -18,7 +18,7 @@ export async function scoreAndRank(
   mediaType: "all" | "movie" | "tv" | "anime"
 ): Promise<Array<MediaCardProps>> {
   if (!ai || candidates.length === 0) {
-    return candidates.slice(0, 12).map(c => ({ ...c, reason: "A great match based on your preferences." }));
+    return candidates.map(c => ({ ...c, reason: "A great match based on your preferences." }));
   }
 
   const candidatesJson = candidates.map(c => ({
