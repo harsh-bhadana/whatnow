@@ -7,7 +7,7 @@ const TMDB_API_KEY = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_AP
 const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
-import { MOOD_TO_TMDB_GENRE, MOOD_PRIMARY_GENRES } from "@/lib/constants";
+import { MOOD_TO_TMDB_GENRE, MOOD_PRIMARY_GENRES, MOOD_TO_TMDB_KEYWORDS } from "@/lib/constants";
 export async function fetchRecommendations(
   timeLimit: number, 
   moods: string[], 
@@ -60,6 +60,13 @@ export async function fetchRecommendations(
       const strictGenreParam = Array.from(primaryGenreIds).join(','); // AND logic for primary genres
       const looseGenreParam = Array.from(allGenreIds).join('|');    // OR logic for all mood genres
 
+      // Collect keyword IDs for thematic precision
+      const keywordIds = new Set<number>();
+      moods.forEach(mood => {
+        if (MOOD_TO_TMDB_KEYWORDS[mood]) MOOD_TO_TMDB_KEYWORDS[mood].forEach(id => keywordIds.add(id));
+      });
+      const keywordParam = Array.from(keywordIds).join('|');
+
       const handleFetch = async (url: string, type: "movie" | "tv" | "anime") => {
         try {
           const res = await fetch(url);
@@ -98,6 +105,17 @@ export async function fetchRecommendations(
         }
         if (mediaType === "anime") {
           allPromises.push(handleFetch(`${BASE_URL}/discover/tv?page=${p}&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&vote_average.gte=6.0&vote_count.gte=20&with_genres=16&with_original_language=ja&sort_by=popularity.desc`, "anime"));
+        }
+
+        // Keyword-targeted fetch (thematic precision, page 1 only)
+        if (keywordParam && p === page) {
+          const keywordParams = `&api_key=${TMDB_API_KEY}&include_adult=${includeAdult}&page=${p}&vote_average.gte=6.0&vote_count.gte=50&with_keywords=${keywordParam}&sort_by=vote_average.desc`;
+          if (mediaType === "movie" || mediaType === "all") {
+            allPromises.push(handleFetch(`${BASE_URL}/discover/movie?with_runtime.lte=${timeLimit}${keywordParams}`, "movie"));
+          }
+          if (mediaType === "tv" || mediaType === "all") {
+            allPromises.push(handleFetch(`${BASE_URL}/discover/tv?${keywordParams}`, "tv"));
+          }
         }
       });
     }

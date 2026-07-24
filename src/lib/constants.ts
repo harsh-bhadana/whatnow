@@ -24,6 +24,29 @@ export const MOOD_PRIMARY_GENRES: Record<string, number[]> = {
   "Nostalgic": [10751, 35]
 };
 
+export const MOOD_TO_TMDB_KEYWORDS: Record<string, number[]> = {
+  "Thought-provoking": [6054, 14909, 156306, 9672],
+    // philosophical, existential, cerebral, social-commentary
+  "Mind-bending": [9882, 6149, 310, 9951],
+    // time-travel, twist-ending, plot-twist, surrealism
+  "Nostalgic": [3133, 4344, 207928],
+    // 80s, coming-of-age, nostalgia
+  "Epic": [12988, 2467, 818],
+    // epic, based-on-novel, historical-fiction
+  "Cozy": [3073, 9799, 3799],
+    // feel-good, comfort, heartwarming
+  "Spooky": [10349, 12339, 162846],
+    // supernatural, haunted-house, psychological-horror
+  "Heartwarming": [3073, 9799, 11800],
+    // feel-good, heartwarming, redemption
+  "Adrenaline": [779, 10617, 186747],
+    // car-chase, heist, one-man-army
+  "Laughs": [3149, 8201, 10340],
+    // dark-humor, satire, slapstick
+  "Tears": [2533, 10683, 3513],
+    // tragic, loss, grief
+};
+
 export const TMDB_GENRE_MAP: Record<number, string> = {
   28: "Action",
   12: "Adventure",
