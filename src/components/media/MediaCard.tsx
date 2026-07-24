@@ -22,6 +22,7 @@ export interface MediaCardProps {
   reason?: string;
   overview?: string;
   matchScore?: number;
+  isScoring?: boolean;
 }
 
 export function MediaCard({
@@ -38,6 +39,7 @@ export function MediaCard({
   isBasedOnLikes,
   basedOnLikeTitle,
   matchScore,
+  isScoring,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
@@ -152,11 +154,15 @@ export function MediaCard({
           >
             {title}
           </h3>
-          {reason && (
+          {isScoring ? (
+            <div className="mt-2 w-full h-8 bg-white/10 rounded-md overflow-hidden relative">
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.5s_infinite]" />
+            </div>
+          ) : reason ? (
             <p className="text-[10px] sm:text-[11px] text-[var(--color-m3-on-background)]/60 mt-1.5 leading-snug line-clamp-2 font-medium">
               {reason}
             </p>
-          )}
+          ) : null}
           {runtime && (
             <span className="text-[10px] font-medium text-[var(--color-m3-on-background)]/70 mt-1 block">{runtime}m</span>
           )}

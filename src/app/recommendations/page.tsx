@@ -23,6 +23,7 @@ const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? React.useLayou
 export default function Recommendations() {
   const router = useRouter();
   const [isTunerOpen, setIsTunerOpen] = useState(false);
+  const [isScoring, setIsScoring] = useState(false);
   const { 
     availableTime, selectedMoods, watchHistory, 
     cachedRecommendations, setCachedRecommendations, setSelectedMedia,
@@ -31,6 +32,7 @@ export default function Recommendations() {
   } = useAppStore();
 
   const candidatePoolRef = useRef<MediaCardProps[]>([]);
+  const dislikeCountRef = useRef(0);
 
   const handleRate = async (e: React.MouseEvent, item: MediaCardProps, rating: 1 | -1) => {
     e.preventDefault();
@@ -52,6 +54,8 @@ export default function Recommendations() {
 
       // Candidate Pool Reserve: If user dislikes an item, swap in the next-best candidate from the pool
       if (rating === -1) {
+        dislikeCountRef.current += 1;
+
         setResults(prevResults => {
           const filtered = prevResults.filter(r => r.id !== item.id);
           const displayedIds = new Set(filtered.map(r => r.id));
@@ -62,6 +66,29 @@ export default function Recommendations() {
           setCachedRecommendations(updated);
           return updated;
         });
+
+        // After 2+ dislikes in this session, trigger a lightweight re-score of displayed cards
+        if (dislikeCountRef.current >= 2) {
+          dislikeCountRef.current = 0;
+          // Use setTimeout to let the state update settle before re-scoring
+          setTimeout(async () => {
+            try {
+              const freshProfile = buildTasteProfile(watchHistory);
+              const currentResults = useAppStore.getState().cachedRecommendations;
+              if (currentResults.length > 0) {
+                const rescored = await scoreAndRank(
+                  currentResults, selectedMoods,
+                  freshProfile.likedTitles, freshProfile.dislikedTitles, mediaType
+                );
+                const top12 = rescored.slice(0, 12);
+                setResults(top12);
+                setCachedRecommendations(top12);
+              }
+            } catch (error) {
+              console.error("Re-scoring failed:", error);
+            }
+          }, 100);
+        }
       }
     }
   };
@@ -251,24 +278,31 @@ export default function Recommendations() {
       const watchedIds = watchHistory.map(item => item.id);
       const likedMediaData = getLikedMediaData();
 
-      // Step 1: TMDB Discovery
+      // Phase 1: Show TMDB candidates immediately (~500ms)
       let newResults = await fetchRecommendations(availableTime, selectedMoods, watchedIds, mediaType, likedMediaData, false, 1);
 
-      // Step 2: AI Scoring & Ranking
       if (newResults.length > 0) {
+        setResults(newResults.slice(0, 12));
+        setLoading(false);
+
+        // Phase 2: AI Scoring & Reordering (runs in background ~2-3s)
         try {
+          setIsScoring(true);
           const tasteProfile = buildTasteProfile(watchHistory);
           newResults = await scoreAndRank(newResults, selectedMoods, tasteProfile.likedTitles, tasteProfile.dislikedTitles, mediaType);
         } catch (error) {
           console.error("AI scoring failed:", error);
+        } finally {
+          setIsScoring(false);
         }
+      } else {
+        setLoading(false);
       }
 
       candidatePoolRef.current = newResults;
       const top12 = newResults.slice(0, 12);
       setResults(top12);
       setCachedRecommendations(top12);
-      setLoading(false);
     }
 
     loadData();
@@ -360,6 +394,7 @@ export default function Recommendations() {
                 >
                   <MediaCard 
                     {...item}
+                    isScoring={isScoring}
                     href={`/media/${item.type}/${item.id}`} 
                     onClick={() => handleCardClick(item)}
                     actionButtons={
