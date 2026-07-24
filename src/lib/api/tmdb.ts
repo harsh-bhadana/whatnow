@@ -151,7 +151,7 @@ export async function fetchRecommendations(
       })
       .sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
 
-    return rawResults
+    const finalResults = rawResults
       .slice(0, 40)
       .map((item: any): MediaCardProps => {
         const shapeMod = item.id % 3;
@@ -171,8 +171,63 @@ export async function fetchRecommendations(
           isNewRelease: parseIsNewRelease(item),
         };
       });
+
+    // Check providers for new release movies
+    const providerPromises = finalResults.map(async (c) => {
+      if (c.isNewRelease && c.type === 'movie') {
+        const details = await fetchMediaDetails(c.id, 'movie');
+        if (details?.['watch/providers']?.results?.US?.flatrate) {
+          const provider = details['watch/providers'].results.US.flatrate[0].provider_name;
+          return { ...c, streamingProvider: provider };
+        }
+      }
+      return c;
+    });
+
+    return await Promise.all(providerPromises);
   } catch (error) {
     console.error("Failed to fetch TMDB recommendations", error);
+    return [];
+  }
+}
+
+export async function checkNewSeasons(tvIds: number[]): Promise<MediaCardProps[]> {
+  if (!TMDB_API_KEY || TMDB_API_KEY === "your_key_here") return [];
+  
+  try {
+    const promises = tvIds.map(async (id) => {
+      const res = await fetch(`${BASE_URL}/tv/${id}?api_key=${TMDB_API_KEY}`);
+      const data = await res.json();
+      if (!data || data.success === false) return null;
+      
+      const lastAirDate = data.last_air_date || data.next_episode_to_air?.air_date;
+      if (lastAirDate) {
+        const airDateMs = new Date(lastAirDate).getTime();
+        const now = Date.now();
+        const diffDays = (now - airDateMs) / (1000 * 60 * 60 * 24);
+        // If an episode aired in the last 45 days or is airing in the next 14 days
+        if (diffDays >= -14 && diffDays <= 45) {
+          return {
+            id: data.id,
+            title: data.name,
+            overview: data.overview || "",
+            imageUrl: data.poster_path ? `${IMAGE_BASE_URL}${data.poster_path}` : "",
+            rating: data.vote_average,
+            type: "tv" as const,
+            genreIds: data.genres?.map((g: any) => g.id) || [],
+            shape: "default" as const,
+            isNewRelease: true,
+            isNewSeason: true
+          };
+        }
+      }
+      return null;
+    });
+
+    const results = await Promise.all(promises);
+    return results.filter(Boolean) as MediaCardProps[];
+  } catch (error) {
+    console.error("Failed to check new seasons", error);
     return [];
   }
 }
