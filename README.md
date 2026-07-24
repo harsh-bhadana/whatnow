@@ -1,68 +1,87 @@
-# WhatNow - Content Recommendation App
+# 🍿 WhatNow - AI Content Recommendation Engine
 
-WhatNow is a personalized content recommendation platform built with Next.js. It helps users discover new movies, TV shows, and anime tailored to their precise moods and available time. 
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Gemini 2.0 Flash](https://img.shields.io/badge/Gemini_2.0_Flash-AI-blue?style=for-the-badge&logo=google)](https://ai.google.dev/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Database-success?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-black?style=for-the-badge&logo=framer)](https://www.framer.com/motion/)
 
-## Features
-- **AI-Driven Recommendations:** Uses the Gemini 2.0 Flash model to generate hyper-personalized media recommendations, reranking items based on your unique watch history and current vibe.
-- **Collaborative Filtering:** Queries a MongoDB aggregation pipeline to find users with similar taste, injecting what *they* liked into your discovery feed.
-- **Implicit Signals:** Seamlessly builds your taste profile in the background—even just clicking a movie card records a fractional interest weight.
-- **Dynamic Candidate Swapping:** Instantly removes disliked cards and replaces them with fresh candidates without page reloads, adjusting your taste on the fly.
-- **Where to Watch Integration:** Powered by JustWatch, instantly tells you which streaming platforms, rental, or purchase options are available in your region.
-- **Unified Experience:** Seamless single-user architecture where all your watch history and watchlists are securely synced with your account.
-- **Server-Rendered Performance:** Key pages like History and Watchlist use Next.js Server Components for instant loading and zero layout shift.
-- **Modern UI:** Built with Tailwind CSS and Framer Motion for a sleek, animated experience. Features dynamic neon badges for theatrical and new releases.
-- **Authentication:** Secure user authentication using NextAuth.
-- **Database:** MongoDB for robust data storage.
+WhatNow is an incredibly fast, highly personalized content recommendation platform. Built for modern mobile and web experiences, it takes the guesswork out of "What should I watch?" by using an advanced AI engine combined with a collaborative filtering database.
 
-## Tech Stack
-- [Next.js](https://nextjs.org/) (React framework, App Router)
-- [Gemini SDK](https://ai.google.dev/) (AI recommendation engine)
-- [Tailwind CSS](https://tailwindcss.com/) (Styling)
-- [Framer Motion](https://www.framer.com/motion/) (Animations)
-- [MongoDB](https://www.mongodb.com/) (Database)
-- [NextAuth.js](https://next-auth.js.org/) (Authentication)
-- [Zustand](https://github.com/pmndrs/zustand) (Client UI State)
+## ✨ Key Features
 
-## AI Recommendation Architecture
+- **🧠 True Collaborative AI Filtering:** WhatNow doesn't just match keywords. It analyzes your entire watch history and matches you with *other users* who share your specific taste profile via a robust MongoDB aggregation pipeline.
+- **⚡ Tinder-Style Swipe Tuner:** A frictionless, mobile-first "Preference Tuner." Grab a movie card and physically swipe it right (Like) or left (Dislike) to instantly calibrate the AI's understanding of your taste.
+- **🤖 Automated AI Benchmark Curation (Cron):** A Vercel Cron Job wakes up weekly to query the Gemini AI for a fresh, highly polarizing set of "benchmark" movies (e.g., *Inception*, *The Godfather*). This ensures the Swipe Tuner is always collecting the highest-quality signal data.
+- **🎯 "Why You'll Like This" Insights:** Every recommendation comes with a custom, AI-generated justification tailored specifically to your history (e.g., *"For Marvel Fans"*, *"Because you loved Interstellar"*).
+- **🔥 Dynamic OTT & Theatrical Badging:** Instantly parses release dates and availability to badge cards with "🍿 NEW SEASON", "🎟️ IN THEATERS", or "🔥 NEW ON NETFLIX", powered by JustWatch integration.
+- **🔄 Dynamic Candidate Swapping:** Instantly removes disliked cards and replaces them with fresh candidates without a single page reload, dynamically adjusting your taste profile on the fly.
 
-WhatNow features a highly optimized **2-Step Hybrid AI Pipeline** designed for maximum speed and minimal rate-limit consumption. 
+## 🏗️ AI & Data Architecture
+
+WhatNow features a highly optimized **Hybrid AI Pipeline** designed for maximum speed, strict JSON schema adherence, and minimal token consumption.
 
 ```mermaid
 sequenceDiagram
+    participant Cron as Vercel Cron
     participant User
     participant NextJS as Next.js Server
     participant TMDB as TMDB API
     participant DB as MongoDB
     participant Gemini as Gemini 2.0 Flash
 
-    User->>NextJS: Submits Moods (e.g. "Epic")
-    Note over NextJS: Deterministic Mapping & Taste Profile Extraction
+    %% Background Cron Job
+    rect rgb(20, 20, 30)
+    Note over Cron, DB: Weekly Benchmark Curation
+    Cron->>NextJS: Trigger /api/cron/rotate-benchmarks
+    NextJS->>Gemini: Request foundational media IDs
+    Gemini-->>NextJS: Returns highly polarizing benchmarks
+    NextJS->>DB: Overwrite active benchmark_sets
+    end
+
+    %% User Flow
+    User->>NextJS: Submits Moods / Swipes Tuner Cards
+    Note over NextJS: Extract Taste Profile (Implicit & Explicit)
     par Fetch Candidates
-        NextJS->>TMDB: Fetch by Mood Genres (Top 2 Pages)
+        NextJS->>TMDB: Fetch by Mood Genres
         NextJS->>DB: Collaborative Match (Users with similar taste)
     end
-    TMDB-->>NextJS: Returns validated movies/shows (~40 unique candidates)
-    NextJS->>Gemini: Send 40 candidates + User History (Likes/Dislikes)
-    Note over Gemini: AI Reasoning & Personalization
-    Gemini-->>NextJS: Returns top 12 scored candidates + "Why you'll like this" insights
-    NextJS-->>User: Renders UI with media cards & AI insights
+    TMDB-->>NextJS: Returns ~40 baseline candidates
+    NextJS->>Gemini: Send candidates + User Profile History
+    Note over Gemini: AI Reasoning, Scoring & Clever Tagging
+    Gemini-->>NextJS: Returns Top Scored Candidates (Strict JSON)
+    NextJS-->>User: Renders UI with media cards & custom badges
 ```
 
-## Getting Started
+## 🛠️ Tech Stack
 
-First, install the dependencies:
-```bash
-npm install
-```
+- **Framework:** Next.js (App Router, Server Actions, Server Components)
+- **AI Engine:** Google Gemini SDK (`gemini-2.0-flash`)
+- **Database:** MongoDB & Mongoose (NextAuth Adapter)
+- **Authentication:** NextAuth.js (v5 Beta)
+- **Styling:** Tailwind CSS & `clsx` / `tailwind-merge`
+- **Animations:** Framer Motion (Drag APIs & AnimatePresence)
+- **State Management:** Zustand (Client-side fast UI updates)
+- **External APIs:** TMDB (Media Data), JustWatch (Streaming Providers)
 
-Then, run the development server:
-```bash
-npm run dev
-```
+## 🚀 Getting Started
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Clone the repository and install dependencies:**
+   ```bash
+   npm install
+   ```
 
-## Documentation
-For more detailed information, please refer to the `docs/` folder:
-- [Architecture](docs/ARCHITECTURE.md)
+2. **Configure your environment variables:**
+   Create a `.env.local` file and add your keys (see `docs/SETUP.md` for required keys including `GEMINI_API_KEY`, `MONGODB_URI`, etc.)
+
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to experience the platform.
+
+## 📄 Documentation
+For more detailed information on setup and architecture decisions, please refer to the `docs/` folder:
+- [Architecture Details](docs/ARCHITECTURE.md)
 - [Setup & Environment Variables](docs/SETUP.md)
