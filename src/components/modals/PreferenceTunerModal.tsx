@@ -35,7 +35,27 @@ export function PreferenceTunerModal({
     async function loadDeck() {
       setLoading(true);
       const watchedIds = new Set(watchHistory.map(h => h.id));
-      const items = await fetchTrendingMedia(mediaType, 1);
+
+      // Fetch from multiple sources for a richer onboarding pool
+      let items: MediaCardProps[];
+      if (mediaType === "all") {
+        const [movies, tvShows] = await Promise.all([
+          fetchTrendingMedia("movie", 1),
+          fetchTrendingMedia("tv", 1),
+        ]);
+        items = [...movies, ...tvShows].sort(() => 0.5 - Math.random());
+      } else {
+        const [page1, page2] = await Promise.all([
+          fetchTrendingMedia(mediaType, 1),
+          fetchTrendingMedia(mediaType, 2),
+        ]);
+        items = [...page1, ...page2];
+      }
+
+      // Deduplicate by id
+      const uniqueMap = new Map<number, MediaCardProps>();
+      items.forEach(item => { if (!uniqueMap.has(item.id)) uniqueMap.set(item.id, item); });
+      items = Array.from(uniqueMap.values());
       
       // Filter out items already rated in history
       const freshItems = items.filter(item => !watchedIds.has(item.id));
