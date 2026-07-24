@@ -4,7 +4,8 @@ import { useEffect, useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThumbsUp, ThumbsDown, EyeOff, Sparkles, X, CheckCircle2, ChevronRight } from "lucide-react";
 import { MediaCardProps } from "@/components/media/MediaCard";
-import { fetchTrendingMedia } from "@/lib/api/tmdb";
+import { fetchTrendingMedia, fetchMediaDetailsBulk } from "@/lib/api/tmdb";
+import { getActiveBenchmarks } from "@/app/actions/discovery";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia } from "@/app/actions/user";
 import { TMDB_GENRE_MAP } from "@/lib/constants";
@@ -37,19 +38,34 @@ export function PreferenceTunerModal({
       const watchedIds = new Set(watchHistory.map(h => h.id));
 
       // Fetch from multiple sources for a richer onboarding pool
-      let items: MediaCardProps[];
-      if (mediaType === "all") {
-        const [movies, tvShows] = await Promise.all([
-          fetchTrendingMedia("movie", 1),
-          fetchTrendingMedia("tv", 1),
-        ]);
-        items = [...movies, ...tvShows].sort(() => 0.5 - Math.random());
-      } else {
-        const [page1, page2] = await Promise.all([
-          fetchTrendingMedia(mediaType, 1),
-          fetchTrendingMedia(mediaType, 2),
-        ]);
-        items = [...page1, ...page2];
+      let items: MediaCardProps[] = [];
+      
+      try {
+        // 1. Fetch AI Benchmark Set (from Cron/DB)
+        const benchmarkIds = await getActiveBenchmarks();
+        if (benchmarkIds.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const benchmarkDetails = await fetchMediaDetailsBulk(benchmarkIds as any);
+          items = [...benchmarkDetails];
+        }
+
+        // 2. Fetch some trending items to mix in (in case they want something new)
+        let trending: MediaCardProps[] = [];
+        if (mediaType === "all") {
+          const [movies, tvShows] = await Promise.all([
+            fetchTrendingMedia("movie", 1),
+            fetchTrendingMedia("tv", 1),
+          ]);
+          trending = [...movies, ...tvShows];
+        } else {
+          trending = await fetchTrendingMedia(mediaType, 1);
+        }
+        
+        // Take 5 random trending items and mix them with the benchmarks
+        trending = trending.sort(() => 0.5 - Math.random()).slice(0, 5);
+        items = [...items, ...trending].sort(() => 0.5 - Math.random());
+      } catch (error) {
+        console.error("Failed to load tuner deck:", error);
       }
 
       // Deduplicate by id

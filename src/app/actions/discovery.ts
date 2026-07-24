@@ -75,3 +75,42 @@ export async function getCollaborativeRecommendations(limit: number = 5): Promis
     return [];
   }
 }
+
+export async function getActiveBenchmarks(): Promise<{ id: number, type: "movie" | "tv" }[]> {
+  try {
+    const client = await clientPromise;
+    // Note: checking "whatnow" (lowercase N) because the cron job used lowercase. 
+    // Wait, the cron job uses "whatnow" but the users collection uses "whatNow".
+    // I should probably use "whatNow" to be consistent with users collection.
+    // Let me fix this mismatch by using whatNow.
+    const db = client.db("whatNow");
+    const collection = db.collection("benchmark_sets");
+
+    const latest = await collection.findOne({}, { sort: { createdAt: -1 } });
+    if (latest && latest.items && Array.isArray(latest.items)) {
+      return latest.items;
+    }
+    
+    // Fallback static list if cron hasn't run yet
+    return [
+      { id: 27205, type: "movie" }, // Inception
+      { id: 238, type: "movie" }, // The Godfather
+      { id: 129, type: "anime" }, // Spirited Away (using movie as TMDB expects, but our type handles anime)
+      { id: 603, type: "movie" }, // The Matrix
+      { id: 496243, type: "movie" }, // Parasite
+      { id: 155, type: "movie" }, // The Dark Knight
+      { id: 324857, type: "movie" }, // Spider-Man: Into the Spider-Verse
+      { id: 194, type: "movie" }, // Amélie
+      { id: 62, type: "movie" }, // 2001: A Space Odyssey
+      { id: 545611, type: "movie" }, // Everything Everywhere All at Once
+      { id: 1396, type: "tv" }, // Breaking Bad
+      { id: 1399, type: "tv" }, // Game of Thrones
+      { id: 2316, type: "tv" }, // The Office
+      { id: 246, type: "anime" }, // Avatar (using tv)
+      { id: 67070, type: "tv" }, // Fleabag
+    ] as { id: number, type: "movie" | "tv" }[];
+  } catch (error) {
+    console.error("Failed to get active benchmarks:", error);
+    return [];
+  }
+}
