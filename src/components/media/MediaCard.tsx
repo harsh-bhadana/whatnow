@@ -131,17 +131,21 @@ export function MediaCard({
             </div>
           )}
 
-          {/* Bottom Badge: Based on Likes */}
-          {isBasedOnLikes && basedOnLikeTitle && (
-            <div className="absolute bottom-3 left-2 right-2 z-20">
-              <div className="flex items-start gap-1 text-[10px] font-bold px-2 py-1 bg-[var(--color-m3-tertiary)]/95 text-[var(--color-m3-on-tertiary)] backdrop-blur-md rounded-xl shadow-md w-fit max-w-full">
+          {/* Bottom Badge: Clever AI Tag */}
+          {isScoring ? (
+            <div className="absolute bottom-3 left-2 z-20 w-24 h-6 rounded-full bg-white/10 overflow-hidden relative">
+               <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.5s_infinite]" />
+            </div>
+          ) : reason ? (
+            <div className="absolute bottom-3 left-2 right-2 z-20 pointer-events-none">
+              <div className="flex items-start gap-1 text-[10px] font-bold px-2.5 py-1 bg-gradient-to-r from-indigo-500/90 to-purple-500/90 text-white rounded-xl shadow-lg shadow-purple-500/20 w-fit max-w-full border border-purple-400/30 backdrop-blur-md">
                 <Sparkles className="w-3 h-3 shrink-0 mt-0.5" />
                 <span className="line-clamp-2 leading-tight whitespace-normal break-words">
-                  {basedOnLikeTitle.startsWith("others") ? "Liked by similar users" : `Because you liked ${basedOnLikeTitle}`}
+                  {reason}
                 </span>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
         
         {/* Compact Text Section Below the Image */}
@@ -157,18 +161,6 @@ export function MediaCard({
           >
             {title}
           </h3>
-          {isScoring ? (
-            <div className="mt-2 w-full h-8 bg-white/10 rounded-md overflow-hidden relative">
-              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_1.5s_infinite]" />
-            </div>
-          ) : reason ? (
-            <p className="text-[10px] sm:text-[11px] text-[var(--color-m3-on-background)]/60 mt-1.5 leading-snug line-clamp-2 font-medium">
-              {reason}
-            </p>
-          ) : null}
-          {runtime && (
-            <span className="text-[10px] font-medium text-[var(--color-m3-on-background)]/70 mt-1 block">{runtime}m</span>
-          )}
         </div>
       </Wrapper>
     </div>

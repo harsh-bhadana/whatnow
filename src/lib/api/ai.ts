@@ -46,19 +46,18 @@ Titles they HATED: ${dislikedTitles.length > 0 ? dislikedTitles.join(", ") : "No
 1-2:  Actively bad for this user — similar to a disliked title, wrong mood entirely, or low quality.
 
 ═══ MANDATORY RULES ═══
-1. You MUST give at least 30% of candidates a score ≤ 4. Not everything is good for this user. If you give everything 6+, you have FAILED.
+1. Score (1-10) based on how well it fits the User History AND current Moods. You MUST give at least 30% of candidates a score ≤ 4. Not everything is good for this user.
 2. If a candidate shares franchise, director, writer, or theme with a DISLIKED title → score ≤ 3, no exceptions.
-3. If a candidate shares franchise, director, writer, or theme with a LIKED title → score ≥ 7, explain the connection.
-4. The "reason" MUST reference specific liked or disliked titles by name when a connection exists.
-   BAD:  "A great sci-fi thriller you'll enjoy"
-   GOOD: "Same cerebral pacing as Arrival with the moral ambiguity of Oldboy — this will hit exactly right"
-   GOOD: "Skip this — it has the same shallow CGI spectacle you disliked in Transformers"
+3. If a candidate shares franchise, director, writer, or theme with a LIKED title → score ≥ 7.
+4. Instead of a long reason, provide a "cleverTag". This MUST be a short, punchy 3-5 word phrase for a badge on the poster.
+   EXAMPLES: "For Marvel Fans", "Mind-bending Sci-Fi", "The Nun Returns", "Epic Worldbuilding".
+   If you don't have a very specific, clever connection based on their likes, return an empty string "".
 5. For users with NO history, score purely on mood alignment and critical quality. Be honest about generic blockbusters.
 
 ═══ CANDIDATES (${candidates.length} items) ═══
 ${JSON.stringify(candidatesJson, null, 2)}
 
-Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason' (string) for every candidate.
+Output a JSON array of objects with 'id' (number), 'score' (number), and 'cleverTag' (string) for every candidate.
 `;
 
   const insightSchema: Schema = {
@@ -68,9 +67,9 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason
       properties: {
         id: { type: Type.INTEGER },
         score: { type: Type.INTEGER },
-        reason: { type: Type.STRING },
+        cleverTag: { type: Type.STRING },
       },
-      required: ["id", "score", "reason"]
+      required: ["id", "score", "cleverTag"]
     }
   };
 
@@ -86,8 +85,8 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason
 
     if (insightResponse.text) {
       const insights = JSON.parse(insightResponse.text);
-      const insightMap = new Map<number, {score: number, reason: string}>();
-      insights.forEach((i: any) => insightMap.set(i.id, { score: i.score, reason: i.reason }));
+      const insightMap = new Map<number, {score: number, cleverTag: string}>();
+      insights.forEach((i: any) => insightMap.set(i.id, { score: i.score, cleverTag: i.cleverTag }));
 
       const enriched = candidates
         .map(c => {
@@ -95,7 +94,7 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason
           return {
             ...c,
             score: insight?.score ?? 5,
-            reason: insight?.reason || "It perfectly matches your current mood!"
+            reason: insight?.cleverTag || "" // Map cleverTag to reason prop
           };
         })
         .filter((c: any) => c.score >= 5)
@@ -113,7 +112,7 @@ Output a JSON array of objects with 'id' (number), 'score' (number), and 'reason
     console.error("Insight generation failed", e);
   }
 
-  return candidates.map(c => ({ ...c, reason: c.overview }));
+  return candidates.map(c => ({ ...c, reason: "" }));
 }
 
 export async function generateInsights(
