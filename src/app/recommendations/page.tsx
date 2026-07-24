@@ -310,6 +310,18 @@ export default function Recommendations() {
   }, [availableTime, selectedMoods, router, userDataLoaded, isMounted, mediaType, watchHistory]);
 
   const handleCardClick = (item: MediaCardProps) => {
+    // Treat click as implicit positive interest (rating 0.5) if not already explicitly rated
+    const historyItem = watchHistory.find(h => h.id === item.id);
+    if (!historyItem || (historyItem.userRating !== 1 && historyItem.userRating !== -1)) {
+      rateMediaStore({
+        ...item,
+        // eslint-disable-next-line react-hooks/purity
+        watchedAt: Date.now(),
+        userRating: 0.5
+      });
+      // Optionally sync to server in background
+      rateMedia(item, 0.5).catch(console.error);
+    }
     setSelectedMedia(item);
   };
 

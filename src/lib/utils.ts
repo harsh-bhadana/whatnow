@@ -20,10 +20,11 @@ export function buildTasteProfile(watchHistory: WatchHistoryItem[]): TasteProfil
   const dislikedTitles: string[] = [];
 
   watchHistory.forEach((item) => {
-    if (item.userRating === 1) {
+    if (item.userRating === 1 || item.userRating === 0.5) {
       if (item.title) likedTitles.push(item.title);
+      const weight = item.userRating === 1 ? 1 : 0.5;
       item.genreIds?.forEach((id) => {
-        genreCounts[id] = (genreCounts[id] || 0) + 1;
+        genreCounts[id] = (genreCounts[id] || 0) + weight;
       });
     } else if (item.userRating === -1) {
       if (item.title) dislikedTitles.push(item.title);
