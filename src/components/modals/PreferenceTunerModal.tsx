@@ -85,7 +85,9 @@ export function PreferenceTunerModal({
     }
 
     loadDeck();
-  }, [isOpen, mediaType, watchHistory]);
+    // We intentionally omit watchHistory to prevent reloading the deck on every like/dislike.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, mediaType]);
 
   if (!isOpen) return null;
 
