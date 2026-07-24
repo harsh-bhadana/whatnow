@@ -8,6 +8,15 @@ const BASE_URL = "https://api.themoviedb.org/3";
 const IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500";
 
 import { MOOD_TO_TMDB_GENRE, MOOD_PRIMARY_GENRES, MOOD_TO_TMDB_KEYWORDS } from "@/lib/constants";
+
+function parseIsNewRelease(item: any): boolean {
+  const dateStr = item.release_date || item.first_air_date;
+  if (!dateStr) return false;
+  const releaseDate = new Date(dateStr).getTime();
+  const now = Date.now();
+  const diffDays = (now - releaseDate) / (1000 * 60 * 60 * 24);
+  return diffDays >= -14 && diffDays <= 45;
+}
 export async function fetchRecommendations(
   timeLimit: number, 
   moods: string[], 
@@ -159,6 +168,7 @@ export async function fetchRecommendations(
           shape,
           isBasedOnLikes: item.isBasedOnLikes,
           basedOnLikeTitle: item.basedOnLikeTitle,
+          isNewRelease: parseIsNewRelease(item),
         };
       });
   } catch (error) {
@@ -206,6 +216,7 @@ export async function searchMedia(query: string, includeAdult: boolean = false):
           type: itemType,
           genreIds: item.genre_ids || [],
           shape: Math.random() > 0.6 ? "pill" : "default",
+          isNewRelease: parseIsNewRelease(item),
         };
       });
   } catch (error) {
@@ -251,6 +262,7 @@ export async function fetchTrendingMedia(
           type: itemType,
           genreIds: item.genre_ids || [],
           overview: item.overview || "",
+          isNewRelease: parseIsNewRelease(item),
         };
       });
   } catch (error) {
@@ -292,6 +304,7 @@ export async function fetchMediaDetailsBulk(
         type: itemType,
         genreIds: (item.genres || []).map((g: any) => g.id),
         overview: item.overview || "",
+        isNewRelease: parseIsNewRelease(item),
       };
     });
   } catch (error) {

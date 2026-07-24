@@ -23,6 +23,7 @@ export interface MediaCardProps {
   overview?: string;
   matchScore?: number;
   isScoring?: boolean;
+  isNewRelease?: boolean;
 }
 
 export function MediaCard({
@@ -40,6 +41,7 @@ export function MediaCard({
   basedOnLikeTitle,
   matchScore,
   isScoring,
+  isNewRelease,
 }: MediaCardProps) {
   
   const getTypeColor = () => {
@@ -72,8 +74,9 @@ export function MediaCard({
       <Wrapper 
         href={href as string}
         className={cn(
-          "absolute inset-x-0 bottom-0 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col bg-[var(--color-m3-surface)] z-20",
-          actionButtons ? "top-0 group-hover:top-14" : "top-0 hover:-translate-y-1"
+          "absolute inset-x-0 bottom-0 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col bg-[var(--color-m3-surface)] z-20",
+          actionButtons ? "top-0 group-hover:top-14" : "top-0 hover:-translate-y-1",
+          isNewRelease ? "ring-2 ring-pink-500/80 shadow-[0_0_15px_rgba(236,72,153,0.5)] hover:shadow-[0_0_25px_rgba(236,72,153,0.8)]" : "hover:shadow-xl"
         )}
         onClick={onClick}
       >
@@ -108,6 +111,15 @@ export function MediaCard({
             
           {/* Subtle top gradient for badges */}
           <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-black/60 to-transparent pointer-events-none" />
+
+          {/* Top Center Badge: New Release */}
+          {isNewRelease && (
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20">
+              <span className="text-[9px] whitespace-nowrap font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-md bg-pink-600/90 text-white border border-pink-400/50 backdrop-blur-md">
+                {type === "movie" ? "🎟️ In Theaters" : "🔥 Newly Added"}
+              </span>
+            </div>
+          )}
 
           {/* Top Left Badge: Type */}
           <div className="absolute top-3 left-3 z-20">
