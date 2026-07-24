@@ -80,16 +80,7 @@ export function MediaCard({
         )}
         onClick={onClick}
       >
-        {/* Ambient Blurred Background for the entire card */}
-        {imageUrl && (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={imageUrl}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover blur-xl scale-110 opacity-50 z-0 pointer-events-none transition-transform duration-700 group-hover:scale-125"
-            aria-hidden="true"
-          />
-        )}
+        {/* Ambient Blurred Background for the entire card removed for performance */}
 
         {/* The fully visible poster image on top */}
         <div 

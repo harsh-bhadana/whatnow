@@ -348,7 +348,14 @@ export default function Recommendations() {
       // Optionally sync to server in background
       rateMedia(item, 0.5).catch(console.error);
     }
-    setSelectedMedia(item);
+
+    // Save scroll position so user returns to same spot
+    const container = document.getElementById('main-scroll-container');
+    if (container) {
+      sessionStorage.setItem('whatnow_scroll_y', container.scrollTop.toString());
+    }
+
+    router.push(`/media/${item.type}/${item.id}`);
   };
 
   return (
