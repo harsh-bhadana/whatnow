@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/rotate-benchmarks",
+      "schedule": "0 0 * * 1"
+    }
+  ]
+}

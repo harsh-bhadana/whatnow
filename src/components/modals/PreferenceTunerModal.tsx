@@ -4,7 +4,8 @@ import { useEffect, useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThumbsUp, ThumbsDown, EyeOff, Sparkles, X, CheckCircle2, ChevronRight } from "lucide-react";
 import { MediaCardProps } from "@/components/media/MediaCard";
-import { fetchTrendingMedia } from "@/lib/api/tmdb";
+import { fetchTrendingMedia, fetchMediaDetailsBulk } from "@/lib/api/tmdb";
+import { getActiveBenchmarks } from "@/app/actions/discovery";
 import { useAppStore } from "@/lib/store/useAppStore";
 import { rateMedia } from "@/app/actions/user";
 import { TMDB_GENRE_MAP } from "@/lib/constants";
@@ -37,19 +38,34 @@ export function PreferenceTunerModal({
       const watchedIds = new Set(watchHistory.map(h => h.id));
 
       // Fetch from multiple sources for a richer onboarding pool
-      let items: MediaCardProps[];
-      if (mediaType === "all") {
-        const [movies, tvShows] = await Promise.all([
-          fetchTrendingMedia("movie", 1),
-          fetchTrendingMedia("tv", 1),
-        ]);
-        items = [...movies, ...tvShows].sort(() => 0.5 - Math.random());
-      } else {
-        const [page1, page2] = await Promise.all([
-          fetchTrendingMedia(mediaType, 1),
-          fetchTrendingMedia(mediaType, 2),
-        ]);
-        items = [...page1, ...page2];
+      let items: MediaCardProps[] = [];
+      
+      try {
+        // 1. Fetch AI Benchmark Set (from Cron/DB)
+        const benchmarkIds = await getActiveBenchmarks();
+        if (benchmarkIds.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const benchmarkDetails = await fetchMediaDetailsBulk(benchmarkIds as any);
+          items = [...benchmarkDetails];
+        }
+
+        // 2. Fetch some trending items to mix in (in case they want something new)
+        let trending: MediaCardProps[] = [];
+        if (mediaType === "all") {
+          const [movies, tvShows] = await Promise.all([
+            fetchTrendingMedia("movie", 1),
+            fetchTrendingMedia("tv", 1),
+          ]);
+          trending = [...movies, ...tvShows];
+        } else {
+          trending = await fetchTrendingMedia(mediaType, 1);
+        }
+        
+        // Take 5 random trending items and mix them with the benchmarks
+        trending = trending.sort(() => 0.5 - Math.random()).slice(0, 5);
+        items = [...items, ...trending].sort(() => 0.5 - Math.random());
+      } catch (error) {
+        console.error("Failed to load tuner deck:", error);
       }
 
       // Deduplicate by id
@@ -206,11 +222,23 @@ export function PreferenceTunerModal({
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={currentItem.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.25 }}
-                    className="relative flex flex-col sm:flex-row gap-4 bg-[var(--color-m3-surface)] border border-[var(--color-m3-outline-variant)]/30 rounded-2xl p-3 sm:p-4 shadow-md overflow-hidden"
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.8}
+                    whileDrag={{ scale: 1.05, cursor: "grabbing" }}
+                    onDragEnd={(e, info) => {
+                      const threshold = 80;
+                      if (info.offset.x > threshold) {
+                        handleRate(1);
+                      } else if (info.offset.x < -threshold) {
+                        handleRate(-1);
+                      }
+                    }}
+                    className="relative flex flex-col sm:flex-row gap-4 bg-[var(--color-m3-surface)] border border-[var(--color-m3-outline-variant)]/30 rounded-2xl p-3 sm:p-4 shadow-md overflow-hidden cursor-grab active:cursor-grabbing touch-pan-y"
                   >
                     {/* Poster */}
                     <div className="relative w-full sm:w-32 h-48 sm:h-44 shrink-0 rounded-xl overflow-hidden bg-black/40">
